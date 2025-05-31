@@ -234,6 +234,113 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Markets data endpoint for NASDAQ and NYSE
+  app.get("/api/markets", async (req, res) => {
+    try {
+      const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
+      
+      if (!alphaVantageKey) {
+        return res.status(503).json({ error: "Alpha Vantage API key not configured" });
+      }
+
+      // Fetch active listings from Alpha Vantage
+      const listingsResponse = await fetch(
+        `https://www.alphavantage.co/query?function=LISTING_STATUS&apikey=${alphaVantageKey}`
+      );
+
+      if (!listingsResponse.ok) {
+        throw new Error(`Alpha Vantage API error: ${listingsResponse.statusText}`);
+      }
+
+      const csvData = await listingsResponse.text();
+      const lines = csvData.split('\n');
+      const headers = lines[0].split(',');
+      
+      const marketData = [];
+      
+      // Parse CSV and filter for major exchanges
+      for (let i = 1; i < Math.min(lines.length, 200); i++) { // Limit to first 200 for performance
+        const line = lines[i];
+        if (!line.trim()) continue;
+        
+        const values = line.split(',');
+        if (values.length < headers.length) continue;
+        
+        const symbol = values[0];
+        const name = values[1];
+        const exchange = values[2];
+        const assetType = values[3];
+        const status = values[5];
+        
+        // Filter for active stocks on major exchanges
+        if (status === 'Active' && assetType === 'Stock' && 
+            (exchange === 'NASDAQ' || exchange === 'NYSE')) {
+          
+          // Try to get real-time price data for major stocks
+          let price = undefined;
+          let change = undefined;
+          
+          // For performance, only fetch prices for well-known major stocks
+          const majorStocks = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'NFLX', 'JPM', 'BAC', 'JNJ', 'PG', 'KO', 'XOM', 'PLAB'];
+          
+          if (majorStocks.includes(symbol)) {
+            try {
+              const priceResponse = await fetch(
+                `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${alphaVantageKey}`
+              );
+              
+              if (priceResponse.ok) {
+                const priceData = await priceResponse.json();
+                const quote = priceData['Global Quote'];
+                
+                if (quote && quote['05. price']) {
+                  price = parseFloat(quote['05. price']);
+                  change = parseFloat(quote['10. change percent'].replace('%', ''));
+                }
+              }
+              
+              // Small delay to respect API rate limits
+              await new Promise(resolve => setTimeout(resolve, 100));
+            } catch (priceError) {
+              console.warn(`Failed to fetch price for ${symbol}:`, priceError);
+            }
+          }
+          
+          marketData.push({
+            symbol: symbol,
+            name: name.replace(/"/g, ''), // Remove quotes from CSV
+            exchange: exchange,
+            sector: getSectorFromSymbol(symbol),
+            price: price,
+            change: change
+          });
+        }
+      }
+
+      res.json(marketData);
+    } catch (error) {
+      console.error('Market data fetch error:', error);
+      res.status(500).json({ error: "Failed to fetch market data" });
+    }
+  });
+
+  // Helper function to map sectors (simplified mapping)
+  function getSectorFromSymbol(symbol: string): string {
+    const sectorMap: Record<string, string> = {
+      'AAPL': 'Technology', 'MSFT': 'Technology', 'GOOGL': 'Technology', 'NVDA': 'Technology',
+      'META': 'Technology', 'NFLX': 'Technology', 'ADBE': 'Technology', 'CRM': 'Technology',
+      'JPM': 'Financial Services', 'BAC': 'Financial Services', 'WFC': 'Financial Services', 'GS': 'Financial Services',
+      'JNJ': 'Healthcare', 'PFE': 'Healthcare', 'UNH': 'Healthcare',
+      'PG': 'Consumer Staples', 'KO': 'Consumer Staples', 'PEP': 'Consumer Staples',
+      'XOM': 'Energy', 'CVX': 'Energy',
+      'AMZN': 'Consumer Discretionary', 'TSLA': 'Consumer Discretionary',
+      'CAT': 'Industrials', 'BA': 'Industrials', 'GE': 'Industrials',
+      'PLAB': 'Technology'
+    };
+    
+    return sectorMap[symbol] || 'Other';
+  }
+
   const httpServer = createServer(app);
 
   // Start background services

@@ -1,4 +1,4 @@
-import { ChartLine, List, BarChart3, StickyNote, MessageSquare, TrendingUp } from "lucide-react";
+import { ChartLine, List, BarChart3, StickyNote, MessageSquare, TrendingUp, Building2 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
 export function Sidebar() {
@@ -7,6 +7,7 @@ export function Sidebar() {
   const navItems = [
     { path: "/", icon: TrendingUp, label: "Dashboard" },
     { path: "/watchlist", icon: List, label: "Watchlist" },
+    { path: "/markets", icon: Building2, label: "Markets" },
     { path: "/analytics", icon: BarChart3, label: "Analytics" },
     { path: "/notes", icon: StickyNote, label: "Notes" },
     { path: "/telegram", icon: MessageSquare, label: "Telegram Bot" },
