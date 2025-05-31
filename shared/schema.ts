@@ -1,0 +1,67 @@
+import { pgTable, text, serial, integer, boolean, decimal, timestamp } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
+
+export const stocks = pgTable("stocks", {
+  id: serial("id").primaryKey(),
+  ticker: text("ticker").notNull().unique(),
+  companyName: text("company_name").notNull(),
+  intrinsicValue: decimal("intrinsic_value", { precision: 10, scale: 2 }).notNull(),
+  convictionScore: integer("conviction_score").notNull(), // 1-10
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const priceHistory = pgTable("price_history", {
+  id: serial("id").primaryKey(),
+  stockId: integer("stock_id").references(() => stocks.id).notNull(),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  changePercent: decimal("change_percent", { precision: 5, scale: 2 }),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export const notes = pgTable("notes", {
+  id: serial("id").primaryKey(),
+  stockId: integer("stock_id").references(() => stocks.id).notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertStockSchema = createInsertSchema(stocks).pick({
+  ticker: true,
+  companyName: true,
+  intrinsicValue: true,
+  convictionScore: true,
+});
+
+export const insertPriceHistorySchema = createInsertSchema(priceHistory).pick({
+  stockId: true,
+  price: true,
+  changePercent: true,
+});
+
+export const insertNoteSchema = createInsertSchema(notes).pick({
+  stockId: true,
+  content: true,
+});
+
+export type InsertStock = z.infer<typeof insertStockSchema>;
+export type Stock = typeof stocks.$inferSelect;
+export type InsertPriceHistory = z.infer<typeof insertPriceHistorySchema>;
+export type PriceHistory = typeof priceHistory.$inferSelect;
+export type InsertNote = z.infer<typeof insertNoteSchema>;
+export type Note = typeof notes.$inferSelect;
+
+export interface StockWithLatestPrice extends Stock {
+  currentPrice?: number;
+  changePercent?: number;
+  lastUpdated?: Date;
+  marginOfSafety?: number;
+}
+
+export interface StockStats {
+  totalWatched: number;
+  undervalued: number;
+  avgMarginOfSafety: number;
+  highConviction: number;
+}
