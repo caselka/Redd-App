@@ -1,4 +1,24 @@
-import { stocks, priceHistory, notes, type Stock, type InsertStock, type PriceHistory, type InsertPriceHistory, type Note, type InsertNote, type StockWithLatestPrice, type StockStats } from "@shared/schema";
+import { 
+  stocks, 
+  priceHistory, 
+  notes, 
+  users,
+  portfolioHoldings,
+  type Stock, 
+  type InsertStock, 
+  type PriceHistory, 
+  type InsertPriceHistory, 
+  type Note, 
+  type InsertNote, 
+  type User,
+  type UpsertUser,
+  type PortfolioHolding,
+  type InsertPortfolioHolding,
+  type StockWithLatestPrice, 
+  type StockStats 
+} from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // Stock operations
@@ -21,25 +41,67 @@ export interface IStorage {
   getRecentNotes(limit?: number): Promise<(Note & { ticker: string; companyName: string })[]>;
   deleteNote(id: number): Promise<boolean>;
   
+  // User operations (required for Replit Auth)
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+  
+  // Portfolio operations
+  getPortfolioHoldings(userId: string): Promise<PortfolioHolding[]>;
+  createPortfolioHolding(holding: InsertPortfolioHolding): Promise<PortfolioHolding>;
+  updatePortfolioHolding(id: number, updates: Partial<InsertPortfolioHolding>): Promise<PortfolioHolding | undefined>;
+  deletePortfolioHolding(id: number): Promise<boolean>;
+  
   // Statistics
   getStockStats(): Promise<StockStats>;
 }
 
-export class MemStorage implements IStorage {
-  private stocks: Map<number, Stock>;
-  private priceHistory: Map<number, PriceHistory>;
-  private notes: Map<number, Note>;
-  private stockIdCounter: number;
-  private priceIdCounter: number;
-  private noteIdCounter: number;
+export class DatabaseStorage implements IStorage {
+  // User operations (required for Replit Auth)
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
 
-  constructor() {
-    this.stocks = new Map();
-    this.priceHistory = new Map();
-    this.notes = new Map();
-    this.stockIdCounter = 1;
-    this.priceIdCounter = 1;
-    this.noteIdCounter = 1;
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
+  // Portfolio operations
+  async getPortfolioHoldings(userId: string): Promise<PortfolioHolding[]> {
+    return await db.select().from(portfolioHoldings).where(eq(portfolioHoldings.userId, userId));
+  }
+
+  async createPortfolioHolding(holding: InsertPortfolioHolding): Promise<PortfolioHolding> {
+    const [newHolding] = await db
+      .insert(portfolioHoldings)
+      .values(holding)
+      .returning();
+    return newHolding;
+  }
+
+  async updatePortfolioHolding(id: number, updates: Partial<InsertPortfolioHolding>): Promise<PortfolioHolding | undefined> {
+    const [updated] = await db
+      .update(portfolioHoldings)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(portfolioHoldings.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deletePortfolioHolding(id: number): Promise<boolean> {
+    const result = await db.delete(portfolioHoldings).where(eq(portfolioHoldings.id, id));
+    return result.rowCount > 0;
   }
 
   async getStock(id: number): Promise<Stock | undefined> {
@@ -198,4 +260,4 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

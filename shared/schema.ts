@@ -1,6 +1,7 @@
-import { pgTable, text, serial, integer, boolean, decimal, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, decimal, timestamp, varchar, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from "drizzle-orm";
 
 export const stocks = pgTable("stocks", {
   id: serial("id").primaryKey(),
@@ -23,8 +24,49 @@ export const priceHistory = pgTable("price_history", {
 export const notes = pgTable("notes", {
   id: serial("id").primaryKey(),
   stockId: integer("stock_id").references(() => stocks.id).notNull(),
+  userId: varchar("user_id").notNull(),
   content: text("content").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Session storage table for Replit Auth
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
+// User storage table for Replit Auth
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey().notNull(),
+  email: varchar("email").unique(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  profileImageUrl: varchar("profile_image_url"),
+  tier: varchar("tier").notNull().default("free"), // "free" or "pro"
+  apiRequestsUsed: integer("api_requests_used").default(0),
+  apiRequestsResetAt: timestamp("api_requests_reset_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Portfolio holdings table
+export const portfolioHoldings = pgTable("portfolio_holdings", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  ticker: text("ticker").notNull(),
+  companyName: text("company_name").notNull(),
+  shares: decimal("shares", { precision: 15, scale: 6 }).notNull(),
+  averageCost: decimal("average_cost", { precision: 10, scale: 2 }).notNull(),
+  totalValue: decimal("total_value", { precision: 15, scale: 2 }),
+  gainLoss: decimal("gain_loss", { precision: 15, scale: 2 }),
+  gainLossPercent: decimal("gain_loss_percent", { precision: 5, scale: 2 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const insertStockSchema = createInsertSchema(stocks).pick({
@@ -42,7 +84,16 @@ export const insertPriceHistorySchema = createInsertSchema(priceHistory).pick({
 
 export const insertNoteSchema = createInsertSchema(notes).pick({
   stockId: true,
+  userId: true,
   content: true,
+});
+
+export const insertPortfolioHoldingSchema = createInsertSchema(portfolioHoldings).pick({
+  userId: true,
+  ticker: true,
+  companyName: true,
+  shares: true,
+  averageCost: true,
 });
 
 export type InsertStock = z.infer<typeof insertStockSchema>;
@@ -51,6 +102,10 @@ export type InsertPriceHistory = z.infer<typeof insertPriceHistorySchema>;
 export type PriceHistory = typeof priceHistory.$inferSelect;
 export type InsertNote = z.infer<typeof insertNoteSchema>;
 export type Note = typeof notes.$inferSelect;
+export type UpsertUser = typeof users.$inferInsert;
+export type User = typeof users.$inferSelect;
+export type InsertPortfolioHolding = z.infer<typeof insertPortfolioHoldingSchema>;
+export type PortfolioHolding = typeof portfolioHoldings.$inferSelect;
 
 export interface StockWithLatestPrice extends Stock {
   currentPrice?: number;
