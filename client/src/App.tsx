@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Dashboard from "@/pages/dashboard";
 import Watchlist from "@/pages/watchlist";
 import Markets from "@/pages/markets";
+import SECFilings from "@/pages/sec-filings";
 import Analytics from "@/pages/analytics";
 import Notes from "@/pages/notes";
 import Telegram from "@/pages/telegram";
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/watchlist" component={Watchlist} />
       <Route path="/markets" component={Markets} />
+      <Route path="/sec-filings" component={SECFilings} />
       <Route path="/analytics" component={Analytics} />
       <Route path="/notes" component={Notes} />
       <Route path="/telegram" component={Telegram} />

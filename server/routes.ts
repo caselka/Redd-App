@@ -323,6 +323,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SEC Filings endpoint
+  app.get("/api/sec-filings/:ticker", async (req, res) => {
+    try {
+      const ticker = req.params.ticker.toUpperCase();
+      
+      // First, get the company's CIK (Central Index Key) from SEC
+      const companyResponse = await fetch(
+        `https://www.sec.gov/files/company_tickers.json`,
+        {
+          headers: {
+            'User-Agent': 'Redd Investment Tracker contact@example.com',
+          },
+        }
+      );
+
+      if (!companyResponse.ok) {
+        throw new Error(`SEC API error: ${companyResponse.statusText}`);
+      }
+
+      const companyData = await companyResponse.json();
+      
+      // Find the CIK for the given ticker
+      let cik = null;
+      for (const [key, company] of Object.entries(companyData)) {
+        if ((company as any).ticker === ticker) {
+          cik = String((company as any).cik_str).padStart(10, '0');
+          break;
+        }
+      }
+
+      if (!cik) {
+        return res.status(404).json({ error: `No SEC filings found for ticker ${ticker}` });
+      }
+
+      // Fetch recent filings for this CIK
+      const filingsResponse = await fetch(
+        `https://data.sec.gov/submissions/CIK${cik}.json`,
+        {
+          headers: {
+            'User-Agent': 'Redd Investment Tracker contact@example.com',
+          },
+        }
+      );
+
+      if (!filingsResponse.ok) {
+        throw new Error(`SEC filings API error: ${filingsResponse.statusText}`);
+      }
+
+      const filingsData = await filingsResponse.json();
+      const filings = filingsData.filings?.recent;
+
+      if (!filings) {
+        return res.json([]);
+      }
+
+      // Process and format the filings data
+      const formattedFilings = [];
+      const maxFilings = Math.min(50, filings.accessionNumber?.length || 0); // Limit to 50 recent filings
+
+      for (let i = 0; i < maxFilings; i++) {
+        formattedFilings.push({
+          accessionNumber: filings.accessionNumber[i],
+          filingDate: filings.filingDate[i],
+          reportDate: filings.reportDate[i],
+          acceptanceDateTime: filings.acceptanceDateTime[i],
+          act: filings.act[i],
+          form: filings.form[i],
+          fileNumber: filings.fileNumber[i],
+          filmNumber: filings.filmNumber[i],
+          items: filings.items[i],
+          size: filings.size[i],
+          isXBRL: filings.isXBRL[i] === 1,
+          isInlineXBRL: filings.isInlineXBRL[i] === 1,
+          primaryDocument: filings.primaryDocument[i],
+          primaryDocDescription: filings.primaryDocDescription[i],
+        });
+      }
+
+      // Sort by filing date (most recent first)
+      formattedFilings.sort((a, b) => 
+        new Date(b.filingDate).getTime() - new Date(a.filingDate).getTime()
+      );
+
+      res.json(formattedFilings);
+    } catch (error) {
+      console.error('SEC filings fetch error:', error);
+      res.status(500).json({ error: "Failed to fetch SEC filings" });
+    }
+  });
+
   // Helper function to map sectors (simplified mapping)
   function getSectorFromSymbol(symbol: string): string {
     const sectorMap: Record<string, string> = {
