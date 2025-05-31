@@ -206,19 +206,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         'DIS': 'Walt Disney Co.',
         'ADBE': 'Adobe Inc.',
         'CRM': 'Salesforce Inc.',
-        'NFLX': 'Netflix Inc.',
         'PYPL': 'PayPal Holdings Inc.',
         'INTC': 'Intel Corp.',
         'AMD': 'Advanced Micro Devices Inc.',
         'ORCL': 'Oracle Corp.',
-        'CRM': 'Salesforce Inc.',
         'PLAB': 'Photronics Inc.',
+        'IBM': 'International Business Machines Corp.',
+        'WMT': 'Walmart Inc.',
+        'KO': 'Coca-Cola Co.',
+        'PFE': 'Pfizer Inc.',
       };
 
       const companyName = companyMap[ticker] || `${ticker} Corporation`;
       res.json({ ticker, companyName, exchange: 'NASDAQ/NYSE' });
     } catch (error) {
       res.status(500).json({ error: "Failed to lookup ticker" });
+    }
+  });
+
+  // Manual price update endpoint
+  app.post("/api/prices/update", async (req, res) => {
+    try {
+      await triggerPriceUpdate();
+      res.json({ message: "Price update triggered successfully" });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to trigger price update" });
     }
   });
 
