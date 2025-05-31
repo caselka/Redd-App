@@ -113,10 +113,13 @@ export function AddStockModal({ isOpen, onClose }: AddStockModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" aria-describedby="add-stock-description">
         <DialogHeader>
           <DialogTitle>Add Stock to Watchlist</DialogTitle>
         </DialogHeader>
+        <p id="add-stock-description" className="sr-only">
+          Form to add a new stock to your investment watchlist with intrinsic value and conviction score
+        </p>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

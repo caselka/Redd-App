@@ -115,8 +115,10 @@ export class MemStorage implements IStorage {
   async createPriceHistory(priceData: InsertPriceHistory): Promise<PriceHistory> {
     const id = this.priceIdCounter++;
     const price: PriceHistory = {
-      ...priceData,
       id,
+      stockId: priceData.stockId,
+      price: priceData.price,
+      changePercent: priceData.changePercent ?? null,
       timestamp: new Date(),
     };
     this.priceHistory.set(id, price);

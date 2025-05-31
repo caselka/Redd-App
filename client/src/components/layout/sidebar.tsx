@@ -1,52 +1,54 @@
 import { ChartLine, List, BarChart3, StickyNote, MessageSquare, TrendingUp } from "lucide-react";
+import { Link, useLocation } from "wouter";
 
 export function Sidebar() {
+  const [location] = useLocation();
+
+  const navItems = [
+    { path: "/", icon: TrendingUp, label: "Dashboard" },
+    { path: "/watchlist", icon: List, label: "Watchlist" },
+    { path: "/analytics", icon: BarChart3, label: "Analytics" },
+    { path: "/notes", icon: StickyNote, label: "Notes" },
+    { path: "/telegram", icon: MessageSquare, label: "Telegram Bot" },
+  ];
+
   return (
     <div className="w-64 bg-white shadow-lg border-r border-gray-200">
       <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-brand-blue rounded-lg flex items-center justify-center">
-            <ChartLine className="text-white text-lg" size={20} />
+        <Link href="/">
+          <div className="flex items-center space-x-3 cursor-pointer">
+            <div className="w-10 h-10 bg-brand-blue rounded-lg flex items-center justify-center">
+              <ChartLine className="text-white text-lg" size={20} />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">InvestBot</h1>
+              <p className="text-sm text-gray-500">Assistant</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">InvestBot</h1>
-            <p className="text-sm text-gray-500">Assistant</p>
-          </div>
-        </div>
+        </Link>
       </div>
       
       <nav className="mt-6">
         <ul className="space-y-2 px-4">
-          <li>
-            <a href="#" className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-brand-blue text-white">
-              <TrendingUp size={20} />
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-              <List size={20} />
-              <span>Watchlist</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-              <BarChart3 size={20} />
-              <span>Analytics</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-              <StickyNote size={20} />
-              <span>Notes</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
-              <MessageSquare size={20} />
-              <span>Telegram Bot</span>
-            </a>
-          </li>
+          {navItems.map((item) => {
+            const isActive = location === item.path;
+            const Icon = item.icon;
+            
+            return (
+              <li key={item.path}>
+                <Link href={item.path}>
+                  <div className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                    isActive 
+                      ? "bg-brand-blue text-white" 
+                      : "text-gray-700 hover:bg-gray-100"
+                  }`}>
+                    <Icon size={20} />
+                    <span>{item.label}</span>
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </nav>
       
