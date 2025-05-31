@@ -7,11 +7,70 @@ interface YahooFinanceResult {
   regularMarketTime: number;
 }
 
+interface AlphaVantageResult {
+  symbol: string;
+  price: number;
+  changePercent: number;
+}
+
 class PriceFetcher {
   private isRunning: boolean = false;
   private intervalId: NodeJS.Timeout | null = null;
+  private alphaVantageKey: string | null = null;
+
+  constructor() {
+    this.alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY || null;
+  }
 
   async fetchStockPrice(ticker: string): Promise<YahooFinanceResult | null> {
+    // Try Alpha Vantage first if API key is available
+    if (this.alphaVantageKey) {
+      const alphaResult = await this.fetchFromAlphaVantage(ticker);
+      if (alphaResult) {
+        return {
+          symbol: alphaResult.symbol,
+          regularMarketPrice: alphaResult.price,
+          regularMarketChangePercent: alphaResult.changePercent,
+          regularMarketTime: Date.now() / 1000,
+        };
+      }
+    }
+
+    // Fallback to Yahoo Finance
+    return this.fetchFromYahooFinance(ticker);
+  }
+
+  async fetchFromAlphaVantage(ticker: string): Promise<AlphaVantageResult | null> {
+    try {
+      if (!this.alphaVantageKey) return null;
+
+      const response = await fetch(
+        `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ticker}&apikey=${this.alphaVantageKey}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`Alpha Vantage API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const quote = data['Global Quote'];
+
+      if (!quote || !quote['05. price']) {
+        return null;
+      }
+
+      return {
+        symbol: quote['01. symbol'],
+        price: parseFloat(quote['05. price']),
+        changePercent: parseFloat(quote['10. change percent'].replace('%', '')),
+      };
+    } catch (error) {
+      console.error(`Failed to fetch price from Alpha Vantage for ${ticker}:`, error);
+      return null;
+    }
+  }
+
+  async fetchFromYahooFinance(ticker: string): Promise<YahooFinanceResult | null> {
     try {
       // Using Yahoo Finance API v8 (free tier)
       const response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}`, {
@@ -39,7 +98,7 @@ class PriceFetcher {
         regularMarketTime: meta.regularMarketTime,
       };
     } catch (error) {
-      console.error(`Failed to fetch price for ${ticker}:`, error);
+      console.error(`Failed to fetch price from Yahoo Finance for ${ticker}:`, error);
       return null;
     }
   }
@@ -78,15 +137,15 @@ class PriceFetcher {
     if (this.isRunning) return;
 
     this.isRunning = true;
-    console.log('Price fetcher started - will update every 2 hours');
+    console.log('Price fetcher started - will update every 5 minutes for active tracking');
 
     // Update immediately on start
     this.updateAllPrices();
 
-    // Then update every 2 hours (7200000 ms)
+    // Update every 5 minutes for real-time tracking (300000 ms)
     this.intervalId = setInterval(() => {
       this.updateAllPrices();
-    }, 2 * 60 * 60 * 1000);
+    }, 5 * 60 * 1000);
   }
 
   stop() {

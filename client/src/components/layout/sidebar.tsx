@@ -21,8 +21,8 @@ export function Sidebar() {
               <ChartLine className="text-white text-lg" size={20} />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">InvestBot</h1>
-              <p className="text-sm text-gray-500">Assistant</p>
+              <h1 className="text-xl font-bold text-gray-900">Redd</h1>
+              <p className="text-sm text-gray-500">Investment Tracker</p>
             </div>
           </div>
         </Link>

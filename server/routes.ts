@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { insertStockSchema, insertNoteSchema } from "@shared/schema";
 import { z } from "zod";
 import { startTelegramBot } from "./telegram-bot";
-import { startPriceFetcher } from "./price-fetcher";
+import { startPriceFetcher, triggerPriceUpdate } from "./price-fetcher";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Stock routes
@@ -159,20 +159,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const ticker = req.params.ticker.toUpperCase();
       
-      // Simple company name mapping - in production, this would use a real API
+      // Try to fetch from Yahoo Finance for real company data
+      try {
+        const response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}`, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const result = data.chart?.result?.[0];
+          
+          if (result && result.meta && result.meta.longName) {
+            return res.json({ 
+              ticker, 
+              companyName: result.meta.longName,
+              exchange: result.meta.exchangeName || 'Unknown'
+            });
+          }
+        }
+      } catch (fetchError) {
+        console.warn(`Failed to fetch company data for ${ticker}:`, fetchError);
+      }
+
+      // Enhanced fallback mapping for major stocks
       const companyMap: Record<string, string> = {
         'AAPL': 'Apple Inc.',
         'MSFT': 'Microsoft Corporation',
         'GOOGL': 'Alphabet Inc.',
+        'GOOG': 'Alphabet Inc.',
         'AMZN': 'Amazon.com Inc.',
         'TSLA': 'Tesla Inc.',
         'NVDA': 'NVIDIA Corporation',
         'META': 'Meta Platforms Inc.',
         'NFLX': 'Netflix Inc.',
+        'JPM': 'JPMorgan Chase & Co.',
+        'JNJ': 'Johnson & Johnson',
+        'V': 'Visa Inc.',
+        'PG': 'Procter & Gamble Co.',
+        'UNH': 'UnitedHealth Group Inc.',
+        'HD': 'Home Depot Inc.',
+        'MA': 'Mastercard Inc.',
+        'BAC': 'Bank of America Corp.',
+        'XOM': 'Exxon Mobil Corp.',
+        'DIS': 'Walt Disney Co.',
+        'ADBE': 'Adobe Inc.',
+        'CRM': 'Salesforce Inc.',
+        'NFLX': 'Netflix Inc.',
+        'PYPL': 'PayPal Holdings Inc.',
+        'INTC': 'Intel Corp.',
+        'AMD': 'Advanced Micro Devices Inc.',
+        'ORCL': 'Oracle Corp.',
+        'CRM': 'Salesforce Inc.',
+        'PLAB': 'Photronics Inc.',
       };
 
-      const companyName = companyMap[ticker] || `${ticker} Corp.`;
-      res.json({ ticker, companyName });
+      const companyName = companyMap[ticker] || `${ticker} Corporation`;
+      res.json({ ticker, companyName, exchange: 'NASDAQ/NYSE' });
     } catch (error) {
       res.status(500).json({ error: "Failed to lookup ticker" });
     }

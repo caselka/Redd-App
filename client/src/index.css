@@ -13,7 +13,7 @@
   --card-foreground: 222 84% 5%; /* #0D1117 */
   --border: 214 13% 91%; /* #E5E7EB */
   --input: 214 13% 91%; /* #E5E7EB */
-  --primary: 207 90% 54%; /* #1D4ED8 */
+  --primary: 0 73% 55%; /* #DC2626 - Redd primary */
   --primary-foreground: 211 100% 99%; /* #F8FAFC */
   --secondary: 210 9% 95%; /* #F1F3F5 */
   --secondary-foreground: 24 9.8% 10%; /* #1F2937 */
@@ -21,11 +21,12 @@
   --accent-foreground: 24 9.8% 10%; /* #1F2937 */
   --destructive: 0 84% 60%; /* #EF4444 */
   --destructive-foreground: 60 9.1% 97.8%; /* #FEFEFE */
-  --ring: 207 90% 54%; /* #1D4ED8 */
+  --ring: 0 73% 55%; /* #DC2626 - Redd primary */
   --radius: 0.5rem;
   
-  /* Custom brand colors */
-  --brand-blue: 207 90% 54%; /* #1D4ED8 */
+  /* Custom brand colors - Redd theme */
+  --brand-blue: 0 73% 55%; /* #DC2626 - Redd primary */
+  --brand-red: 0 73% 55%; /* #DC2626 - Redd primary */
   --success-green: 142 71% 45%; /* #059669 */
   --profit-green: 142 76% 36%; /* #10B981 */
   --loss-red: 0 84% 60%; /* #EF4444 */
@@ -43,7 +44,7 @@
   --card-foreground: 210 11% 98%; /* #F5F7FA */
   --border: 217 33% 17%; /* #1F2937 */
   --input: 217 33% 17%; /* #1F2937 */
-  --primary: 207 90% 54%; /* #1D4ED8 */
+  --primary: 0 73% 55%; /* #DC2626 - Redd primary */
   --primary-foreground: 211 100% 99%; /* #F8FAFC */
   --secondary: 217 33% 17%; /* #1F2937 */
   --secondary-foreground: 210 11% 98%; /* #F5F7FA */
