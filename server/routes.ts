@@ -243,76 +243,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(503).json({ error: "Alpha Vantage API key not configured" });
       }
 
-      // Fetch active listings from Alpha Vantage
-      const listingsResponse = await fetch(
-        `https://www.alphavantage.co/query?function=LISTING_STATUS&apikey=${alphaVantageKey}`
-      );
+      // Define major stocks to display with real price data
+      const majorStocks = [
+        { symbol: 'AAPL', name: 'Apple Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'MSFT', name: 'Microsoft Corporation', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'GOOGL', name: 'Alphabet Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'AMZN', name: 'Amazon.com Inc.', exchange: 'NASDAQ', sector: 'Consumer Discretionary' },
+        { symbol: 'NVDA', name: 'NVIDIA Corporation', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'META', name: 'Meta Platforms Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'TSLA', name: 'Tesla Inc.', exchange: 'NASDAQ', sector: 'Consumer Discretionary' },
+        { symbol: 'NFLX', name: 'Netflix Inc.', exchange: 'NASDAQ', sector: 'Communication Services' },
+        { symbol: 'ADBE', name: 'Adobe Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'JPM', name: 'JPMorgan Chase & Co.', exchange: 'NYSE', sector: 'Financial Services' },
+        { symbol: 'BAC', name: 'Bank of America Corp.', exchange: 'NYSE', sector: 'Financial Services' },
+        { symbol: 'JNJ', name: 'Johnson & Johnson', exchange: 'NYSE', sector: 'Healthcare' },
+        { symbol: 'PG', name: 'Procter & Gamble Co.', exchange: 'NYSE', sector: 'Consumer Staples' },
+        { symbol: 'KO', name: 'Coca-Cola Co.', exchange: 'NYSE', sector: 'Consumer Staples' },
+        { symbol: 'XOM', name: 'Exxon Mobil Corp.', exchange: 'NYSE', sector: 'Energy' },
+        { symbol: 'V', name: 'Visa Inc.', exchange: 'NYSE', sector: 'Financial Services' },
+        { symbol: 'UNH', name: 'UnitedHealth Group Inc.', exchange: 'NYSE', sector: 'Healthcare' },
+        { symbol: 'HD', name: 'Home Depot Inc.', exchange: 'NYSE', sector: 'Consumer Discretionary' },
+        { symbol: 'WMT', name: 'Walmart Inc.', exchange: 'NYSE', sector: 'Consumer Staples' },
+        { symbol: 'DIS', name: 'Walt Disney Co.', exchange: 'NYSE', sector: 'Communication Services' },
+        { symbol: 'PLAB', name: 'Photronics Inc.', exchange: 'NASDAQ', sector: 'Technology' }
+      ];
 
-      if (!listingsResponse.ok) {
-        throw new Error(`Alpha Vantage API error: ${listingsResponse.statusText}`);
-      }
-
-      const csvData = await listingsResponse.text();
-      const lines = csvData.split('\n');
-      const headers = lines[0].split(',');
-      
       const marketData = [];
-      
-      // Parse CSV and filter for major exchanges
-      for (let i = 1; i < Math.min(lines.length, 200); i++) { // Limit to first 200 for performance
-        const line = lines[i];
-        if (!line.trim()) continue;
-        
-        const values = line.split(',');
-        if (values.length < headers.length) continue;
-        
-        const symbol = values[0];
-        const name = values[1];
-        const exchange = values[2];
-        const assetType = values[3];
-        const status = values[5];
-        
-        // Filter for active stocks on major exchanges
-        if (status === 'Active' && assetType === 'Stock' && 
-            (exchange === 'NASDAQ' || exchange === 'NYSE')) {
-          
-          // Try to get real-time price data for major stocks
+
+      // Fetch real price data for each stock
+      for (const stock of majorStocks) {
+        try {
+          const response = await fetch(
+            `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${stock.symbol}&apikey=${alphaVantageKey}`
+          );
+
           let price = undefined;
           let change = undefined;
-          
-          // For performance, only fetch prices for well-known major stocks
-          const majorStocks = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'NFLX', 'JPM', 'BAC', 'JNJ', 'PG', 'KO', 'XOM', 'PLAB'];
-          
-          if (majorStocks.includes(symbol)) {
-            try {
-              const priceResponse = await fetch(
-                `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${symbol}&apikey=${alphaVantageKey}`
-              );
-              
-              if (priceResponse.ok) {
-                const priceData = await priceResponse.json();
-                const quote = priceData['Global Quote'];
-                
-                if (quote && quote['05. price']) {
-                  price = parseFloat(quote['05. price']);
-                  change = parseFloat(quote['10. change percent'].replace('%', ''));
-                }
-              }
-              
-              // Small delay to respect API rate limits
-              await new Promise(resolve => setTimeout(resolve, 100));
-            } catch (priceError) {
-              console.warn(`Failed to fetch price for ${symbol}:`, priceError);
+
+          if (response.ok) {
+            const data = await response.json();
+            const quote = data['Global Quote'];
+            
+            if (quote && quote['05. price']) {
+              price = parseFloat(quote['05. price']);
+              change = parseFloat(quote['10. change percent'].replace('%', ''));
             }
           }
-          
+
           marketData.push({
-            symbol: symbol,
-            name: name.replace(/"/g, ''), // Remove quotes from CSV
-            exchange: exchange,
-            sector: getSectorFromSymbol(symbol),
+            symbol: stock.symbol,
+            name: stock.name,
+            exchange: stock.exchange,
+            sector: stock.sector,
             price: price,
             change: change
+          });
+
+          // Rate limiting - wait 200ms between requests
+          await new Promise(resolve => setTimeout(resolve, 200));
+        } catch (error) {
+          console.warn(`Failed to fetch data for ${stock.symbol}:`, error);
+          
+          // Add stock without price data if API fails
+          marketData.push({
+            symbol: stock.symbol,
+            name: stock.name,
+            exchange: stock.exchange,
+            sector: stock.sector,
+            price: undefined,
+            change: undefined
           });
         }
       }
