@@ -96,6 +96,16 @@ export const insertPortfolioHoldingSchema = createInsertSchema(portfolioHoldings
   averageCost: true,
 });
 
+export const updatePortfolioHoldingSchema = createInsertSchema(portfolioHoldings).pick({
+  ticker: true,
+  companyName: true,
+  shares: true,
+  averageCost: true,
+  totalValue: true,
+  gainLoss: true,
+  gainLossPercent: true,
+}).partial();
+
 export type InsertStock = z.infer<typeof insertStockSchema>;
 export type Stock = typeof stocks.$inferSelect;
 export type InsertPriceHistory = z.infer<typeof insertPriceHistorySchema>;

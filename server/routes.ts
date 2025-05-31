@@ -1,12 +1,125 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertStockSchema, insertNoteSchema } from "@shared/schema";
+import { insertStockSchema, insertNoteSchema, insertPortfolioHoldingSchema } from "@shared/schema";
 import { z } from "zod";
 import { startTelegramBot } from "./telegram-bot";
 import { startPriceFetcher, triggerPriceUpdate } from "./price-fetcher";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Auth middleware
+  await setupAuth(app);
+
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  // Portfolio routes
+  app.get('/api/portfolio', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const holdings = await storage.getPortfolioHoldings(userId);
+      
+      // Calculate real-time values for each holding
+      const holdingsWithPrices = await Promise.all(holdings.map(async (holding) => {
+        try {
+          // Get current price from Alpha Vantage
+          const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
+          if (alphaVantageKey) {
+            const response = await fetch(
+              `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${holding.ticker}&apikey=${alphaVantageKey}`
+            );
+            
+            if (response.ok) {
+              const data = await response.json();
+              const quote = data['Global Quote'];
+              
+              if (quote && quote['05. price']) {
+                const currentPrice = parseFloat(quote['05. price']);
+                const shares = parseFloat(holding.shares);
+                const averageCost = parseFloat(holding.averageCost);
+                
+                const totalValue = currentPrice * shares;
+                const totalCost = averageCost * shares;
+                const gainLoss = totalValue - totalCost;
+                const gainLossPercent = ((gainLoss / totalCost) * 100);
+                
+                // Update the holding in database
+                await storage.updatePortfolioHolding(holding.id, {
+                  totalValue: totalValue.toString(),
+                  gainLoss: gainLoss.toString(),
+                  gainLossPercent: gainLossPercent.toString(),
+                });
+                
+                return {
+                  ...holding,
+                  currentPrice,
+                  totalValue,
+                  gainLoss,
+                  gainLossPercent,
+                };
+              }
+            }
+          }
+          
+          return holding;
+        } catch (error) {
+          console.warn(`Failed to fetch price for ${holding.ticker}:`, error);
+          return holding;
+        }
+      }));
+      
+      res.json(holdingsWithPrices);
+    } catch (error) {
+      console.error("Error fetching portfolio:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio" });
+    }
+  });
+
+  app.post('/api/portfolio', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const holdingData = insertPortfolioHoldingSchema.parse({
+        ...req.body,
+        userId,
+      });
+      
+      const holding = await storage.createPortfolioHolding(holdingData);
+      res.json(holding);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: "Invalid holding data", details: error.errors });
+      } else {
+        console.error("Error creating portfolio holding:", error);
+        res.status(500).json({ error: "Failed to create portfolio holding" });
+      }
+    }
+  });
+
+  app.delete('/api/portfolio/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const success = await storage.deletePortfolioHolding(id);
+      
+      if (success) {
+        res.json({ success: true });
+      } else {
+        res.status(404).json({ error: "Portfolio holding not found" });
+      }
+    } catch (error) {
+      console.error("Error deleting portfolio holding:", error);
+      res.status(500).json({ error: "Failed to delete portfolio holding" });
+    }
+  });
   // Stock routes
   app.get("/api/stocks", async (req, res) => {
     try {

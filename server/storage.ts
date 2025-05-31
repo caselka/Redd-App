@@ -18,7 +18,7 @@ import {
   type StockStats 
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
   // Stock operations
@@ -48,7 +48,7 @@ export interface IStorage {
   // Portfolio operations
   getPortfolioHoldings(userId: string): Promise<PortfolioHolding[]>;
   createPortfolioHolding(holding: InsertPortfolioHolding): Promise<PortfolioHolding>;
-  updatePortfolioHolding(id: number, updates: Partial<InsertPortfolioHolding>): Promise<PortfolioHolding | undefined>;
+  updatePortfolioHolding(id: number, updates: any): Promise<PortfolioHolding | undefined>;
   deletePortfolioHolding(id: number): Promise<boolean>;
   
   // Statistics
@@ -101,160 +101,165 @@ export class DatabaseStorage implements IStorage {
 
   async deletePortfolioHolding(id: number): Promise<boolean> {
     const result = await db.delete(portfolioHoldings).where(eq(portfolioHoldings.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
+  // Stock operations
   async getStock(id: number): Promise<Stock | undefined> {
-    return this.stocks.get(id);
+    const [stock] = await db.select().from(stocks).where(eq(stocks.id, id));
+    return stock;
   }
 
   async getStockByTicker(ticker: string): Promise<Stock | undefined> {
-    return Array.from(this.stocks.values()).find(
-      (stock) => stock.ticker.toLowerCase() === ticker.toLowerCase()
-    );
+    const [stock] = await db.select().from(stocks).where(eq(stocks.ticker, ticker));
+    return stock;
   }
 
   async getAllStocks(): Promise<Stock[]> {
-    return Array.from(this.stocks.values());
+    return await db.select().from(stocks);
   }
 
   async getStocksWithLatestPrices(): Promise<StockWithLatestPrice[]> {
-    const stocks = Array.from(this.stocks.values());
+    const stocksArray = await db.select().from(stocks);
     const result: StockWithLatestPrice[] = [];
 
-    for (const stock of stocks) {
+    for (const stock of stocksArray) {
       const latestPrice = await this.getLatestPrice(stock.id);
-      const intrinsicValue = parseFloat(stock.intrinsicValue);
-      
-      let marginOfSafety: number | undefined;
-      if (latestPrice) {
-        const currentPrice = parseFloat(latestPrice.price);
-        marginOfSafety = ((intrinsicValue - currentPrice) / intrinsicValue) * 100;
-      }
-
-      result.push({
+      const stockWithPrice: StockWithLatestPrice = {
         ...stock,
         currentPrice: latestPrice ? parseFloat(latestPrice.price) : undefined,
-        changePercent: latestPrice?.changePercent ? parseFloat(latestPrice.changePercent) : undefined,
+        changePercent: latestPrice ? parseFloat(latestPrice.changePercent || "0") : undefined,
         lastUpdated: latestPrice?.timestamp,
-        marginOfSafety,
-      });
+      };
+
+      // Calculate margin of safety
+      if (stockWithPrice.currentPrice) {
+        const intrinsicValue = parseFloat(stock.intrinsicValue);
+        const marginOfSafety = ((intrinsicValue - stockWithPrice.currentPrice) / intrinsicValue) * 100;
+        stockWithPrice.marginOfSafety = marginOfSafety;
+      }
+
+      result.push(stockWithPrice);
     }
 
     return result;
   }
 
   async createStock(insertStock: InsertStock): Promise<Stock> {
-    const id = this.stockIdCounter++;
-    const now = new Date();
-    const stock: Stock = {
-      ...insertStock,
-      id,
-      createdAt: now,
-      updatedAt: now,
-    };
-    this.stocks.set(id, stock);
+    const [stock] = await db.insert(stocks).values(insertStock).returning();
     return stock;
   }
 
   async updateStock(id: number, updates: Partial<InsertStock>): Promise<Stock | undefined> {
-    const stock = this.stocks.get(id);
-    if (!stock) return undefined;
-
-    const updatedStock: Stock = {
-      ...stock,
-      ...updates,
-      updatedAt: new Date(),
-    };
-    this.stocks.set(id, updatedStock);
-    return updatedStock;
+    const [updated] = await db
+      .update(stocks)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(stocks.id, id))
+      .returning();
+    return updated;
   }
 
   async deleteStock(id: number): Promise<boolean> {
-    return this.stocks.delete(id);
+    const result = await db.delete(stocks).where(eq(stocks.id, id));
+    return (result.rowCount || 0) > 0;
   }
 
+  // Price history operations
   async createPriceHistory(priceData: InsertPriceHistory): Promise<PriceHistory> {
-    const id = this.priceIdCounter++;
-    const price: PriceHistory = {
-      id,
-      stockId: priceData.stockId,
-      price: priceData.price,
-      changePercent: priceData.changePercent ?? null,
-      timestamp: new Date(),
-    };
-    this.priceHistory.set(id, price);
+    const [price] = await db.insert(priceHistory).values(priceData).returning();
     return price;
   }
 
   async getLatestPrice(stockId: number): Promise<PriceHistory | undefined> {
-    const prices = Array.from(this.priceHistory.values())
-      .filter(p => p.stockId === stockId)
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-    
-    return prices[0];
+    const [latest] = await db
+      .select()
+      .from(priceHistory)
+      .where(eq(priceHistory.stockId, stockId))
+      .orderBy(desc(priceHistory.timestamp))
+      .limit(1);
+    return latest;
   }
 
   async getPriceHistory(stockId: number, limit: number = 50): Promise<PriceHistory[]> {
-    return Array.from(this.priceHistory.values())
-      .filter(p => p.stockId === stockId)
-      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
-      .slice(0, limit);
+    return await db
+      .select()
+      .from(priceHistory)
+      .where(eq(priceHistory.stockId, stockId))
+      .orderBy(desc(priceHistory.timestamp))
+      .limit(limit);
   }
 
+  // Notes operations
   async createNote(note: InsertNote): Promise<Note> {
-    const id = this.noteIdCounter++;
-    const newNote: Note = {
-      ...note,
-      id,
-      createdAt: new Date(),
-    };
-    this.notes.set(id, newNote);
+    const [newNote] = await db.insert(notes).values(note).returning();
     return newNote;
   }
 
   async getNotesByStock(stockId: number): Promise<Note[]> {
-    return Array.from(this.notes.values())
-      .filter(note => note.stockId === stockId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    return await db
+      .select()
+      .from(notes)
+      .where(eq(notes.stockId, stockId))
+      .orderBy(desc(notes.createdAt));
   }
 
   async getRecentNotes(limit: number = 10): Promise<(Note & { ticker: string; companyName: string })[]> {
-    const recentNotes = Array.from(this.notes.values())
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-      .slice(0, limit);
-
-    const result = [];
-    for (const note of recentNotes) {
-      const stock = this.stocks.get(note.stockId);
-      if (stock) {
-        result.push({
-          ...note,
-          ticker: stock.ticker,
-          companyName: stock.companyName,
-        });
-      }
-    }
-
+    const result = await db
+      .select({
+        id: notes.id,
+        stockId: notes.stockId,
+        userId: notes.userId,
+        content: notes.content,
+        createdAt: notes.createdAt,
+        ticker: stocks.ticker,
+        companyName: stocks.companyName,
+      })
+      .from(notes)
+      .innerJoin(stocks, eq(notes.stockId, stocks.id))
+      .orderBy(desc(notes.createdAt))
+      .limit(limit);
     return result;
   }
 
   async deleteNote(id: number): Promise<boolean> {
-    return this.notes.delete(id);
+    const result = await db.delete(notes).where(eq(notes.id, id));
+    return (result.rowCount || 0) > 0;
   }
 
+  // Statistics
   async getStockStats(): Promise<StockStats> {
-    const stocksWithPrices = await this.getStocksWithLatestPrices();
+    const stocksArray = await db.select().from(stocks);
+    const totalWatched = stocksArray.length;
     
-    const totalWatched = stocksWithPrices.length;
-    const undervalued = stocksWithPrices.filter(s => (s.marginOfSafety || 0) > 0).length;
-    const avgMarginOfSafety = stocksWithPrices.reduce((acc, s) => acc + (s.marginOfSafety || 0), 0) / totalWatched || 0;
-    const highConviction = stocksWithPrices.filter(s => s.convictionScore >= 8).length;
+    let undervalued = 0;
+    let totalMarginOfSafety = 0;
+    let stocksWithPrices = 0;
+    let highConviction = 0;
+
+    for (const stock of stocksArray) {
+      if (stock.convictionScore >= 8) {
+        highConviction++;
+      }
+
+      const latestPrice = await this.getLatestPrice(stock.id);
+      if (latestPrice) {
+        const currentPrice = parseFloat(latestPrice.price);
+        const intrinsicValue = parseFloat(stock.intrinsicValue);
+        const marginOfSafety = ((intrinsicValue - currentPrice) / intrinsicValue) * 100;
+        
+        totalMarginOfSafety += marginOfSafety;
+        stocksWithPrices++;
+        
+        if (marginOfSafety > 0) {
+          undervalued++;
+        }
+      }
+    }
 
     return {
       totalWatched,
       undervalued,
-      avgMarginOfSafety: Math.round(avgMarginOfSafety * 10) / 10,
+      avgMarginOfSafety: stocksWithPrices > 0 ? totalMarginOfSafety / stocksWithPrices : 0,
       highConviction,
     };
   }
