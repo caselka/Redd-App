@@ -90,7 +90,7 @@ export class DatabaseStorage implements IStorage {
     return newHolding;
   }
 
-  async updatePortfolioHolding(id: number, updates: Partial<InsertPortfolioHolding>): Promise<PortfolioHolding | undefined> {
+  async updatePortfolioHolding(id: number, updates: any): Promise<PortfolioHolding | undefined> {
     const [updated] = await db
       .update(portfolioHoldings)
       .set({ ...updates, updatedAt: new Date() })

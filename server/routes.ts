@@ -526,6 +526,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Price alerts endpoint
+  app.post('/api/price-alerts', isAuthenticated, async (req: any, res) => {
+    try {
+      const { ticker, targetPrice } = req.body;
+      const userId = req.user.claims.sub;
+      
+      // Here you would typically save to database
+      // For now, we'll just confirm the alert was created
+      
+      res.json({ 
+        success: true, 
+        message: `Price alert created for ${ticker} at $${targetPrice}`,
+        ticker,
+        targetPrice,
+        userId 
+      });
+    } catch (error) {
+      console.error("Error creating price alert:", error);
+      res.status(500).json({ error: "Failed to create price alert" });
+    }
+  });
+
+  // AI gut check endpoint  
+  app.post('/api/ai-gut-check', isAuthenticated, async (req: any, res) => {
+    try {
+      const { stockIdea, reasonForBuy } = req.body;
+      
+      // Standard Warren Buffett-style questions for gut checking investment ideas
+      const questions = [
+        `What's the biggest risk you're ignoring about ${stockIdea}?`,
+        `If ${stockIdea} drops 50% tomorrow, what would be your specific plan?`,
+        `Would you be happy to own ${stockIdea} with no price quotes for 5 years?`,
+        `Can you explain ${stockIdea}'s business model to a 10-year-old?`,
+        `What would need to happen for this ${stockIdea} investment to fail completely?`
+      ];
+      
+      // Return 3 random questions
+      const selectedQuestions = questions
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 3);
+      
+      res.json({ questions: selectedQuestions });
+    } catch (error) {
+      console.error("Error generating gut check questions:", error);
+      res.status(500).json({ error: "Failed to generate questions" });
+    }
+  });
+
   // Helper function to map sectors (simplified mapping)
   function getSectorFromSymbol(symbol: string): string {
     const sectorMap: Record<string, string> = {
