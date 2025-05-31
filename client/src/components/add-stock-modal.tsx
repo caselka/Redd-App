@@ -100,9 +100,9 @@ export function AddStockModal({ isOpen, onClose }: AddStockModalProps) {
       });
 
       // Add note if provided
-      if (formData.note && stock) {
+      if (formData.note && stock && 'id' in stock) {
         await addNoteMutation.mutateAsync({
-          stockId: stock.id,
+          stockId: (stock as any).id,
           content: formData.note,
         });
       }

@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 export default function Notes() {
   const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
 
-  const { data: notes = [] } = useQuery({
+  const { data: notes = [] } = useQuery<any[]>({
     queryKey: ["/api/notes"],
   });
 
