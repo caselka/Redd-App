@@ -24,6 +24,7 @@ interface SECFiling {
   isInlineXBRL: boolean;
   primaryDocument: string;
   primaryDocDescription: string;
+  cik: string;
 }
 
 export default function SECFilings() {
@@ -115,9 +116,13 @@ export default function SECFilings() {
   };
 
   const getFilingUrl = (filing: SECFiling) => {
-    const baseUrl = "https://www.sec.gov/Archives/edgar/data";
-    // Construct proper SEC EDGAR URL
-    return `${baseUrl}/${filing.accessionNumber.replace(/-/g, '')}/${filing.accessionNumber}/${filing.primaryDocument}`;
+    // Construct proper SEC EDGAR document URL using CIK and accession number
+    if (filing.cik && filing.primaryDocument) {
+      const accessionNoHyphens = filing.accessionNumber.replace(/-/g, '');
+      return `https://www.sec.gov/Archives/edgar/data/${filing.cik}/${accessionNoHyphens}/${filing.primaryDocument}`;
+    }
+    // Fallback to SEC search page if CIK or document info is missing
+    return `https://www.sec.gov/edgar/search/#/q=${searchTicker}&dateRange=all&forms=${filing.form}`;
   };
 
   return (

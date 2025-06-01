@@ -640,6 +640,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           isInlineXBRL: filings.isInlineXBRL[i] === 1,
           primaryDocument: filings.primaryDocument[i],
           primaryDocDescription: filings.primaryDocDescription[i],
+          cik: cik, // Include CIK for proper URL construction
         });
       }
 
