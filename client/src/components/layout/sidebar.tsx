@@ -74,6 +74,35 @@ export function Sidebar() {
                       </li>
                     );
                   })}
+                  
+                  {/* Account Management */}
+                  <li className="pt-4 border-t border-gray-200">
+                    <Link href="/settings" onClick={() => setIsOpen(false)}>
+                      <div className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                        location === "/settings" 
+                          ? "bg-brand-blue text-white" 
+                          : "text-gray-700 hover:bg-gray-100"
+                      }`}>
+                        <Settings size={20} />
+                        <span>Settings</span>
+                      </div>
+                    </Link>
+                  </li>
+                  
+                  <li>
+                    <a href="/api/logout" className="flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer text-gray-700 hover:bg-gray-100">
+                      <LogOut size={20} />
+                      <span>Sign Out</span>
+                    </a>
+                  </li>
+                  
+                  <li className="pt-4">
+                    <div className="px-3 text-center">
+                      <p className="text-xs text-gray-400">Built by</p>
+                      <p className="text-xs font-medium text-gray-600">Redgum & Birch</p>
+                      <p className="text-xs text-gray-400">A subsidiary of Caselka Capital</p>
+                    </div>
+                  </li>
                 </ul>
               </nav>
             </div>
