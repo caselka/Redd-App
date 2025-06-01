@@ -3,6 +3,7 @@ import { LogOut } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useState } from "react";
+import { useLocation } from "wouter";
 
 interface LogoutButtonProps {
   variant?: "ghost" | "outline" | "default";
@@ -13,6 +14,7 @@ interface LogoutButtonProps {
 export function LogoutButton({ variant = "ghost", size = "sm", className }: LogoutButtonProps) {
   const queryClient = useQueryClient();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [, setLocation] = useLocation();
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
@@ -25,12 +27,12 @@ export function LogoutButton({ variant = "ghost", size = "sm", className }: Logo
       // Clear all React Query cache
       queryClient.clear();
       
-      // Force a page reload to ensure clean state
-      window.location.reload();
+      // Navigate to landing page and force full reload to clear any cached state
+      window.location.href = "/";
     } catch (error) {
       console.error("Logout error:", error);
-      // Force reload as fallback
-      window.location.reload();
+      // Force navigation to landing page as fallback
+      window.location.href = "/";
     }
   };
 

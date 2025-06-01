@@ -123,18 +123,35 @@ export async function setupAuth(app: Express) {
         console.error("Passport logout error:", err);
         return res.status(500).json({ error: "Logout failed" });
       }
+      
+      // Clear the session
       req.session.destroy((destroyErr) => {
         if (destroyErr) {
           console.error("Session destruction error:", destroyErr);
-          return res.status(500).json({ error: "Session destruction failed" });
         }
+        
+        // Clear all possible session cookies
         res.clearCookie('connect.sid', { 
           path: '/',
           httpOnly: true,
-          secure: true 
+          secure: true,
+          sameSite: 'strict'
         });
-        console.log("Session destroyed and cookie cleared");
-        res.json({ success: true });
+        
+        // Also try clearing without secure flag for local development
+        res.clearCookie('connect.sid', { 
+          path: '/',
+          httpOnly: true,
+          sameSite: 'strict'
+        });
+        
+        // Clear any other potential session cookies
+        res.clearCookie('session', { path: '/' });
+        res.clearCookie('express:sess', { path: '/' });
+        res.clearCookie('express:sess.sig', { path: '/' });
+        
+        console.log("Session destroyed and cookies cleared");
+        res.json({ success: true, message: "Logged out successfully" });
       });
     });
   });
