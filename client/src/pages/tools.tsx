@@ -59,10 +59,10 @@ export default function Tools() {
   const calculateCompoundInterest = () => {
     const p = parseFloat(principal);
     const pmt = parseFloat(monthlyContribution);
-    const r = parseFloat(annualRate) / 100 / 12; // Monthly rate
-    const n = parseFloat(years) * 12; // Total months
+    const annualRateValue = parseFloat(annualRate);
+    const yearsValue = parseFloat(years);
 
-    if (isNaN(p) || isNaN(pmt) || isNaN(r) || isNaN(n)) {
+    if (isNaN(p) || isNaN(pmt) || isNaN(annualRateValue) || isNaN(yearsValue)) {
       toast({
         title: "Error",
         description: "Please enter valid numbers for all fields",
@@ -71,11 +71,16 @@ export default function Tools() {
       return;
     }
 
-    // Future value of lump sum
-    const fvLump = p * Math.pow(1 + r, n);
+    // Calculate monthly rate and periods
+    const r = annualRateValue / 100 / 12; // Monthly rate
+    const n = yearsValue * 12; // Total months
+
+    // Future value of lump sum: PV * (1 + r)^n
+    const compoundFactor = Math.pow(1 + r, n);
+    const fvLump = p * compoundFactor;
     
-    // Future value of annuity (monthly contributions)
-    const fvAnnuity = pmt * ((Math.pow(1 + r, n) - 1) / r);
+    // Future value of annuity: PMT * ((1 + r)^n - 1) / r
+    const fvAnnuity = pmt * ((compoundFactor - 1) / r);
     
     const totalValue = fvLump + fvAnnuity;
     const totalContributed = p + (pmt * n);
@@ -86,6 +91,9 @@ export default function Tools() {
       totalContributed,
       totalGain,
       gainPercent: (totalGain / totalContributed) * 100,
+      monthlyRate: r,
+      compoundFactor: compoundFactor,
+      periods: n,
     });
   };
 
@@ -394,6 +402,14 @@ export default function Tools() {
                             <span className="font-bold text-orange-600">
                               {compoundResult.gainPercent.toFixed(1)}%
                             </span>
+                          </div>
+                          
+                          {/* Calculation Details */}
+                          <div className="mt-4 p-3 bg-gray-50 rounded-lg text-sm">
+                            <div className="font-semibold mb-2">Calculation Details:</div>
+                            <div>Monthly Rate: {(compoundResult.monthlyRate * 100).toFixed(6)}%</div>
+                            <div>Periods: {compoundResult.periods} months</div>
+                            <div>Compound Factor (1+r)^n: {compoundResult.compoundFactor.toLocaleString('en-US', { maximumFractionDigits: 2 })}</div>
                           </div>
                         </div>
                       </div>
