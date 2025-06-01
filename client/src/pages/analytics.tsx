@@ -27,8 +27,8 @@ export default function Analytics() {
   });
 
   // Calculate portfolio metrics
-  const totalValue = holdings.reduce((sum, holding) => sum + holding.totalValue, 0);
-  const totalCost = holdings.reduce((sum, holding) => sum + (holding.shares * holding.avgCostBasis), 0);
+  const totalValue = holdings.reduce((sum, holding) => sum + (holding.totalValue || 0), 0);
+  const totalCost = holdings.reduce((sum, holding) => sum + ((holding.shares || 0) * (holding.avgCostBasis || 0)), 0);
   const totalGainLoss = totalValue - totalCost;
   const totalGainLossPercent = totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0;
 
@@ -72,7 +72,7 @@ export default function Analytics() {
                     <DollarSign className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${totalValue.toLocaleString()}</div>
+                    <div className="text-2xl font-bold">${totalValue?.toLocaleString() || '0'}</div>
                     <div className="flex items-center text-sm">
                       {totalGainLoss >= 0 ? (
                         <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
@@ -93,9 +93,9 @@ export default function Analytics() {
                   </CardHeader>
                   <CardContent>
                     <div className={`text-2xl font-bold ${totalGainLoss >= 0 ? "text-green-600" : "text-red-600"}`}>
-                      {totalGainLoss >= 0 ? "+" : ""}${totalGainLoss.toLocaleString()}
+                      {totalGainLoss >= 0 ? "+" : ""}${totalGainLoss?.toLocaleString() || '0'}
                     </div>
-                    <p className="text-xs text-muted-foreground">vs cost basis ${totalCost.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground">vs cost basis ${totalCost?.toLocaleString() || '0'}</p>
                   </CardContent>
                 </Card>
 
@@ -149,7 +149,7 @@ export default function Analytics() {
                                 {holding.gainLossPercent >= 0 ? "+" : ""}{holding.gainLossPercent.toFixed(2)}%
                               </Badge>
                               <div className="text-sm text-gray-500">
-                                ${holding.totalValue.toLocaleString()}
+                                ${holding.totalValue?.toLocaleString() || '0'}
                               </div>
                             </div>
                           </div>
@@ -181,7 +181,7 @@ export default function Analytics() {
                                 />
                               </div>
                               <div className="text-xs text-gray-500">
-                                ${holding.totalValue.toLocaleString()} • {holding.shares} shares
+                                ${holding.totalValue?.toLocaleString() || '0'} • {holding.shares || 0} shares
                               </div>
                             </div>
                           );
