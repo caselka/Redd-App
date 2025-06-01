@@ -130,13 +130,13 @@ export default function PriceHistory() {
                       return (
                         <div 
                           key={entry.id} 
-                          className="grid grid-cols-2 gap-4 p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                          className="grid grid-cols-2 gap-4 p-3 bg-card border border-border rounded-lg hover:bg-muted/30 transition-colors"
                         >
-                          <div className="text-sm text-gray-700">
+                          <div className="text-sm text-muted-foreground">
                             {entry.timestamp ? formatDateTime(entry.timestamp) : 'N/A'}
                           </div>
                           <div className={`text-right font-medium ${
-                            isUp ? 'text-green-600' : isDown ? 'text-red-600' : 'text-gray-900'
+                            isUp ? 'text-green-600 dark:text-green-400' : isDown ? 'text-red-600 dark:text-red-400' : 'text-foreground'
                           }`}>
                             {formatPrice(entry.price)}
                             {prevPrice && (
@@ -151,8 +151,8 @@ export default function PriceHistory() {
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <Calendar className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                <div className="text-center py-8 text-muted-foreground">
+                  <Calendar className="h-12 w-12 mx-auto mb-3 text-muted-foreground/50" />
                   <p>No price history available for this stock</p>
                 </div>
               )}
@@ -160,8 +160,8 @@ export default function PriceHistory() {
           )}
 
           {!selectedTicker && (
-            <div className="text-center py-12 text-gray-500">
-              <TrendingUp className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+            <div className="text-center py-12 text-muted-foreground">
+              <TrendingUp className="h-16 w-16 mx-auto mb-4 text-muted-foreground/50" />
               <h3 className="text-lg font-medium mb-2">View Price History</h3>
               <p>Select a stock from your watchlist to see its historical closing prices</p>
             </div>
