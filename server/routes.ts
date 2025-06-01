@@ -116,20 +116,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/portfolio', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims?.sub || req.user.id;
-      const holdingData = insertPortfolioHoldingSchema.parse({
+      
+      // Transform the data before validation
+      const holdingData = {
         ...req.body,
         userId,
-      });
+        purchaseDate: new Date(req.body.purchaseDate),
+        shares: req.body.shares.toString(),
+        purchasePrice: req.body.purchasePrice.toString(),
+      };
       
       const holding = await storage.createPortfolioHolding(holdingData);
       res.json(holding);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        res.status(400).json({ error: "Invalid holding data", details: error.errors });
-      } else {
-        console.error("Error creating portfolio holding:", error);
-        res.status(500).json({ error: "Failed to create portfolio holding" });
-      }
+      console.error("Error creating portfolio holding:", error);
+      res.status(500).json({ error: "Failed to create portfolio holding" });
     }
   });
 

@@ -323,16 +323,40 @@ export default function Portfolio() {
               </div>
 
               <div>
-                <Label htmlFor="averageCost">Average Cost per Share</Label>
+                <Label htmlFor="purchasePrice">Purchase Price per Share</Label>
                 <Input
-                  id="averageCost"
+                  id="purchasePrice"
                   type="number"
                   step="0.01"
-                  {...form.register("averageCost")}
+                  {...form.register("purchasePrice")}
                   placeholder="e.g., 150.00"
                 />
-                {form.formState.errors.averageCost && (
-                  <p className="text-red-500 text-sm mt-1">{form.formState.errors.averageCost.message}</p>
+                {form.formState.errors.purchasePrice && (
+                  <p className="text-red-500 text-sm mt-1">{form.formState.errors.purchasePrice.message}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="purchaseDate">Purchase Date</Label>
+                <Input
+                  id="purchaseDate"
+                  type="date"
+                  {...form.register("purchaseDate")}
+                />
+                {form.formState.errors.purchaseDate && (
+                  <p className="text-red-500 text-sm mt-1">{form.formState.errors.purchaseDate.message}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="notes">Notes (Optional)</Label>
+                <Input
+                  id="notes"
+                  {...form.register("notes")}
+                  placeholder="e.g., Strong quarter results"
+                />
+                {form.formState.errors.notes && (
+                  <p className="text-red-500 text-sm mt-1">{form.formState.errors.notes.message}</p>
                 )}
               </div>
 

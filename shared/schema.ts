@@ -91,14 +91,12 @@ export const insertNoteSchema = createInsertSchema(notes).pick({
   content: true,
 });
 
-export const insertPortfolioHoldingSchema = createInsertSchema(portfolioHoldings).pick({
-  userId: true,
-  ticker: true,
-  companyName: true,
-  shares: true,
-  purchasePrice: true,
-  purchaseDate: true,
-  notes: true,
+export const insertPortfolioHoldingSchema = createInsertSchema(portfolioHoldings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  purchaseDate: z.string().transform((val) => new Date(val)),
 });
 
 export const updatePortfolioHoldingSchema = createInsertSchema(portfolioHoldings).pick({
