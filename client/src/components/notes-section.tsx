@@ -53,7 +53,7 @@ export function NotesSection({ notes }: NotesSectionProps) {
             <div key={note.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-3">
-                  <Badge className="bg-brand-blue bg-opacity-10 text-brand-blue">
+                  <Badge className="bg-red-600 text-white">
                     {note.ticker}
                   </Badge>
                   <span className="text-sm text-gray-500">{formatDate(note.createdAt)}</span>
