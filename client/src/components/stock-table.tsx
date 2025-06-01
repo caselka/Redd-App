@@ -115,87 +115,31 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
           <p className="text-gray-500">Add your first stock to get started</p>
         </div>
       ) : (
-        <div className="overflow-x-auto mobile-table">
-          <table className="w-full min-w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Price</th>
-                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Intrinsic Value</th>
-                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Margin</th>
-                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Conviction</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+        <div>
+          <div className="block lg:hidden">
+            <div className="divide-y divide-gray-200">
               {filteredStocks.map((stock) => {
                 const marginOfSafety = stock.marginOfSafety || 0;
                 const mosVariant = marginOfSafety > 0 ? 'profit' : 'loss';
                 
                 return (
-                  <tr key={stock.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-3 md:px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-blue rounded-lg flex items-center justify-center text-white font-bold text-xs md:text-sm mr-2 md:mr-3">
+                  <div key={stock.id} className="p-4 hover:bg-gray-50 transition-colors">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center flex-1">
+                        <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center text-white font-bold text-sm mr-3">
                           {stock.ticker.slice(0, 4)}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <div className="text-xs md:text-sm font-medium text-gray-900 truncate">{stock.companyName}</div>
-                          <div className="text-xs md:text-sm text-gray-500">{stock.ticker}</div>
-                          <div className="sm:hidden text-xs text-gray-600">
-                            {stock.currentPrice ? `$${stock.currentPrice.toFixed(2)}` : 'No price'}
-                          </div>
+                          <div className="text-sm font-medium text-gray-900 truncate">{stock.companyName}</div>
+                          <div className="text-sm text-gray-500">{stock.ticker}</div>
                         </div>
                       </div>
-                    </td>
-                    <td className="px-3 md:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
-                      {stock.currentPrice ? (
-                        <>
-                          <div className="text-sm font-medium text-gray-900">${stock.currentPrice.toFixed(2)}</div>
-                          {stock.changePercent && (
-                            <div className={`text-sm ${stock.changePercent >= 0 ? 'text-profit-green' : 'text-loss-red'}`}>
-                              {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className="text-sm text-gray-500">No data</div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
-                      ${parseFloat(stock.intrinsicValue).toFixed(2)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <Badge 
-                        variant={mosVariant === 'profit' ? 'default' : 'destructive'}
-                        className={mosVariant === 'profit' ? 'bg-profit-green text-white' : 'bg-loss-red text-white'}
-                      >
-                        {marginOfSafety >= 0 ? '+' : ''}{marginOfSafety.toFixed(1)}%
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex space-x-0.5">
-                          {renderStars(stock.convictionScore)}
-                        </div>
-                        <span className="ml-2 text-sm text-gray-600">{stock.convictionScore}/10</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {stock.lastUpdated 
-                        ? new Date(stock.lastUpdated).toLocaleString()
-                        : 'Never'
-                      }
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
+                      <div className="flex space-x-1 ml-2">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => setSelectedStock({ ticker: stock.ticker, companyName: stock.companyName })}
-                          className="text-green-600 hover:text-green-700"
-                          title="View company details and chart"
+                          className="text-green-600 hover:text-green-700 p-1"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -203,8 +147,7 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
                           variant="ghost"
                           size="sm"
                           onClick={() => setChartStock({ ticker: stock.ticker, companyName: stock.companyName })}
-                          className="text-brand-blue hover:text-blue-700"
-                          title="View chart only"
+                          className="text-brand-blue hover:text-blue-700 p-1"
                         >
                           <ChartLine className="h-4 w-4" />
                         </Button>
@@ -212,18 +155,175 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteStock(stock.id)}
-                          className="text-red-500 hover:text-red-700"
+                          className="text-red-500 hover:text-red-700 p-1"
                           disabled={deleteStockMutation.isPending}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-                    </td>
-                  </tr>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <div className="text-gray-500 text-xs uppercase tracking-wide">Price</div>
+                        <div className="font-medium">
+                          {stock.currentPrice ? `$${stock.currentPrice.toFixed(2)}` : 'No data'}
+                        </div>
+                        {stock.changePercent && (
+                          <div className={`text-xs ${stock.changePercent >= 0 ? 'text-profit-green' : 'text-loss-red'}`}>
+                            {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <div className="text-gray-500 text-xs uppercase tracking-wide">Intrinsic Value</div>
+                        <div className="font-medium">${parseFloat(stock.intrinsicValue).toFixed(2)}</div>
+                      </div>
+                      
+                      <div>
+                        <div className="text-gray-500 text-xs uppercase tracking-wide">Margin of Safety</div>
+                        <Badge 
+                          variant={mosVariant === 'profit' ? 'default' : 'destructive'}
+                          className={`${mosVariant === 'profit' ? 'bg-profit-green text-white' : 'bg-loss-red text-white'} text-xs`}
+                        >
+                          {marginOfSafety >= 0 ? '+' : ''}{marginOfSafety.toFixed(1)}%
+                        </Badge>
+                      </div>
+                      
+                      <div>
+                        <div className="text-gray-500 text-xs uppercase tracking-wide">Conviction</div>
+                        <div className="flex items-center">
+                          <div className="flex space-x-0.5">
+                            {renderStars(stock.convictionScore)}
+                          </div>
+                          <span className="ml-1 text-xs text-gray-600">{stock.convictionScore}/10</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      <div className="text-gray-500 text-xs uppercase tracking-wide">Last Updated</div>
+                      <div className="text-xs text-gray-600">
+                        {stock.lastUpdated 
+                          ? new Date(stock.lastUpdated).toLocaleString()
+                          : 'Never'
+                        }
+                      </div>
+                    </div>
+                  </div>
                 );
               })}
-            </tbody>
-          </table>
+            </div>
+          </div>
+          
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full min-w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Intrinsic Value</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Margin</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Conviction</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredStocks.map((stock) => {
+                  const marginOfSafety = stock.marginOfSafety || 0;
+                  const mosVariant = marginOfSafety > 0 ? 'profit' : 'loss';
+                  
+                  return (
+                    <tr key={stock.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center text-white font-bold text-sm mr-3">
+                            {stock.ticker.slice(0, 4)}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-sm font-medium text-gray-900 truncate">{stock.companyName}</div>
+                            <div className="text-sm text-gray-500">{stock.ticker}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {stock.currentPrice ? (
+                          <>
+                            <div className="text-sm font-medium text-gray-900">${stock.currentPrice.toFixed(2)}</div>
+                            {stock.changePercent && (
+                              <div className={`text-sm ${stock.changePercent >= 0 ? 'text-profit-green' : 'text-loss-red'}`}>
+                                {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="text-sm text-gray-500">No data</div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                        ${parseFloat(stock.intrinsicValue).toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <Badge 
+                          variant={mosVariant === 'profit' ? 'default' : 'destructive'}
+                          className={mosVariant === 'profit' ? 'bg-profit-green text-white' : 'bg-loss-red text-white'}
+                        >
+                          {marginOfSafety >= 0 ? '+' : ''}{marginOfSafety.toFixed(1)}%
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex space-x-0.5">
+                            {renderStars(stock.convictionScore)}
+                          </div>
+                          <span className="ml-2 text-sm text-gray-600">{stock.convictionScore}/10</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {stock.lastUpdated 
+                          ? new Date(stock.lastUpdated).toLocaleString()
+                          : 'Never'
+                        }
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSelectedStock({ ticker: stock.ticker, companyName: stock.companyName })}
+                            className="text-green-600 hover:text-green-700"
+                            title="View company details and chart"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setChartStock({ ticker: stock.ticker, companyName: stock.companyName })}
+                            className="text-brand-blue hover:text-blue-700"
+                            title="View chart only"
+                          >
+                            <ChartLine className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteStock(stock.id)}
+                            className="text-red-500 hover:text-red-700"
+                            disabled={deleteStockMutation.isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
       
