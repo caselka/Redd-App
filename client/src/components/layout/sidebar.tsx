@@ -42,24 +42,22 @@ export function Sidebar() {
           <div className="fixed inset-0 z-40 md:hidden">
             <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setIsOpen(false)} />
             <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform">
-              <div className="p-3 pt-4 border-b border-gray-200">
-                <div className="flex items-center">
-                  <Link href="/" onClick={() => setIsOpen(false)} className="flex-1 mr-3">
-                    <div className="flex items-center space-x-2 cursor-pointer">
-                      <div className="w-6 h-6 bg-charcoal-red rounded-lg flex items-center justify-center flex-shrink-0">
-                        <span className="text-white text-xs font-bold">R</span>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h1 className="text-sm font-bold text-charcoal-red">Redd</h1>
-                        <p className="text-xs text-neutral-blue-grey -mt-0.5">Investment Platform</p>
-                      </div>
+              <div className="px-4 py-3 border-b border-gray-200">
+                <div className="flex items-center justify-between gap-4">
+                  <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center space-x-2 cursor-pointer min-w-0 flex-1">
+                    <div className="w-6 h-6 bg-charcoal-red rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="text-white text-xs font-bold">R</span>
+                    </div>
+                    <div className="min-w-0">
+                      <h1 className="text-sm font-bold text-charcoal-red truncate">Redd</h1>
+                      <p className="text-xs text-neutral-blue-grey truncate">Investment Platform</p>
                     </div>
                   </Link>
                   <Button
                     variant="ghost"
-                    size="sm"
+                    size="icon"
                     onClick={() => setIsOpen(false)}
-                    className="p-1 flex-shrink-0"
+                    className="h-8 w-8 flex-shrink-0"
                   >
                     <X size={16} className="text-charcoal-red" />
                   </Button>
