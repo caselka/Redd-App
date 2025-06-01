@@ -162,8 +162,8 @@ export class DatabaseStorage implements IStorage {
       const latestPrice = await this.getLatestPrice(stock.id);
       const stockWithPrice: StockWithLatestPrice = {
         ...stock,
-        currentPrice: latestPrice ? parseFloat(latestPrice.price) : undefined,
-        changePercent: latestPrice ? parseFloat(latestPrice.changePercent || "0") : undefined,
+        currentPrice: latestPrice ? Math.round(parseFloat(latestPrice.price) * 100) / 100 : undefined,
+        changePercent: latestPrice ? Math.round(parseFloat(latestPrice.changePercent || "0") * 100) / 100 : undefined,
         lastUpdated: latestPrice?.timestamp,
       };
 
