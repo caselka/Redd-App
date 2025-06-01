@@ -6,11 +6,12 @@ export function useAuth() {
     retry: false,
     staleTime: 0,
     gcTime: 0,
-    refetchOnWindowFocus: true,
+    refetchOnWindowFocus: false,
   });
 
-  // If we get a 401, the user is not authenticated
-  const isAuthenticated = !!user && !error;
+  // If we get a 401 error, user is definitely not authenticated
+  const is401Error = error && error.message?.includes("401");
+  const isAuthenticated = !!user && !is401Error;
 
   return {
     user,
