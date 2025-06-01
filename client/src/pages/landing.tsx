@@ -109,27 +109,25 @@ export default function Landing() {
 
     // Add coin click handler
     const handleClick = (e: MouseEvent) => {
-      // Only create coins if user is scrolling or has scrolled recently
-      if (window.scrollY > 50) {
-        const coinId = Date.now() + Math.random();
-        const newCoin = {
-          id: coinId,
-          x: e.clientX,
-          y: e.clientY
-        };
-        
-        setCoins(prev => [...prev, newCoin]);
-        
-        // Remove coin after animation completes
-        setTimeout(() => {
-          setCoins(prev => prev.filter(coin => coin.id !== coinId));
-        }, 1500);
-      }
+      // Create coins when user clicks anywhere on the page
+      const coinId = Date.now() + Math.random();
+      const newCoin = {
+        id: coinId,
+        x: e.clientX,
+        y: e.clientY
+      };
+      
+      setCoins(prev => [...prev, newCoin]);
+      
+      // Remove coin after animation completes
+      setTimeout(() => {
+        setCoins(prev => prev.filter(coin => coin.id !== coinId));
+      }, 1500);
     };
 
     // Add touch handler for mobile
     const handleTouch = (e: TouchEvent) => {
-      if (window.scrollY > 50 && e.touches.length > 0) {
+      if (e.touches.length > 0) {
         const touch = e.touches[0];
         const coinId = Date.now() + Math.random();
         const newCoin = {
