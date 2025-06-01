@@ -481,6 +481,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test Telegram price alert (for development)
+  app.post('/api/telegram/test-alert', async (req, res) => {
+    try {
+      const { ticker, currentPrice, intrinsicValue } = req.body;
+      
+      if (!ticker || !currentPrice || !intrinsicValue) {
+        return res.status(400).json({ message: 'Missing required fields: ticker, currentPrice, intrinsicValue' });
+      }
+
+      const marginOfSafety = ((intrinsicValue - currentPrice) / intrinsicValue) * 100;
+      
+      // Import sendPriceAlert dynamically to avoid circular dependency
+      const { sendPriceAlert } = await import('./telegram-bot');
+      await sendPriceAlert(ticker, currentPrice, intrinsicValue, marginOfSafety);
+      
+      res.json({ 
+        message: 'Test alert sent successfully',
+        data: { ticker, currentPrice, intrinsicValue, marginOfSafety: marginOfSafety.toFixed(1) }
+      });
+    } catch (error) {
+      console.error('Error sending test alert:', error);
+      res.status(500).json({ message: 'Failed to send test alert' });
+    }
+  });
+
   // Markets data endpoint for NASDAQ and NYSE
   app.get("/api/markets", async (req, res) => {
     try {

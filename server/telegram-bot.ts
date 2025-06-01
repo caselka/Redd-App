@@ -452,3 +452,13 @@ export function stopTelegramBot() {
     botInstance = null;
   }
 }
+
+export async function sendPriceAlert(ticker: string, currentPrice: number, intrinsicValue: number, marginOfSafety: number) {
+  if (botInstance) {
+    await botInstance.sendPriceAlert(ticker, currentPrice, intrinsicValue, marginOfSafety);
+  }
+}
+
+export function getBotInstance(): TelegramBot | null {
+  return botInstance;
+}

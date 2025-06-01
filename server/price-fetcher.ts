@@ -1,4 +1,5 @@
 import { storage } from "./storage";
+import { sendPriceAlert } from "./telegram-bot";
 
 interface YahooFinanceResult {
   symbol: string;
@@ -17,6 +18,7 @@ class PriceFetcher {
   private isRunning: boolean = false;
   private intervalId: NodeJS.Timeout | null = null;
   private alphaVantageKey: string | null = null;
+  private lastAlertTimes: Map<string, number> = new Map(); // Track last alert time per ticker
 
   constructor() {
     this.alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY || null;
@@ -90,6 +92,44 @@ class PriceFetcher {
     }
   }
 
+  async checkPriceAlert(stock: any, currentPrice: number) {
+    try {
+      // Only send alerts if stock has intrinsic value set and current price is below it
+      if (!stock.intrinsicValue || currentPrice >= stock.intrinsicValue) {
+        return;
+      }
+
+      // Calculate margin of safety
+      const marginOfSafety = ((stock.intrinsicValue - currentPrice) / stock.intrinsicValue) * 100;
+      
+      // Only alert if there's a positive margin of safety (price below intrinsic value)
+      if (marginOfSafety <= 0) {
+        return;
+      }
+
+      // Prevent spam alerts - only send once per day per stock
+      const alertKey = stock.ticker;
+      const lastAlertTime = this.lastAlertTimes.get(alertKey) || 0;
+      const currentTime = Date.now();
+      const oneDay = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+      if (currentTime - lastAlertTime < oneDay) {
+        return; // Too soon since last alert
+      }
+
+      // Send the alert
+      await sendPriceAlert(stock.ticker, currentPrice, stock.intrinsicValue, marginOfSafety);
+      
+      // Update last alert time
+      this.lastAlertTimes.set(alertKey, currentTime);
+      
+      console.log(`📢 Price alert sent for ${stock.ticker}: $${currentPrice} (MoS: ${marginOfSafety.toFixed(1)}%)`);
+      
+    } catch (error) {
+      console.error(`Error checking price alert for ${stock.ticker}:`, error);
+    }
+  }
+
   async updateAllPrices() {
     console.log('Starting price update cycle...');
     
@@ -107,6 +147,9 @@ class PriceFetcher {
             });
             
             console.log(`Updated price for ${stock.ticker}: $${priceData.regularMarketPrice}`);
+            
+            // Check for price alert conditions
+            await this.checkPriceAlert(stock, priceData.regularMarketPrice);
           }
         } catch (error) {
           console.error(`Failed to update price for ${stock.ticker}:`, error);
