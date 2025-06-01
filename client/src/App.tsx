@@ -47,6 +47,22 @@ function Router() {
 
   return (
     <Switch>
+      {/* Public pages - available to everyone */}
+      <Route path="/login" component={Login} />
+      <Route path="/about" component={About} />
+      <Route path="/contact" component={Contact} />
+      <Route path="/security" component={Security} />
+      <Route path="/features" component={Features} />
+      <Route path="/pricing" component={Pricing} />
+      <Route path="/api" component={Api} />
+      <Route path="/mobile-app" component={MobileApp} />
+      <Route path="/blog" component={Blog} />
+      <Route path="/careers" component={Careers} />
+      <Route path="/help" component={Help} />
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/terms-of-service" component={TermsOfService} />
+      
+      {/* Conditional root and app pages */}
       {isAuthenticated ? (
         <>
           <Route path="/" component={Dashboard} />
@@ -61,29 +77,12 @@ function Router() {
           <Route path="/telegram" component={Telegram} />
           <Route path="/trade-map" component={TradeMap} />
           <Route path="/settings" component={Settings} />
-          <Route path="/privacy-policy" component={PrivacyPolicy} />
-          <Route path="/terms-of-service" component={TermsOfService} />
-          <Route component={NotFound} />
         </>
       ) : (
-        <>
-          <Route path="/" component={Landing} />
-          <Route path="/login" component={Login} />
-          <Route path="/about" component={About} />
-          <Route path="/contact" component={Contact} />
-          <Route path="/security" component={Security} />
-          <Route path="/features" component={Features} />
-          <Route path="/pricing" component={Pricing} />
-          <Route path="/api" component={Api} />
-          <Route path="/mobile-app" component={MobileApp} />
-          <Route path="/blog" component={Blog} />
-          <Route path="/careers" component={Careers} />
-          <Route path="/help" component={Help} />
-          <Route path="/privacy-policy" component={PrivacyPolicy} />
-          <Route path="/terms-of-service" component={TermsOfService} />
-          <Route component={NotFound} />
-        </>
+        <Route path="/" component={Landing} />
       )}
+      
+      <Route component={NotFound} />
     </Switch>
   );
 }
