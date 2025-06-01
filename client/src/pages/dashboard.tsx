@@ -8,13 +8,15 @@ import { NotesSection } from "@/components/notes-section";
 import { TelegramPanel } from "@/components/telegram-panel";
 import { NewsPanel } from "@/components/news-panel";
 import { AddStockModal } from "@/components/add-stock-modal";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calculator, DollarSign, Link as LinkIcon, Eye } from "lucide-react";
+import { Calculator, DollarSign, Link as LinkIcon, Eye, ChartLine, Trash2 } from "lucide-react";
 import { Link } from "wouter";
 import type { StockWithLatestPrice, StockStats } from "@shared/schema";
 
@@ -27,6 +29,42 @@ export default function Dashboard() {
   const [quickCostOfCapital, setQuickCostOfCapital] = useState("9");
   const [quickShares, setQuickShares] = useState("");
   const [quickEpvResult, setQuickEpvResult] = useState<any>(null);
+  
+  // Stock modal states
+  const [selectedStockDetails, setSelectedStockDetails] = useState<{ticker: string, companyName: string} | null>(null);
+  
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  // Delete stock mutation
+  const deleteStockMutation = useMutation({
+    mutationFn: async (stockId: number) => {
+      return await apiRequest(`/api/stocks/${stockId}`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/stocks"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
+      toast({
+        title: "Success",
+        description: "Stock removed from watchlist",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to remove stock",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteStock = (stockId: number) => {
+    if (confirm("Are you sure you want to remove this stock from your watchlist?")) {
+      deleteStockMutation.mutate(stockId);
+    }
+  };
 
   const { data: stocks = [], isLoading: stocksLoading } = useQuery<StockWithLatestPrice[]>({
     queryKey: ["/api/stocks"],
