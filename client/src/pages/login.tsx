@@ -48,62 +48,9 @@ export default function Login() {
     },
   });
 
-  const handleLogin = async (data: LoginForm) => {
+  const handleReplitLogin = () => {
     setIsLoading(true);
-    try {
-      await apiRequest("/api/auth/login", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" },
-      });
-
-      toast({
-        title: "Success",
-        description: "Logged in successfully",
-      });
-
-      // Redirect to dashboard
-      window.location.href = "/";
-    } catch (error) {
-      toast({
-        title: "Login Failed",
-        description: "Invalid email or password",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSignup = async (data: SignupForm) => {
-    setIsLoading(true);
-    try {
-      await apiRequest("/api/auth/register", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" },
-      });
-
-      toast({
-        title: "Success",
-        description: "Account created successfully",
-      });
-
-      // Redirect to dashboard
-      window.location.href = "/";
-    } catch (error) {
-      toast({
-        title: "Signup Failed",
-        description: "Failed to create account. Email may already be in use.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleGoogleLogin = () => {
-    window.location.href = "/api/auth/google";
+    window.location.href = "/api/login";
   };
 
   return (
@@ -116,149 +63,20 @@ export default function Login() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-center">Get Started</CardTitle>
+            <CardTitle className="text-center">Sign In to Redd</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="login" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="login">
-                <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
-                  <div>
-                    <Label htmlFor="login-email">Email</Label>
-                    <Input
-                      id="login-email"
-                      type="email"
-                      {...loginForm.register("email")}
-                      placeholder="your@email.com"
-                    />
-                    {loginForm.formState.errors.email && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {loginForm.formState.errors.email.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="login-password">Password</Label>
-                    <Input
-                      id="login-password"
-                      type="password"
-                      {...loginForm.register("password")}
-                      placeholder="••••••••"
-                    />
-                    {loginForm.formState.errors.password && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {loginForm.formState.errors.password.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200" 
-                    disabled={isLoading}
-                  >
-                    <LogIn className="h-4 w-4 mr-2" />
-                    {isLoading ? "Logging in..." : "Login"}
-                  </Button>
-                </form>
-              </TabsContent>
-
-              <TabsContent value="signup">
-                <form onSubmit={signupForm.handleSubmit(handleSignup)} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="signup-firstName">First Name</Label>
-                      <Input
-                        id="signup-firstName"
-                        {...signupForm.register("firstName")}
-                        placeholder="John"
-                      />
-                      {signupForm.formState.errors.firstName && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {signupForm.formState.errors.firstName.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div>
-                      <Label htmlFor="signup-lastName">Last Name</Label>
-                      <Input
-                        id="signup-lastName"
-                        {...signupForm.register("lastName")}
-                        placeholder="Doe"
-                      />
-                      {signupForm.formState.errors.lastName && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {signupForm.formState.errors.lastName.message}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="signup-email">Email</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      {...signupForm.register("email")}
-                      placeholder="your@email.com"
-                    />
-                    {signupForm.formState.errors.email && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {signupForm.formState.errors.email.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="signup-password">Password</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      {...signupForm.register("password")}
-                      placeholder="••••••••"
-                    />
-                    {signupForm.formState.errors.password && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {signupForm.formState.errors.password.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200" 
-                    disabled={isLoading}
-                  >
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    {isLoading ? "Creating account..." : "Create Account"}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
-
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-gray-500">Or continue with</span>
-              </div>
+          <CardContent className="space-y-6">
+            <div className="text-center text-gray-600">
+              <p>Access your investment tracking platform</p>
             </div>
 
             <Button
-              onClick={handleGoogleLogin}
-              variant="outline"
-              className="w-full"
+              onClick={handleReplitLogin}
+              className="w-full bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200"
               disabled={isLoading}
             >
-              <Chrome className="h-4 w-4 mr-2" />
-              Continue with Google
+              <LogIn className="h-4 w-4 mr-2" />
+              {isLoading ? "Signing in..." : "Sign In with Replit"}
             </Button>
 
             <div className="mt-6 text-center">
