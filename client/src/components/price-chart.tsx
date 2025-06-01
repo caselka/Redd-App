@@ -10,9 +10,10 @@ import {
 
 interface PriceChartProps {
   selectedStock: string;
+  onStockChange: (ticker: string) => void;
 }
 
-export function PriceChart({ selectedStock }: PriceChartProps) {
+export function PriceChart({ selectedStock, onStockChange }: PriceChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<any>(null);
 
@@ -129,7 +130,7 @@ export function PriceChart({ selectedStock }: PriceChartProps) {
       <div className="flex items-center justify-between mb-6">
         <h3 className="text-lg font-semibold text-gray-900">Price vs Intrinsic Value</h3>
         <div className="flex items-center space-x-2">
-          <Select value={selectedStock} onValueChange={() => {}}>
+          <Select value={selectedStock} onValueChange={onStockChange}>
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Select stock" />
             </SelectTrigger>
