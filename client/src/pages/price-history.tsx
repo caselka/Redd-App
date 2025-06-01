@@ -22,13 +22,23 @@ export default function PriceHistory() {
     enabled: !!selectedTicker && !!selectedStock,
   });
 
-  const formatDate = (dateString: string | Date) => {
-    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+  const formatDateTime = (dateString: string | Date) => {
+    try {
+      const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+      if (isNaN(date.getTime())) {
+        return 'Invalid Date';
+      }
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'UTC'
+      });
+    } catch (error) {
+      return 'Invalid Date';
+    }
   };
 
   const formatPrice = (price: string | number) => {
@@ -45,9 +55,10 @@ export default function PriceHistory() {
           <h1 className="text-2xl font-bold text-gray-900">Price History</h1>
         </div>
         <Link href="/">
-          <Button variant="outline" size="sm" className="flex items-center space-x-2">
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to Dashboard</span>
+          <Button variant="outline" size="sm" className="flex items-center space-x-1 text-xs">
+            <ArrowLeft className="h-3 w-3" />
+            <span className="hidden sm:inline">Back to Dashboard</span>
+            <span className="sm:hidden">Back</span>
           </Button>
         </Link>
       </div>
@@ -101,8 +112,8 @@ export default function PriceHistory() {
               ) : priceHistory.length > 0 ? (
                 <div className="space-y-2">
                   <div className="grid grid-cols-2 gap-4 p-3 bg-gray-100 rounded-lg font-semibold text-sm text-gray-700">
-                    <div>Date</div>
-                    <div className="text-right">Closing Price</div>
+                    <div>Date & Time</div>
+                    <div className="text-right">Price</div>
                   </div>
                   <div className="max-h-96 overflow-y-auto space-y-1">
                     {priceHistory.map((entry, index) => {
@@ -117,7 +128,7 @@ export default function PriceHistory() {
                           className="grid grid-cols-2 gap-4 p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                         >
                           <div className="text-sm text-gray-700">
-                            {entry.timestamp ? formatDate(entry.timestamp) : 'N/A'}
+                            {entry.timestamp ? formatDateTime(entry.timestamp) : 'N/A'}
                           </div>
                           <div className={`text-right font-medium ${
                             isUp ? 'text-green-600' : isDown ? 'text-red-600' : 'text-gray-900'
