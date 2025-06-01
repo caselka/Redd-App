@@ -3,7 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar, TrendingUp, ArrowLeft } from "lucide-react";
+import { Link } from "wouter";
 import type { StockWithLatestPrice, PriceHistory } from "@shared/schema";
 
 export default function PriceHistory() {
@@ -13,12 +15,12 @@ export default function PriceHistory() {
     queryKey: ["/api/stocks"],
   });
 
-  const { data: priceHistory = [], isLoading: historyLoading } = useQuery<PriceHistory[]>({
-    queryKey: ["/api/stocks", selectedTicker, "prices"],
-    enabled: !!selectedTicker,
-  });
-
   const selectedStock = stocks.find(s => s.ticker === selectedTicker);
+
+  const { data: priceHistory = [], isLoading: historyLoading } = useQuery<PriceHistory[]>({
+    queryKey: [`/api/stocks/${selectedStock?.id}/prices`],
+    enabled: !!selectedTicker && !!selectedStock,
+  });
 
   const formatDate = (dateString: string | Date) => {
     const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
@@ -37,9 +39,17 @@ export default function PriceHistory() {
 
   return (
     <div className="space-y-6 p-4 md:p-6">
-      <div className="flex items-center space-x-2 mb-6">
-        <Calendar className="h-6 w-6 text-blue-600" />
-        <h1 className="text-2xl font-bold text-gray-900">Price History</h1>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center space-x-2">
+          <Calendar className="h-6 w-6 text-blue-600" />
+          <h1 className="text-2xl font-bold text-gray-900">Price History</h1>
+        </div>
+        <Link href="/">
+          <Button variant="outline" size="sm" className="flex items-center space-x-2">
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to Dashboard</span>
+          </Button>
+        </Link>
       </div>
 
       <Card>
