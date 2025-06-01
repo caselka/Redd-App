@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
+import { ReddSpinner } from "@/components/ui/redd-spinner";
 import Dashboard from "@/pages/dashboard";
 import Watchlist from "@/pages/watchlist";
 import Portfolio from "@/pages/portfolio";
@@ -25,14 +26,13 @@ function Router() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin h-8 w-8 border-b-2 border-brand-blue mx-auto"></div>
+        <ReddSpinner size="lg" />
       </div>
     );
   }
 
   return (
     <Switch>
-      <Route path="/login" component={Login} />
       {isAuthenticated ? (
         <>
           <Route path="/" component={Dashboard} />
@@ -49,7 +49,10 @@ function Router() {
           <Route path="/terms-of-service" component={TermsOfService} />
         </>
       ) : (
-        <Route path="/" component={Login} />
+        <>
+          <Route path="/" component={Login} />
+          <Route path="/login" component={Login} />
+        </>
       )}
       <Route component={NotFound} />
     </Switch>
