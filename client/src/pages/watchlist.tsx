@@ -21,9 +21,9 @@ export default function Watchlist() {
         <Header onAddStock={() => setIsAddStockModalOpen(true)} />
         
         <main className="flex-1 overflow-y-auto p-2 md:p-6 pt-16 md:pt-6 mobile-main max-w-full">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Stock Watchlist</h1>
-            <p className="text-gray-600">Monitor your tracked stocks and their performance</p>
+          <div className="mb-6 text-center">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Stock Watchlist</h1>
+            <p className="text-gray-600 dark:text-gray-400">Monitor your tracked stocks and their performance</p>
           </div>
 
           <StockTable 

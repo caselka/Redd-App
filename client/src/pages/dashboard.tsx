@@ -9,6 +9,8 @@ import { TelegramPanel } from "@/components/telegram-panel";
 import { NewsPanel } from "@/components/news-panel";
 import { AddStockModal } from "@/components/add-stock-modal";
 import { StockDetailsModal } from "@/components/stock-details-modal";
+import { StockPriceChart } from "@/components/stock-price-chart";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -17,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calculator, DollarSign, Link as LinkIcon, Eye, ChartLine, Trash2, Calendar } from "lucide-react";
+import { Calculator, DollarSign, Link as LinkIcon, Eye, ChartLine, Trash2, Calendar, X } from "lucide-react";
 import { Link } from "wouter";
 import type { StockWithLatestPrice, StockStats } from "@shared/schema";
 
@@ -33,6 +35,7 @@ export default function Dashboard() {
   
   // Stock modal states
   const [selectedStockDetails, setSelectedStockDetails] = useState<{ticker: string, companyName: string} | null>(null);
+  const [chartStock, setChartStock] = useState<{ ticker: string; companyName: string } | null>(null);
   
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -211,7 +214,7 @@ export default function Dashboard() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => setSelectedStock(stock.ticker)}
+                                  onClick={() => setChartStock({ ticker: stock.ticker, companyName: stock.companyName })}
                                   className="text-blue-600 hover:text-blue-700 p-1"
                                 >
                                   <ChartLine className="h-4 w-4" />
@@ -366,6 +369,29 @@ export default function Dashboard() {
           ticker={selectedStockDetails.ticker}
           companyName={selectedStockDetails.companyName}
         />
+      )}
+
+      {chartStock && (
+        <Dialog open={!!chartStock} onOpenChange={() => setChartStock(null)}>
+          <DialogContent className="max-w-4xl max-h-[80vh]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center justify-between">
+                <span>{chartStock.ticker} - {chartStock.companyName}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setChartStock(null)}
+                  className="h-6 w-6 p-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </DialogTitle>
+            </DialogHeader>
+            <div className="h-96">
+              <StockPriceChart ticker={chartStock.ticker} />
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

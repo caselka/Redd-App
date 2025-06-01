@@ -62,19 +62,9 @@ export function StockDetailsModal({ isOpen, onClose, ticker, companyName }: Stoc
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              {ticker} - {companyName}
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+          <DialogTitle className="flex items-center gap-2">
+            <Building2 className="h-5 w-5" />
+            {ticker} - {companyName}
           </DialogTitle>
         </DialogHeader>
 
