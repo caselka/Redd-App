@@ -45,56 +45,60 @@ html, body {
 }
 
 :root {
-  --background: 210 11% 98%; /* #F5F7FA */
-  --foreground: 222 84% 5%; /* #0D1117 */
-  --muted: 210 9% 95%; /* #F1F3F5 */
-  --muted-foreground: 215 16% 46%; /* #6B7280 */
+  --background: 220 13% 98%; /* #F8F9FB - Apple-inspired soft white */
+  --foreground: 215 25% 27%; /* #3A404D - Warmer dark text */
+  --muted: 220 9% 96%; /* #F5F6F8 - Softer muted background */
+  --muted-foreground: 215 16% 56%; /* #8B92A5 - Softer muted text */
   --popover: 0 0% 100%; /* #FFFFFF */
-  --popover-foreground: 222 84% 5%; /* #0D1117 */
+  --popover-foreground: 215 25% 27%; /* #3A404D */
   --card: 0 0% 100%; /* #FFFFFF */
-  --card-foreground: 222 84% 5%; /* #0D1117 */
-  --border: 214 13% 91%; /* #E5E7EB */
-  --input: 214 13% 91%; /* #E5E7EB */
-  --primary: 0 73% 55%; /* #DC2626 - Redd primary */
-  --primary-foreground: 211 100% 99%; /* #F8FAFC */
-  --secondary: 210 9% 95%; /* #F1F3F5 */
-  --secondary-foreground: 24 9.8% 10%; /* #1F2937 */
-  --accent: 210 9% 95%; /* #F1F3F5 */
-  --accent-foreground: 24 9.8% 10%; /* #1F2937 */
-  --destructive: 0 84% 60%; /* #EF4444 */
-  --destructive-foreground: 60 9.1% 97.8%; /* #FEFEFE */
-  --ring: 0 73% 55%; /* #DC2626 - Redd primary */
-  --radius: 0.5rem;
+  --card-foreground: 215 25% 27%; /* #3A404D */
+  --border: 220 13% 93%; /* #ECEFF2 - Softer borders */
+  --input: 220 13% 95%; /* #F1F4F7 - Apple-like input background */
+  --primary: 211 100% 50%; /* #007AFF - Apple blue primary */
+  --primary-foreground: 0 0% 100%; /* #FFFFFF */
+  --secondary: 45 100% 51%; /* #FFCC00 - Apple yellow accent */
+  --secondary-foreground: 215 25% 27%; /* #3A404D */
+  --accent: 142 71% 45%; /* #34C759 - Apple green accent */
+  --accent-foreground: 0 0% 100%; /* #FFFFFF */
+  --destructive: 0 100% 58%; /* #FF3B30 - Apple red */
+  --destructive-foreground: 0 0% 100%; /* #FFFFFF */
+  --ring: 211 100% 50%; /* #007AFF - Apple blue */
+  --radius: 0.75rem;
   
-  /* Custom brand colors - Redd theme */
-  --brand-blue: 0 73% 55%; /* #DC2626 - Redd primary */
-  --brand-red: 0 73% 55%; /* #DC2626 - Redd primary */
-  --success-green: 142 71% 45%; /* #059669 */
-  --profit-green: 142 76% 36%; /* #10B981 */
-  --loss-red: 0 84% 60%; /* #EF4444 */
-  --danger-red: 0 74% 42%; /* #DC2626 */
+  /* Custom brand colors - Apple-inspired pastels */
+  --brand-blue: 211 100% 50%; /* #007AFF - Apple blue */
+  --brand-red: 0 73% 55%; /* #DC2626 - Redd primary (keeping brand identity) */
+  --success-green: 142 71% 45%; /* #34C759 - Apple green */
+  --profit-green: 142 76% 55%; /* #30D158 - Lighter Apple green */
+  --loss-red: 0 100% 58%; /* #FF3B30 - Apple red */
+  --danger-red: 0 100% 58%; /* #FF3B30 - Apple red */
+  --warning-orange: 35 91% 62%; /* #FF9500 - Apple orange */
+  --info-blue: 211 100% 50%; /* #007AFF - Apple blue */
+  --purple-accent: 274 70% 55%; /* #AF52DE - Apple purple */
+  --pink-accent: 330 81% 60%; /* #FF2D92 - Apple pink */
 }
 
 .dark {
-  --background: 222 84% 5%; /* #0D1117 */
-  --foreground: 210 11% 98%; /* #F5F7FA */
-  --muted: 217 33% 17%; /* #1F2937 */
-  --muted-foreground: 215 20% 65%; /* #9CA3AF */
-  --popover: 222 84% 5%; /* #0D1117 */
-  --popover-foreground: 210 11% 98%; /* #F5F7FA */
-  --card: 222 84% 5%; /* #0D1117 */
-  --card-foreground: 210 11% 98%; /* #F5F7FA */
-  --border: 217 33% 17%; /* #1F2937 */
-  --input: 217 33% 17%; /* #1F2937 */
-  --primary: 0 73% 55%; /* #DC2626 - Redd primary */
-  --primary-foreground: 211 100% 99%; /* #F8FAFC */
-  --secondary: 217 33% 17%; /* #1F2937 */
-  --secondary-foreground: 210 11% 98%; /* #F5F7FA */
-  --accent: 217 33% 17%; /* #1F2937 */
-  --accent-foreground: 210 11% 98%; /* #F5F7FA */
-  --destructive: 0 62.8% 30.6%; /* #B91C1C */
-  --destructive-foreground: 210 11% 98%; /* #F5F7FA */
-  --ring: 207 90% 54%; /* #1D4ED8 */
+  --background: 220 13% 9%; /* #1C1C1E - Apple dark background */
+  --foreground: 0 0% 98%; /* #FAFAFA - Soft white text */
+  --muted: 220 13% 15%; /* #2C2C2E - Apple dark elevated */
+  --muted-foreground: 220 9% 65%; /* #98989D - Apple secondary text */
+  --popover: 220 13% 9%; /* #1C1C1E */
+  --popover-foreground: 0 0% 98%; /* #FAFAFA */
+  --card: 220 13% 13%; /* #242426 - Apple dark card */
+  --card-foreground: 0 0% 98%; /* #FAFAFA */
+  --border: 220 13% 20%; /* #39393C - Apple dark border */
+  --input: 220 13% 15%; /* #2C2C2E - Apple dark input */
+  --primary: 211 100% 50%; /* #007AFF - Apple blue */
+  --primary-foreground: 0 0% 100%; /* #FFFFFF */
+  --secondary: 45 100% 51%; /* #FFCC00 - Apple yellow */
+  --secondary-foreground: 220 13% 9%; /* #1C1C1E */
+  --accent: 142 71% 45%; /* #34C759 - Apple green */
+  --accent-foreground: 0 0% 100%; /* #FFFFFF */
+  --destructive: 0 100% 58%; /* #FF3B30 - Apple red */
+  --destructive-foreground: 0 0% 100%; /* #FFFFFF */
+  --ring: 211 100% 50%; /* #007AFF - Apple blue */
 }
 
 @layer base {
@@ -104,9 +108,11 @@ html, body {
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(220 13% 95%) 100%);
+    min-height: 100vh;
   }
 }
 
@@ -149,6 +155,44 @@ html, body {
   
   .bg-danger-red {
     background-color: hsl(var(--danger-red));
+  }
+
+  /* Apple-inspired utility classes */
+  .apple-card {
+    @apply bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/20;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+  }
+
+  .apple-button {
+    @apply bg-primary text-primary-foreground font-medium rounded-2xl px-6 py-3 transition-all duration-200;
+    box-shadow: 0 4px 16px 0 rgba(0, 122, 255, 0.2);
+  }
+
+  .apple-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px 0 rgba(0, 122, 255, 0.3);
+  }
+
+  .apple-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px 0 rgba(0, 122, 255, 0.2);
+  }
+
+  .glass-effect {
+    @apply bg-white/70 backdrop-blur-md border border-white/30;
+  }
+
+  .soft-shadow {
+    box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.08);
+  }
+
+  .apple-input {
+    @apply bg-input/50 border border-border rounded-xl px-4 py-3 transition-all duration-200;
+  }
+
+  .apple-input:focus {
+    @apply ring-2 ring-primary/20 border-primary/40;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
   }
 
   .animate-pulse-slow {

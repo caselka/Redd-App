@@ -9,6 +9,9 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        xl: "1rem",
+        "2xl": "1.5rem",
+        "3xl": "2rem",
       },
       colors: {
         background: "hsl(var(--background))",
@@ -51,6 +54,17 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        // Apple-inspired brand colors
+        "brand-blue": "hsl(var(--brand-blue))",
+        "brand-red": "hsl(var(--brand-red))",
+        "success-green": "hsl(var(--success-green))",
+        "profit-green": "hsl(var(--profit-green))",
+        "loss-red": "hsl(var(--loss-red))",
+        "danger-red": "hsl(var(--danger-red))",
+        "warning-orange": "hsl(var(--warning-orange))",
+        "info-blue": "hsl(var(--info-blue))",
+        "purple-accent": "hsl(var(--purple-accent))",
+        "pink-accent": "hsl(var(--pink-accent))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
