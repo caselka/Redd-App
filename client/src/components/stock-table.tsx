@@ -73,7 +73,7 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
-      <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+      <div className="px-4 md:px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h3 className="text-lg font-semibold text-gray-900">Stock Watchlist</h3>
         <div className="flex items-center space-x-3">
           <div className="relative">

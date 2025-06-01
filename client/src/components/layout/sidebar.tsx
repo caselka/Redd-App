@@ -1,8 +1,13 @@
-import { ChartLine, List, BarChart3, StickyNote, MessageSquare, TrendingUp, Building2, FileText, Calculator, Briefcase } from "lucide-react";
+import { ChartLine, List, BarChart3, StickyNote, MessageSquare, TrendingUp, Building2, FileText, Calculator, Briefcase, Menu, X } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
 
 export function Sidebar() {
   const [location] = useLocation();
+  const [isOpen, setIsOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const navItems = [
     { path: "/", icon: TrendingUp, label: "Dashboard" },
@@ -16,8 +21,70 @@ export function Sidebar() {
     { path: "/telegram", icon: MessageSquare, label: "Telegram Bot" },
   ];
 
+  if (isMobile) {
+    return (
+      <>
+        {/* Mobile Menu Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="fixed top-4 left-4 z-50 md:hidden bg-white shadow-lg"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? <X size={20} /> : <Menu size={20} />}
+        </Button>
+
+        {/* Mobile Sidebar Overlay */}
+        {isOpen && (
+          <div className="fixed inset-0 z-40 md:hidden">
+            <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setIsOpen(false)} />
+            <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform">
+              <div className="p-6 pt-16 border-b border-gray-200">
+                <Link href="/" onClick={() => setIsOpen(false)}>
+                  <div className="flex items-center space-x-3 cursor-pointer">
+                    <div className="w-10 h-10 bg-brand-blue rounded-lg flex items-center justify-center">
+                      <ChartLine className="text-white text-lg" size={20} />
+                    </div>
+                    <div>
+                      <h1 className="text-xl font-bold text-gray-900">Redd</h1>
+                      <p className="text-sm text-gray-500">Investment Tracker</p>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+              
+              <nav className="mt-6 pb-20">
+                <ul className="space-y-2 px-4">
+                  {navItems.map((item) => {
+                    const isActive = location === item.path;
+                    const Icon = item.icon;
+                    
+                    return (
+                      <li key={item.path}>
+                        <Link href={item.path} onClick={() => setIsOpen(false)}>
+                          <div className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                            isActive 
+                              ? "bg-brand-blue text-white" 
+                              : "text-gray-700 hover:bg-gray-100"
+                          }`}>
+                            <Icon size={20} />
+                            <span>{item.label}</span>
+                          </div>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </nav>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
+
   return (
-    <div className="w-64 bg-white shadow-lg border-r border-gray-200">
+    <div className="hidden md:block w-64 bg-white shadow-lg border-r border-gray-200">
       <div className="p-6 border-b border-gray-200">
         <Link href="/">
           <div className="flex items-center space-x-3 cursor-pointer">
