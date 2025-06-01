@@ -42,11 +42,11 @@ export function Sidebar() {
               <div className="p-6 pt-16 border-b border-gray-200">
                 <Link href="/" onClick={() => setIsOpen(false)}>
                   <div className="flex items-center space-x-3 cursor-pointer">
-                    <div className="w-10 h-10 bg-brand-blue rounded-lg flex items-center justify-center">
-                      <ChartLine className="text-white text-lg" size={20} />
+                    <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">Redd</span>
                     </div>
                     <div>
-                      <h1 className="text-xl font-bold text-gray-900">Redd</h1>
+                      <h1 className="text-xl font-bold text-red-600">Redd</h1>
                       <p className="text-sm text-gray-500">Investment Tracker</p>
                     </div>
                   </div>
@@ -117,11 +117,11 @@ export function Sidebar() {
       <div className="p-6 border-b border-gray-200">
         <Link href="/">
           <div className="flex items-center space-x-3 cursor-pointer">
-            <div className="w-10 h-10 bg-brand-blue rounded-lg flex items-center justify-center">
-              <ChartLine className="text-white text-lg" size={20} />
+            <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xs font-bold">Redd</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Redd</h1>
+              <h1 className="text-xl font-bold text-red-600">Redd</h1>
               <p className="text-sm text-gray-500">Investment Tracker</p>
             </div>
           </div>
