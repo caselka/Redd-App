@@ -32,7 +32,7 @@ export default function SECFilings() {
   const [selectedFilingTypes, setSelectedFilingTypes] = useState<string[]>([]);
 
   const { data: filings = [], isLoading, error } = useQuery<SECFiling[]>({
-    queryKey: ["/api/sec-filings", searchTicker],
+    queryKey: [`/api/sec-filings/${searchTicker}`],
     enabled: searchSubmitted && searchTicker.length > 0,
   });
 
