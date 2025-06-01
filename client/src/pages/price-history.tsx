@@ -48,11 +48,16 @@ export default function PriceHistory() {
   };
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
+    <div className="space-y-6 p-4 md:p-6 bg-background text-foreground">
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-2">
-          <Calendar className="h-6 w-6 text-blue-600" />
-          <h1 className="text-2xl font-bold text-gray-900">Price History</h1>
+        <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+          <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-sm">R</span>
+          </div>
+        </Link>
+        <div className="flex items-center space-x-2 flex-1 justify-center">
+          <Calendar className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          <h1 className="text-2xl font-bold text-foreground">Price History</h1>
         </div>
         <Link href="/">
           <Button variant="outline" size="sm" className="flex items-center space-x-1 text-xs">
@@ -63,21 +68,21 @@ export default function PriceHistory() {
         </Link>
       </div>
 
-      <Card>
+      <Card className="bg-card text-card-foreground border-border">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <TrendingUp className="h-5 w-5 text-green-600" />
+            <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
             <span>Historical Prices</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Select Stock</label>
+            <label className="text-sm font-medium text-foreground">Select Stock</label>
             <Select value={selectedTicker} onValueChange={setSelectedTicker}>
-              <SelectTrigger>
+              <SelectTrigger className="bg-background border-border text-foreground">
                 <SelectValue placeholder="Choose a stock from your watchlist" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover text-popover-foreground border-border">
                 {stocks.map((stock) => (
                   <SelectItem key={stock.id} value={stock.ticker}>
                     {stock.ticker} - {stock.companyName}
@@ -90,11 +95,11 @@ export default function PriceHistory() {
           {selectedTicker && (
             <div className="mt-6">
               <div className="mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-semibold text-foreground">
                   {selectedStock?.companyName} ({selectedTicker})
                 </h3>
                 {selectedStock?.currentPrice && (
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-muted-foreground">
                     Current Price: {formatPrice(selectedStock.currentPrice)}
                   </p>
                 )}
@@ -103,7 +108,7 @@ export default function PriceHistory() {
               {historyLoading ? (
                 <div className="space-y-3">
                   {[...Array(10)].map((_, i) => (
-                    <div key={i} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div key={i} className="flex justify-between items-center p-3 bg-muted/50 dark:bg-muted/20 rounded-lg">
                       <Skeleton className="h-4 w-24" />
                       <Skeleton className="h-4 w-16" />
                     </div>
@@ -111,7 +116,7 @@ export default function PriceHistory() {
                 </div>
               ) : priceHistory.length > 0 ? (
                 <div className="space-y-2">
-                  <div className="grid grid-cols-2 gap-4 p-3 bg-gray-100 rounded-lg font-semibold text-sm text-gray-700">
+                  <div className="grid grid-cols-2 gap-4 p-3 bg-muted/50 dark:bg-muted/20 rounded-lg font-semibold text-sm text-muted-foreground">
                     <div>Date & Time</div>
                     <div className="text-right">Price</div>
                   </div>

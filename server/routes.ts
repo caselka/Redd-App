@@ -491,15 +491,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Price history routes
+  // Price history routes - fetch 4 weeks of historical daily closing prices
   app.get("/api/stocks/:id/prices", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
-      const prices = await storage.getPriceHistory(id, limit);
-      res.json(prices);
+      
+      // Get stock information to get the ticker
+      const stock = await storage.getStock(id);
+      if (!stock) {
+        return res.status(404).json({ error: "Stock not found" });
+      }
+      
+      const ticker = stock.ticker.toUpperCase();
+      
+      // Fetch 4 weeks (28 days) of historical daily data from Yahoo Finance
+      const response = await fetch(
+        `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1mo&includePrePost=false`,
+        {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          },
+        }
+      );
+      
+      if (!response.ok) {
+        // Fallback to stored data if external API fails
+        const prices = await storage.getPriceHistory(id, 50);
+        return res.json(prices);
+      }
+      
+      const data = await response.json();
+      const result = data?.chart?.result?.[0];
+      
+      if (!result || !result.timestamp || !result.indicators?.quote?.[0]?.close) {
+        // Fallback to stored data if no external data available
+        const prices = await storage.getPriceHistory(id, 50);
+        return res.json(prices);
+      }
+      
+      // Transform Yahoo Finance data to match our price history format
+      const timestamps = result.timestamp;
+      const closes = result.indicators.quote[0].close;
+      
+      const historicalPrices = timestamps
+        .map((timestamp: number, index: number) => {
+          const close = closes[index];
+          if (close === null || close === undefined) return null;
+          
+          return {
+            id: index + 1000000, // Use high ID to avoid conflicts with stored data
+            stockId: id,
+            price: close.toFixed(2),
+            timestamp: new Date(timestamp * 1000),
+            changePercent: null
+          };
+        })
+        .filter((price: any) => price !== null)
+        .reverse(); // Show most recent first
+      
+      res.json(historicalPrices);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch price history" });
+      console.error("Error fetching price history:", error);
+      // Fallback to stored data if external API fails
+      try {
+        const prices = await storage.getPriceHistory(parseInt(req.params.id), 50);
+        res.json(prices);
+      } catch (fallbackError) {
+        res.status(500).json({ error: "Failed to fetch price history" });
+      }
     }
   });
 
