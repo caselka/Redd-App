@@ -18,6 +18,7 @@ export function Sidebar() {
     { path: "/tools", icon: Calculator, label: "Tools" },
     { path: "/analytics", icon: BarChart3, label: "Analytics" },
     { path: "/notes", icon: StickyNote, label: "Notes" },
+    { path: "/price-history", icon: Calendar, label: "Price History" },
     { path: "/telegram", icon: MessageSquare, label: "Telegram Bot" },
   ];
 

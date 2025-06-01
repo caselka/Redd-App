@@ -53,6 +53,8 @@ export function Header({ onAddStock }: HeaderProps) {
         return "Analytics";
       case '/notes':
         return "Investment Notes";
+      case '/price-history':
+        return "Price History";
       case '/telegram':
         return "Telegram Bot";
       case '/settings':
@@ -80,6 +82,8 @@ export function Header({ onAddStock }: HeaderProps) {
         return "Portfolio performance and market analysis";
       case '/notes':
         return "Your investment research and notes";
+      case '/price-history':
+        return "Historical price data for tracked stocks";
       case '/telegram':
         return "Configure price alerts and notifications";
       case '/settings':

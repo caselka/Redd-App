@@ -125,8 +125,8 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
                 
                 return (
                   <div key={stock.id} className="p-4 hover:bg-gray-50 transition-colors">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center flex-1">
+                    <div className="mb-3">
+                      <div className="flex items-center mb-3">
                         <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center text-white font-bold text-sm mr-3">
                           {stock.ticker.slice(0, 4)}
                         </div>
@@ -134,33 +134,6 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
                           <div className="text-sm font-medium text-gray-900 truncate">{stock.companyName}</div>
                           <div className="text-sm text-gray-500">{stock.ticker}</div>
                         </div>
-                      </div>
-                      <div className="flex space-x-1 ml-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setSelectedStock({ ticker: stock.ticker, companyName: stock.companyName })}
-                          className="text-green-600 hover:text-green-700 p-1"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setChartStock({ ticker: stock.ticker, companyName: stock.companyName })}
-                          className="text-brand-blue hover:text-blue-700 p-1"
-                        >
-                          <ChartLine className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteStock(stock.id)}
-                          className="text-red-500 hover:text-red-700 p-1"
-                          disabled={deleteStockMutation.isPending}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
                       </div>
                     </div>
                     
@@ -211,6 +184,37 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
                           : 'Never'
                         }
                       </div>
+                    </div>
+                    
+                    <div className="flex justify-end space-x-1 pt-3 mt-3 border-t border-gray-100">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedStock({ ticker: stock.ticker, companyName: stock.companyName })}
+                        className="text-green-600 hover:text-green-700 p-1"
+                        title="View Details"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setChartStock({ ticker: stock.ticker, companyName: stock.companyName })}
+                        className="text-brand-blue hover:text-blue-700 p-1"
+                        title="View Chart"
+                      >
+                        <ChartLine className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteStock(stock.id)}
+                        className="text-red-500 hover:text-red-700 p-1"
+                        disabled={deleteStockMutation.isPending}
+                        title="Remove from Watchlist"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 );
