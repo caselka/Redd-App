@@ -84,7 +84,7 @@ export function Sidebar() {
   }
 
   return (
-    <div className="hidden md:block w-64 bg-white shadow-lg border-r border-gray-200">
+    <div className="hidden md:flex md:flex-col w-64 bg-white shadow-lg border-r border-gray-200 h-screen fixed">
       <div className="p-6 border-b border-gray-200">
         <Link href="/">
           <div className="flex items-center space-x-3 cursor-pointer">
@@ -99,7 +99,7 @@ export function Sidebar() {
         </Link>
       </div>
       
-      <nav className="mt-6">
+      <nav className="mt-6 flex-1 overflow-y-auto">
         <ul className="space-y-2 px-4">
           {navItems.map((item) => {
             const isActive = location === item.path;
@@ -123,7 +123,7 @@ export function Sidebar() {
         </ul>
       </nav>
       
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white">
+      <div className="p-4 border-t border-gray-200 bg-white">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
             <span className="text-gray-600 text-sm">👤</span>
