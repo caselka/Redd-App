@@ -25,14 +25,18 @@ export function Sidebar() {
   if (isMobile) {
     return (
       <>
-        {/* Mobile Menu Button */}
+        {/* Mobile Menu Button - R Logo */}
         <Button
           variant="outline"
           size="icon"
-          className="fixed top-4 left-4 z-50 md:hidden bg-white shadow-md border-2 border-brand-blue"
+          className="fixed top-4 left-4 z-50 md:hidden bg-white shadow-md border-2 border-charcoal-red hover:bg-charcoal-red hover:border-charcoal-red group transition-all duration-200"
           onClick={() => setIsOpen(!isOpen)}
         >
-          {isOpen ? <X size={20} className="text-brand-blue" /> : <Menu size={20} className="text-brand-blue" />}
+          {isOpen ? (
+            <X size={20} className="text-charcoal-red group-hover:text-white" />
+          ) : (
+            <span className="text-charcoal-red group-hover:text-white font-bold text-lg">R</span>
+          )}
         </Button>
 
         {/* Mobile Sidebar Overlay */}
@@ -43,12 +47,12 @@ export function Sidebar() {
               <div className="p-6 pt-16 border-b border-gray-200">
                 <Link href="/" onClick={() => setIsOpen(false)}>
                   <div className="flex items-center space-x-3 cursor-pointer">
-                    <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
-                      <span className="text-white text-xs font-bold">Redd</span>
+                    <div className="w-10 h-10 bg-charcoal-red rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm font-bold">R</span>
                     </div>
                     <div>
-                      <h1 className="text-xl font-bold text-red-600">Redd</h1>
-                      <p className="text-sm text-gray-500">Investment Tracker</p>
+                      <h1 className="text-xl font-bold text-charcoal-red">Redd</h1>
+                      <p className="text-sm text-neutral-blue-grey">Investment Platform</p>
                     </div>
                   </div>
                 </Link>
@@ -65,8 +69,8 @@ export function Sidebar() {
                         <Link href={item.path} onClick={() => setIsOpen(false)}>
                           <div className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
                             isActive 
-                              ? "bg-brand-blue text-white" 
-                              : "text-gray-700 hover:bg-gray-100"
+                              ? "bg-charcoal-red text-white" 
+                              : "text-neutral-blue-grey hover:bg-gray-100"
                           }`}>
                             <Icon size={20} />
                             <span>{item.label}</span>
@@ -118,12 +122,12 @@ export function Sidebar() {
       <div className="p-6 border-b border-gray-200">
         <Link href="/">
           <div className="flex items-center space-x-3 cursor-pointer">
-            <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs font-bold">Redd</span>
+            <div className="w-10 h-10 bg-charcoal-red rounded-lg flex items-center justify-center">
+              <span className="text-white text-sm font-bold">R</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-red-600">Redd</h1>
-              <p className="text-sm text-gray-500">Investment Tracker</p>
+              <h1 className="text-xl font-bold text-charcoal-red">Redd</h1>
+              <p className="text-sm text-neutral-blue-grey">Investment Platform</p>
             </div>
           </div>
         </Link>
@@ -140,8 +144,8 @@ export function Sidebar() {
                 <Link href={item.path}>
                   <div className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
                     isActive 
-                      ? "bg-brand-blue text-white" 
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-charcoal-red text-white" 
+                      : "text-neutral-blue-grey hover:bg-gray-100"
                   }`}>
                     <Icon size={20} />
                     <span>{item.label}</span>

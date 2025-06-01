@@ -99,15 +99,21 @@ export function Header({ onAddStock }: HeaderProps) {
     <header className="bg-white border-b border-gray-200 px-3 md:px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="pl-16 md:pl-0">
-          <Link href="/" className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity">
-            <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs font-bold">Redd</span>
+          {/* Desktop: Show logo and title */}
+          <Link href="/" className="hidden md:flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity">
+            <div className="w-8 h-8 bg-charcoal-red rounded-lg flex items-center justify-center">
+              <span className="text-white text-xs font-bold">R</span>
             </div>
             <div>
-              <h2 className="text-lg md:text-2xl font-bold text-red-600">{title}</h2>
-              <p className="text-xs md:text-sm text-gray-500 hidden sm:block">{getPageDescription()}</p>
+              <h2 className="text-lg md:text-2xl font-bold text-charcoal-red">{title}</h2>
+              <p className="text-xs md:text-sm text-muted-foreground hidden sm:block">{getPageDescription()}</p>
             </div>
           </Link>
+          
+          {/* Mobile: Show only centered title */}
+          <div className="md:hidden flex justify-center w-full">
+            <h2 className="text-lg font-bold text-neutral-blue-grey text-center">{title}</h2>
+          </div>
         </div>
         <div className="flex items-center space-x-2 md:space-x-4">
           <div className="hidden sm:flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-lg">
@@ -119,7 +125,7 @@ export function Header({ onAddStock }: HeaderProps) {
             size="sm"
             onClick={() => updatePricesMutation.mutate()}
             disabled={updatePricesMutation.isPending}
-            className="border-brand-blue text-brand-blue hover:bg-brand-blue hover:text-white hidden md:flex"
+            className="border-neutral-blue-grey text-neutral-blue-grey hover:bg-neutral-blue-grey hover:text-white transition-all duration-200 hidden md:flex"
           >
             <RefreshCw className={`mr-2 h-4 w-4 ${updatePricesMutation.isPending ? 'animate-spin' : ''}`} />
             Update Prices
@@ -129,11 +135,11 @@ export function Header({ onAddStock }: HeaderProps) {
             size="sm"
             onClick={() => updatePricesMutation.mutate()}
             disabled={updatePricesMutation.isPending}
-            className="border-brand-blue text-brand-blue hover:bg-brand-blue hover:text-white md:hidden"
+            className="border-neutral-blue-grey text-neutral-blue-grey hover:bg-neutral-blue-grey hover:text-white transition-all duration-200 md:hidden"
           >
             <RefreshCw className={`h-4 w-4 ${updatePricesMutation.isPending ? 'animate-spin' : ''}`} />
           </Button>
-          <Button onClick={onAddStock} size="sm" className="bg-red-600 hover:bg-red-700 text-white">
+          <Button onClick={onAddStock} size="sm" className="bg-charcoal-red hover:bg-charcoal-red/90 text-white transition-all duration-200 shadow-sm">
             <Plus className="mr-0 md:mr-2 h-4 w-4" />
             <span className="hidden md:inline">Add Stock</span>
           </Button>
