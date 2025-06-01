@@ -278,11 +278,11 @@ export default function Tools() {
           </div>
 
           <Tabs defaultValue="compound" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="compound">Compound Interest</TabsTrigger>
-              <TabsTrigger value="epv">EPV Estimator</TabsTrigger>
-              <TabsTrigger value="alerts">Price Alerts</TabsTrigger>
-              <TabsTrigger value="ai-check">AI Gut Check</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-1">
+              <TabsTrigger value="compound" className="text-xs md:text-sm p-2 md:p-3">Compound Interest</TabsTrigger>
+              <TabsTrigger value="epv" className="text-xs md:text-sm p-2 md:p-3">EPV Estimator</TabsTrigger>
+              <TabsTrigger value="alerts" className="text-xs md:text-sm p-2 md:p-3">Price Alerts</TabsTrigger>
+              <TabsTrigger value="ai-check" className="text-xs md:text-sm p-2 md:p-3">AI Gut Check</TabsTrigger>
             </TabsList>
 
             {/* Compound Interest Calculator */}

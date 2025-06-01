@@ -94,7 +94,7 @@ export function Header({ onAddStock }: HeaderProps) {
   return (
     <header className="bg-white border-b border-gray-200 px-3 md:px-6 py-4">
       <div className="flex items-center justify-between">
-        <div className="pl-12 md:pl-0">
+        <div className="pl-16 md:pl-0">
           {isDashboard ? (
             <>
               <h2 className="text-lg md:text-2xl font-bold text-gray-900">{title}</h2>
