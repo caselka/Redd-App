@@ -299,62 +299,112 @@ export default function SECFilings() {
                 </p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <div className="mb-4 text-sm text-gray-600">
+              <div>
+                <div className="mb-4 text-sm text-gray-600 px-4 lg:px-0">
                   Showing {filteredAndSortedFilings.length} filing{filteredAndSortedFilings.length !== 1 ? 's' : ''} for {searchTicker}
                 </div>
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Form Type</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Filing Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Period</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Size</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                
+                {/* Mobile Card Layout */}
+                <div className="block lg:hidden">
+                  <div className="divide-y divide-gray-200">
                     {filteredAndSortedFilings.map((filing) => (
-                      <tr key={filing.accessionNumber} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <Badge variant="outline" className="font-mono text-xs">
-                            {filing.form}
-                          </Badge>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm font-medium text-gray-900">{filing.primaryDocDescription}</div>
-                          <div className="text-sm text-gray-500">Accession: {filing.accessionNumber}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center text-sm text-gray-900">
-                            <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                            {new Date(filing.filingDate).toLocaleDateString()}
+                      <div key={filing.accessionNumber} className="p-4 hover:bg-gray-50 transition-colors">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center mb-2">
+                              <Badge variant="outline" className="font-mono text-xs mr-2">
+                                {filing.form}
+                              </Badge>
+                              <span className="text-xs text-gray-500">{formatFileSize(filing.size)}</span>
+                            </div>
+                            <div className="text-sm font-medium text-gray-900 mb-1">{filing.primaryDocDescription}</div>
+                            <div className="text-xs text-gray-500 mb-2">Accession: {filing.accessionNumber}</div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {filing.reportDate ? new Date(filing.reportDate).toLocaleDateString() : 'N/A'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {formatFileSize(filing.size)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex space-x-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => window.open(getFilingUrl(filing), '_blank')}
-                              className="text-brand-blue border-brand-blue hover:bg-brand-blue hover:text-white"
-                            >
-                              <ExternalLink className="h-4 w-4 mr-1" />
-                              View
-                            </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => window.open(getFilingUrl(filing), '_blank')}
+                            className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white ml-2 flex-shrink-0"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <div className="text-gray-500 text-xs uppercase tracking-wide">Filing Date</div>
+                            <div className="flex items-center">
+                              <Calendar className="h-3 w-3 mr-1 text-gray-400" />
+                              <span className="text-xs">{new Date(filing.filingDate).toLocaleDateString()}</span>
+                            </div>
                           </div>
-                        </td>
-                      </tr>
+                          <div>
+                            <div className="text-gray-500 text-xs uppercase tracking-wide">Period</div>
+                            <div className="text-xs">
+                              {filing.reportDate ? new Date(filing.reportDate).toLocaleDateString() : 'N/A'}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                </div>
+                
+                {/* Desktop Table Layout */}
+                <div className="hidden lg:block overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Form Type</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Filing Date</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Period</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Size</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredAndSortedFilings.map((filing) => (
+                        <tr key={filing.accessionNumber} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <Badge variant="outline" className="font-mono text-xs">
+                              {filing.form}
+                            </Badge>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm font-medium text-gray-900">{filing.primaryDocDescription}</div>
+                            <div className="text-sm text-gray-500">Accession: {filing.accessionNumber}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center text-sm text-gray-900">
+                              <Calendar className="h-4 w-4 mr-2 text-gray-400" />
+                              {new Date(filing.filingDate).toLocaleDateString()}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {filing.reportDate ? new Date(filing.reportDate).toLocaleDateString() : 'N/A'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {formatFileSize(filing.size)}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex space-x-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => window.open(getFilingUrl(filing), '_blank')}
+                                className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
+                              >
+                                <ExternalLink className="h-4 w-4 mr-1" />
+                                View
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )}
           </div>

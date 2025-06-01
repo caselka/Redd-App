@@ -278,11 +278,19 @@ export default function Tools() {
           </div>
 
           <Tabs defaultValue="compound" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-1">
-              <TabsTrigger value="compound" className="text-xs md:text-sm p-2 md:p-3">Compound Interest</TabsTrigger>
-              <TabsTrigger value="epv" className="text-xs md:text-sm p-2 md:p-3">EPV Estimator</TabsTrigger>
-              <TabsTrigger value="alerts" className="text-xs md:text-sm p-2 md:p-3">Price Alerts</TabsTrigger>
-              <TabsTrigger value="ai-check" className="text-xs md:text-sm p-2 md:p-3">AI Gut Check</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto">
+              <TabsTrigger value="compound" className="text-xs md:text-sm p-1 md:p-3 h-auto min-h-[2.5rem] flex items-center justify-center text-center whitespace-normal">
+                <span className="leading-tight">Compound<br className="md:hidden" /><span className="md:ml-1">Interest</span></span>
+              </TabsTrigger>
+              <TabsTrigger value="epv" className="text-xs md:text-sm p-1 md:p-3 h-auto min-h-[2.5rem] flex items-center justify-center text-center whitespace-normal">
+                <span className="leading-tight">EPV<br className="md:hidden" /><span className="md:ml-1">Estimator</span></span>
+              </TabsTrigger>
+              <TabsTrigger value="alerts" className="text-xs md:text-sm p-1 md:p-3 h-auto min-h-[2.5rem] flex items-center justify-center text-center whitespace-normal">
+                <span className="leading-tight">Price<br className="md:hidden" /><span className="md:ml-1">Alerts</span></span>
+              </TabsTrigger>
+              <TabsTrigger value="ai-check" className="text-xs md:text-sm p-1 md:p-3 h-auto min-h-[2.5rem] flex items-center justify-center text-center whitespace-normal">
+                <span className="leading-tight">AI Gut<br className="md:hidden" /><span className="md:ml-1">Check</span></span>
+              </TabsTrigger>
             </TabsList>
 
             {/* Compound Interest Calculator */}
