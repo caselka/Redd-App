@@ -46,18 +46,28 @@ export function Sidebar() {
           <div className="fixed inset-0 z-40 md:hidden">
             <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setIsOpen(false)} />
             <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform">
-              <div className="p-6 pt-16 border-b border-gray-200">
-                <Link href="/" onClick={() => setIsOpen(false)}>
-                  <div className="flex items-center space-x-3 cursor-pointer">
-                    <div className="w-10 h-10 bg-charcoal-red rounded-lg flex items-center justify-center">
-                      <span className="text-white text-sm font-bold">R</span>
+              <div className="p-4 pt-6 border-b border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <Link href="/" onClick={() => setIsOpen(false)}>
+                    <div className="flex items-center space-x-3 cursor-pointer">
+                      <div className="w-8 h-8 bg-charcoal-red rounded-lg flex items-center justify-center">
+                        <span className="text-white text-sm font-bold">R</span>
+                      </div>
+                      <div>
+                        <h1 className="text-lg font-bold text-charcoal-red">Redd</h1>
+                        <p className="text-xs text-neutral-blue-grey">Investment Platform</p>
+                      </div>
                     </div>
-                    <div>
-                      <h1 className="text-xl font-bold text-charcoal-red">Redd</h1>
-                      <p className="text-sm text-neutral-blue-grey">Investment Platform</p>
-                    </div>
-                  </div>
-                </Link>
+                  </Link>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsOpen(false)}
+                    className="p-2"
+                  >
+                    <X size={20} className="text-charcoal-red" />
+                  </Button>
+                </div>
               </div>
               
               <nav className="mt-6 pb-20">
