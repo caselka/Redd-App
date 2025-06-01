@@ -70,7 +70,9 @@ html, body {
   --brand-blue: 211 30% 70%; /* #A3C7E8 - Very soft blue */
   --brand-red: 0 35% 70%; /* #C7A3A3 - Soft red (keeping brand identity but muted) */
   --success-green: 142 71% 45%; /* #34C759 - Bright green for margin of safety */
+  --success-green-foreground: 0 0% 100%; /* #FFFFFF - White text on green background */
   --profit-green: 142 76% 55%; /* #30D158 - Bright green for profits */
+  --profit-green-foreground: 0 0% 100%; /* #FFFFFF - White text on green background */
   --loss-red: 0 25% 75%; /* #D1B8B8 - Very soft red */
   --danger-red: 0 30% 70%; /* #C7A8A8 - Soft danger red */
   --warning-orange: 35 35% 75%; /* #D1C4A8 - Soft orange */
@@ -198,6 +200,21 @@ html, body {
 
   .animate-pulse-slow {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Soft pink hover effects for navigation and interactive elements */
+  .hover-soft-pink:hover {
+    @apply bg-pink-accent/20 text-pink-accent;
+    transition: all 0.2s ease-in-out;
+  }
+
+  /* Override default button and link hover colors */
+  button:hover:not(.apple-button), 
+  [role="menuitem"]:hover,
+  nav a:hover,
+  .nav-link:hover {
+    @apply bg-pink-accent/10 text-pink-accent;
+    transition: all 0.2s ease-in-out;
   }
 
   /* Mobile-friendly dashboard styles */
