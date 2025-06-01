@@ -47,7 +47,7 @@ export default function Dashboard() {
               <StockTable 
                 stocks={stocks} 
                 isLoading={stocksLoading}
-                onSelectStock={setSelectedStock}
+                onSelectStock={() => {}} // No longer needed since we have dedicated buttons
               />
             </div>
             
