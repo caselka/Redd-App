@@ -189,68 +189,148 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to delete portfolio holding" });
     }
   });
-  // Stock company information route using basic Yahoo Finance data
+  // Stock company information route using Yahoo Finance
   app.get("/api/stocks/:ticker/company", async (req, res) => {
     try {
       const ticker = req.params.ticker.toUpperCase();
       
-      // Get basic chart data which includes some company info in metadata
-      const response = await fetch(
-        `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1y`
-      );
+      // Try multiple Yahoo Finance endpoints for comprehensive data
+      const endpoints = [
+        `https://query2.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=summaryProfile,financialData,defaultKeyStatistics,price`,
+        `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=summaryProfile,financialData,defaultKeyStatistics,price`,
+        `https://finance.yahoo.com/quote/${ticker}/key-statistics?p=${ticker}`,
+      ];
       
-      if (!response.ok) {
-        throw new Error(`Yahoo Finance API error: ${response.status}`);
+      let companyData = null;
+      
+      // Try the quoteSummary endpoints first
+      for (const endpoint of endpoints.slice(0, 2)) {
+        try {
+          const response = await fetch(endpoint, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            const result = data?.quoteSummary?.result?.[0];
+            if (result) {
+              companyData = result;
+              break;
+            }
+          }
+        } catch (e) {
+          console.log(`Failed endpoint: ${endpoint}`);
+          continue;
+        }
       }
       
-      const data = await response.json();
-      const result = data?.chart?.result?.[0];
-      
-      if (!result) {
+      // Fallback to chart data if quoteSummary fails
+      if (!companyData) {
+        const chartResponse = await fetch(
+          `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1y`
+        );
+        
+        if (chartResponse.ok) {
+          const chartData = await chartResponse.json();
+          const meta = chartData?.chart?.result?.[0]?.meta || {};
+          
+          const companyInfo = {
+            symbol: meta.symbol || ticker,
+            name: meta.longName || meta.shortName || ticker,
+            description: `${ticker} is traded on ${meta.exchangeName || 'the stock market'}.`,
+            sector: "Data temporarily unavailable",
+            industry: "Data temporarily unavailable",
+            employees: "Data temporarily unavailable",
+            marketCap: "Data temporarily unavailable",
+            revenue: "Data temporarily unavailable",
+            grossProfit: "Data temporarily unavailable",
+            profitMargin: "Data temporarily unavailable",
+            operatingMargin: "Data temporarily unavailable",
+            returnOnAssets: "Data temporarily unavailable",
+            returnOnEquity: "Data temporarily unavailable",
+            revenuePerShare: "Data temporarily unavailable",
+            quarterlyRevenueGrowth: "Data temporarily unavailable",
+            quarterlyEarningsGrowth: "Data temporarily unavailable",
+            analystTargetPrice: "Data temporarily unavailable",
+            trailingPE: "Data temporarily unavailable",
+            forwardPE: "Data temporarily unavailable",
+            priceToSales: "Data temporarily unavailable",
+            priceToBook: "Data temporarily unavailable",
+            evToRevenue: "Data temporarily unavailable",
+            evToEbitda: "Data temporarily unavailable",
+            beta: "Data temporarily unavailable",
+            week52High: meta.fiftyTwoWeekHigh || "N/A",
+            week52Low: meta.fiftyTwoWeekLow || "N/A",
+            movingAverage50: "Data temporarily unavailable",
+            movingAverage200: "Data temporarily unavailable",
+            sharesOutstanding: "Data temporarily unavailable",
+            dividendPerShare: "Data temporarily unavailable",
+            dividendYield: "Data temporarily unavailable",
+            dividendDate: "Data temporarily unavailable",
+            exDividendDate: "Data temporarily unavailable",
+            currentPrice: meta.regularMarketPrice,
+            currency: meta.currency || "USD",
+            exchangeName: meta.exchangeName || "Unknown",
+            instrumentType: meta.instrumentType || "EQUITY",
+          };
+          
+          return res.json(companyInfo);
+        }
+        
         return res.status(404).json({ error: "Company information not found" });
       }
 
-      const meta = result.meta || {};
+      // Extract data from successful quoteSummary response
+      const profile = companyData.summaryProfile || {};
+      const keyStats = companyData.defaultKeyStatistics || {};
+      const financialData = companyData.financialData || {};
+      const priceInfo = companyData.price || {};
 
-      // Extract available information from chart metadata
+      const formatNumber = (value: any) => {
+        if (!value || typeof value !== 'object') return "N/A";
+        return value.fmt || value.raw?.toString() || "N/A";
+      };
+
       const companyInfo = {
-        symbol: meta.symbol || ticker,
-        name: meta.longName || meta.shortName || ticker,
-        description: `${ticker} is traded on ${meta.exchangeName || 'the stock market'} with a current price of $${meta.regularMarketPrice || 'N/A'} ${meta.currency || 'USD'}.`,
-        sector: "Requires additional API access",
-        industry: "Requires additional API access", 
-        employees: "Requires additional API access",
-        marketCap: "Requires additional API access",
-        revenue: "Requires additional API access",
-        grossProfit: "Requires additional API access",
-        profitMargin: "Requires additional API access",
-        operatingMargin: "Requires additional API access",
-        returnOnAssets: "Requires additional API access",
-        returnOnEquity: "Requires additional API access",
-        revenuePerShare: "Requires additional API access",
-        quarterlyRevenueGrowth: "Requires additional API access",
-        quarterlyEarningsGrowth: "Requires additional API access",
-        analystTargetPrice: "Requires additional API access",
-        trailingPE: "Requires additional API access",
-        forwardPE: "Requires additional API access",
-        priceToSales: "Requires additional API access",
-        priceToBook: "Requires additional API access",
-        evToRevenue: "Requires additional API access",
-        evToEbitda: "Requires additional API access",
-        beta: "Requires additional API access",
-        week52High: meta.fiftyTwoWeekHigh || "N/A",
-        week52Low: meta.fiftyTwoWeekLow || "N/A",
-        movingAverage50: "Requires additional API access",
-        movingAverage200: "Requires additional API access",
-        sharesOutstanding: "Requires additional API access",
-        dividendPerShare: "Requires additional API access",
-        dividendYield: "Requires additional API access",
-        dividendDate: "Requires additional API access",
-        exDividendDate: "Requires additional API access",
-        currentPrice: meta.regularMarketPrice,
-        currency: meta.currency || "USD",
-        exchangeName: meta.exchangeName || "Unknown",
-        instrumentType: meta.instrumentType || "EQUITY",
+        symbol: ticker,
+        name: priceInfo.longName || priceInfo.shortName || ticker,
+        description: profile.longBusinessSummary || `${ticker} company information.`,
+        sector: profile.sector || "N/A",
+        industry: profile.industry || "N/A",
+        employees: profile.fullTimeEmployees?.toString() || "N/A",
+        marketCap: formatNumber(priceInfo.marketCap || keyStats.marketCap),
+        revenue: formatNumber(financialData.totalRevenue),
+        grossProfit: formatNumber(financialData.grossProfits),
+        profitMargin: formatNumber(financialData.profitMargins),
+        operatingMargin: formatNumber(financialData.operatingMargins),
+        returnOnAssets: formatNumber(financialData.returnOnAssets),
+        returnOnEquity: formatNumber(financialData.returnOnEquity),
+        revenuePerShare: formatNumber(financialData.revenuePerShare),
+        quarterlyRevenueGrowth: formatNumber(financialData.quarterlyRevenueGrowth),
+        quarterlyEarningsGrowth: formatNumber(financialData.quarterlyEarningsGrowth),
+        analystTargetPrice: formatNumber(financialData.targetMeanPrice),
+        trailingPE: formatNumber(keyStats.trailingPE),
+        forwardPE: formatNumber(keyStats.forwardPE),
+        priceToSales: formatNumber(keyStats.priceToSalesTrailing12Months),
+        priceToBook: formatNumber(keyStats.priceToBook),
+        evToRevenue: formatNumber(keyStats.enterpriseToRevenue),
+        evToEbitda: formatNumber(keyStats.enterpriseToEbitda),
+        beta: formatNumber(keyStats.beta),
+        week52High: formatNumber(keyStats.fiftyTwoWeekHigh),
+        week52Low: formatNumber(keyStats.fiftyTwoWeekLow),
+        movingAverage50: formatNumber(keyStats.fiftyDayAverage),
+        movingAverage200: formatNumber(keyStats.twoHundredDayAverage),
+        sharesOutstanding: formatNumber(keyStats.sharesOutstanding),
+        dividendPerShare: formatNumber(keyStats.dividendRate),
+        dividendYield: formatNumber(keyStats.dividendYield),
+        dividendDate: keyStats.dividendDate?.fmt || "N/A",
+        exDividendDate: keyStats.exDividendDate?.fmt || "N/A",
+        currentPrice: priceInfo.regularMarketPrice?.raw || priceInfo.regularMarketPrice,
+        currency: priceInfo.currency || "USD",
+        exchangeName: priceInfo.exchangeName || "Unknown",
+        instrumentType: "EQUITY",
       };
 
       res.json(companyInfo);
