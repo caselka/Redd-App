@@ -147,7 +147,7 @@ export default function Portfolio() {
           <div className="mb-6 text-center">
             <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Portfolio</h1>
             <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base mb-4">Track your stock holdings with live prices</p>
-            <Button onClick={() => setIsAddHoldingModalOpen(true)} className="bg-brand-blue hover:bg-red-700">
+            <Button onClick={() => setIsAddHoldingModalOpen(true)} className="bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200">
               <Plus className="h-4 w-4 mr-2" />
               Add Holding
             </Button>
@@ -210,7 +210,7 @@ export default function Portfolio() {
                   <div className="text-4xl mb-4">📊</div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">No holdings yet</h3>
                   <p className="text-gray-500 mb-4">Add your first stock holding to start tracking your portfolio</p>
-                  <Button onClick={() => setIsAddHoldingModalOpen(true)} className="bg-brand-blue hover:bg-red-700">
+                  <Button onClick={() => setIsAddHoldingModalOpen(true)} className="bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200">
                     Add Your First Holding
                   </Button>
                 </div>
@@ -442,7 +442,7 @@ export default function Portfolio() {
                 <Button
                   type="submit"
                   disabled={addHoldingMutation.isPending}
-                  className="bg-brand-blue hover:bg-red-700"
+                  className="bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200"
                 >
                   {addHoldingMutation.isPending ? "Adding..." : "Add Holding"}
                 </Button>
