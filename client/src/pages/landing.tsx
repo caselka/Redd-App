@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -26,8 +26,59 @@ import {
   X
 } from "lucide-react";
 
+// Custom Link component that scrolls to top on navigation
+const ScrollToTopLink = ({ href, children, className, ...props }: any) => {
+  const handleClick = () => {
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+  };
+
+  return (
+    <Link href={href} className={className} onClick={handleClick} {...props}>
+      {children}
+    </Link>
+  );
+};
+
 export default function Landing() {
   const [selectedFeature, setSelectedFeature] = useState("watchlist");
+  const [isVisible, setIsVisible] = useState({
+    hero: false,
+    stats: false,
+    features: false,
+    news: false,
+    testimonials: false,
+    pricing: false,
+    cta: false
+  });
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const section = entry.target.getAttribute('data-section');
+            if (section) {
+              setIsVisible(prev => ({ ...prev, [section]: true }));
+            }
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    // Observe sections
+    const sections = document.querySelectorAll('[data-section]');
+    sections.forEach((section) => observer.observe(section));
+
+    // Trigger hero animation on load
+    setTimeout(() => {
+      setIsVisible(prev => ({ ...prev, hero: true }));
+    }, 100);
+
+    return () => observer.disconnect();
+  }, []);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Fetch stats for public display
@@ -182,10 +233,14 @@ export default function Landing() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative py-20 px-4 sm:px-6 lg:px-8">
+      <section className="relative py-20 px-4 sm:px-6 lg:px-8" data-section="hero">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
+          <div className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center transition-all duration-1000 ${
+            isVisible.hero ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}>
+            <div className={`transition-all duration-1000 delay-200 ${
+              isVisible.hero ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'
+            }`}>
               <Badge className="mb-4 bg-red-100 text-red-700 hover:bg-red-200">
                 🚀 Now with Global Trade Intelligence
               </Badge>
@@ -226,30 +281,32 @@ export default function Landing() {
               </div>
             </div>
             <div className="relative">
-              <div className="bg-white rounded-2xl shadow-2xl p-6 border">
+              <div className="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 border">
                 <div className="mb-4">
-                  <h3 className="font-semibold text-gray-900 mb-2">Live Market Data</h3>
-                  <div className="grid grid-cols-2 gap-4">
+                  <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Live Market Data</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className="bg-gray-50 rounded-lg p-3">
-                      <div className="text-sm text-gray-500">
+                      <div className="text-xs sm:text-sm text-gray-500">
                         <ClickableTicker ticker="AAPL" companyName="Apple Inc." />
                       </div>
-                      <div className="text-lg font-semibold text-gray-900">$200.85</div>
-                      <div className="text-sm text-green-600">+2.4%</div>
+                      <div className="text-base sm:text-lg font-semibold text-gray-900">$200.85</div>
+                      <div className="text-xs sm:text-sm text-green-600">+2.4%</div>
                     </div>
                     <div className="bg-gray-50 rounded-lg p-3">
-                      <div className="text-sm text-gray-500">
+                      <div className="text-xs sm:text-sm text-gray-500">
                         <ClickableTicker ticker="MSFT" companyName="Microsoft Corporation" />
                       </div>
-                      <div className="text-lg font-semibold text-gray-900">$460.36</div>
-                      <div className="text-sm text-green-600">+1.8%</div>
+                      <div className="text-base sm:text-lg font-semibold text-gray-900">$460.36</div>
+                      <div className="text-xs sm:text-sm text-green-600">+1.8%</div>
                     </div>
                   </div>
                 </div>
-                <StockPriceChart ticker="AAPL" />
+                <div className="h-72 sm:h-80 lg:h-96">
+                  <StockPriceChart ticker="AAPL" />
+                </div>
               </div>
-              <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-br from-red-400 to-red-600 rounded-full opacity-20"></div>
-              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full opacity-10"></div>
+              <div className="absolute -top-4 -right-4 w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-red-400 to-red-600 rounded-full opacity-20"></div>
+              <div className="absolute -bottom-6 -left-6 w-20 h-20 sm:w-32 sm:h-32 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full opacity-10"></div>
             </div>
           </div>
         </div>
@@ -531,28 +588,28 @@ export default function Landing() {
             <div>
               <h3 className="font-semibold mb-4">Product</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="/features" className="hover:text-white">Features</Link></li>
-                <li><Link href="/pricing" className="hover:text-white">Pricing</Link></li>
-                <li><Link href="#" className="hover:text-white">API</Link></li>
-                <li><Link href="#" className="hover:text-white">Mobile App</Link></li>
+                <li><ScrollToTopLink href="/features" className="hover:text-white">Features</ScrollToTopLink></li>
+                <li><ScrollToTopLink href="/pricing" className="hover:text-white">Pricing</ScrollToTopLink></li>
+                <li><ScrollToTopLink href="/api" className="hover:text-white">API</ScrollToTopLink></li>
+                <li><ScrollToTopLink href="/mobile-app" className="hover:text-white">Mobile App</ScrollToTopLink></li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold mb-4">Company</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="/about" className="hover:text-white">About</Link></li>
-                <li><Link href="/blog" className="hover:text-white">Blog</Link></li>
-                <li><Link href="/careers" className="hover:text-white">Careers</Link></li>
-                <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
+                <li><ScrollToTopLink href="/about" className="hover:text-white">About</ScrollToTopLink></li>
+                <li><ScrollToTopLink href="/blog" className="hover:text-white">Blog</ScrollToTopLink></li>
+                <li><ScrollToTopLink href="/careers" className="hover:text-white">Careers</ScrollToTopLink></li>
+                <li><ScrollToTopLink href="/contact" className="hover:text-white">Contact</ScrollToTopLink></li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold mb-4">Support</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="/help" className="hover:text-white">Help Center</Link></li>
-                <li><Link href="/terms-of-service" className="hover:text-white">Terms of Service</Link></li>
-                <li><Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link></li>
-                <li><Link href="/security" className="hover:text-white">Security</Link></li>
+                <li><ScrollToTopLink href="/help" className="hover:text-white">Help Center</ScrollToTopLink></li>
+                <li><ScrollToTopLink href="/terms-of-service" className="hover:text-white">Terms of Service</ScrollToTopLink></li>
+                <li><ScrollToTopLink href="/privacy-policy" className="hover:text-white">Privacy Policy</ScrollToTopLink></li>
+                <li><ScrollToTopLink href="/security" className="hover:text-white">Security</ScrollToTopLink></li>
               </ul>
             </div>
           </div>
