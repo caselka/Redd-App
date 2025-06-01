@@ -182,7 +182,7 @@ export default function Dashboard() {
                                 </div>
                               </div>
                               
-                              <div className="grid grid-cols-2 gap-3 text-sm">
+                              <div className="grid grid-cols-2 gap-3 text-sm mb-3">
                                 <div>
                                   <div className="text-gray-500 text-xs uppercase tracking-wide">Price</div>
                                   <div className="font-medium">
@@ -196,6 +196,34 @@ export default function Dashboard() {
                                     {marginOfSafety >= 0 ? '+' : ''}{marginOfSafety.toFixed(1)}%
                                   </div>
                                 </div>
+                              </div>
+                              
+                              <div className="flex justify-end space-x-1 pt-2 border-t border-gray-100">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setSelectedStockDetails({ ticker: stock.ticker, companyName: stock.companyName })}
+                                  className="text-green-600 hover:text-green-700 p-1"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setSelectedStock(stock.ticker)}
+                                  className="text-blue-600 hover:text-blue-700 p-1"
+                                >
+                                  <ChartLine className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteStock(stock.id)}
+                                  className="text-red-500 hover:text-red-700 p-1"
+                                  disabled={deleteStockMutation.isPending}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
                               </div>
                             </div>
                           );
