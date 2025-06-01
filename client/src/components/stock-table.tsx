@@ -20,7 +20,7 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
   const { toast } = useToast();
 
   const deleteStockMutation = useMutation({
-    mutationFn: (stockId: number) => apiRequest("DELETE", `/api/stocks/${stockId}`),
+    mutationFn: (stockId: number) => apiRequest(`/api/stocks/${stockId}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/stocks"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
