@@ -56,6 +56,8 @@ export default function Landing() {
     aapl: { price: 200.85, change: 2.4, isAnimating: false },
     msft: { price: 460.36, change: 1.8, isAnimating: false }
   });
+  
+  const [coins, setCoins] = useState<Array<{ id: number; x: number; y: number }>>([]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -105,9 +107,53 @@ export default function Landing() {
       }, 800);
     }, 5000);
 
+    // Add coin click handler
+    const handleClick = (e: MouseEvent) => {
+      // Only create coins if user is scrolling or has scrolled recently
+      if (window.scrollY > 50) {
+        const coinId = Date.now() + Math.random();
+        const newCoin = {
+          id: coinId,
+          x: e.clientX,
+          y: e.clientY
+        };
+        
+        setCoins(prev => [...prev, newCoin]);
+        
+        // Remove coin after animation completes
+        setTimeout(() => {
+          setCoins(prev => prev.filter(coin => coin.id !== coinId));
+        }, 3000);
+      }
+    };
+
+    // Add touch handler for mobile
+    const handleTouch = (e: TouchEvent) => {
+      if (window.scrollY > 50 && e.touches.length > 0) {
+        const touch = e.touches[0];
+        const coinId = Date.now() + Math.random();
+        const newCoin = {
+          id: coinId,
+          x: touch.clientX,
+          y: touch.clientY
+        };
+        
+        setCoins(prev => [...prev, newCoin]);
+        
+        setTimeout(() => {
+          setCoins(prev => prev.filter(coin => coin.id !== coinId));
+        }, 3000);
+      }
+    };
+
+    document.addEventListener('click', handleClick);
+    document.addEventListener('touchstart', handleTouch);
+
     return () => {
       observer.disconnect();
       clearInterval(priceInterval);
+      document.removeEventListener('click', handleClick);
+      document.removeEventListener('touchstart', handleTouch);
     };
   }, []);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -684,6 +730,18 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+
+      {/* Falling Gold Coins */}
+      {coins.map(coin => (
+        <div
+          key={coin.id}
+          className="gold-coin animate-coin-fall animate-coin-sparkle"
+          style={{
+            left: coin.x - 12, // Center the coin on click point
+            top: coin.y - 12,
+          }}
+        />
+      ))}
     </div>
   );
 }
