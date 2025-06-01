@@ -123,34 +123,39 @@ export default function Dashboard() {
                           const conviction = Math.min(Math.max(stock.convictionScore || 1, 1), 5);
                           
                           return (
-                            <div key={stock.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                              <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
-                                  {stock.ticker.slice(0, 4)}
-                                </div>
-                                <div className="min-w-0">
-                                  <div className="text-sm font-medium text-gray-900 truncate">{stock.companyName}</div>
-                                  <div className="text-xs text-gray-500">{stock.ticker}</div>
-                                </div>
-                              </div>
-                              
-                              <div className="flex items-center space-x-4 text-right">
-                                <div>
-                                  <div className="text-sm font-medium">
-                                    {stock.currentPrice ? `$${stock.currentPrice.toFixed(2)}` : 'No data'}
+                            <div key={stock.id} className="p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow">
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center space-x-3 min-w-0 flex-1">
+                                  <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                    {stock.ticker.slice(0, 4)}
                                   </div>
-                                  <div className={`text-xs ${marginOfSafety >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                    {marginOfSafety >= 0 ? '+' : ''}{marginOfSafety.toFixed(1)}%
+                                  <div className="min-w-0 flex-1">
+                                    <div className="text-sm font-medium text-gray-900 truncate">{stock.companyName}</div>
+                                    <div className="text-xs text-gray-500">{stock.ticker}</div>
                                   </div>
                                 </div>
                                 
-                                <div className="flex items-center">
-                                  <div className="flex space-x-0.5">
-                                    {Array.from({ length: 5 }, (_, i) => (
-                                      <span key={i} className={`text-xs ${i < conviction ? 'text-yellow-400' : 'text-gray-300'}`}>
-                                        ★
-                                      </span>
-                                    ))}
+                                <div className="flex items-center space-x-1 flex-shrink-0">
+                                  {Array.from({ length: 5 }, (_, i) => (
+                                    <span key={i} className={`text-xs ${i < conviction ? 'text-yellow-400' : 'text-gray-300'}`}>
+                                      ★
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-2 gap-3 text-sm">
+                                <div>
+                                  <div className="text-gray-500 text-xs uppercase tracking-wide">Price</div>
+                                  <div className="font-medium">
+                                    {stock.currentPrice ? `$${stock.currentPrice.toFixed(2)}` : 'No data'}
+                                  </div>
+                                </div>
+                                
+                                <div>
+                                  <div className="text-gray-500 text-xs uppercase tracking-wide">Margin of Safety</div>
+                                  <div className={`font-medium ${marginOfSafety >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    {marginOfSafety >= 0 ? '+' : ''}{marginOfSafety.toFixed(1)}%
                                   </div>
                                 </div>
                               </div>
