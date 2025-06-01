@@ -5,7 +5,7 @@ import { insertStockSchema, insertNoteSchema, insertPortfolioHoldingSchema } fro
 import { z } from "zod";
 import { startTelegramBot } from "./telegram-bot";
 import { startPriceFetcher, triggerPriceUpdate } from "./price-fetcher";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, isAuthenticated } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
