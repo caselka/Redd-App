@@ -26,6 +26,11 @@ import Contact from "@/pages/contact";
 import Security from "@/pages/security";
 import Features from "@/pages/features";
 import Pricing from "@/pages/pricing";
+import Api from "@/pages/api";
+import MobileApp from "@/pages/mobile-app";
+import Blog from "@/pages/blog";
+import Careers from "@/pages/careers";
+import Help from "@/pages/help";
 import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
 
@@ -69,6 +74,11 @@ function Router() {
           <Route path="/security" component={Security} />
           <Route path="/features" component={Features} />
           <Route path="/pricing" component={Pricing} />
+          <Route path="/api" component={Api} />
+          <Route path="/mobile-app" component={MobileApp} />
+          <Route path="/blog" component={Blog} />
+          <Route path="/careers" component={Careers} />
+          <Route path="/help" component={Help} />
           <Route path="/privacy-policy" component={PrivacyPolicy} />
           <Route path="/terms-of-service" component={TermsOfService} />
           <Route component={NotFound} />
