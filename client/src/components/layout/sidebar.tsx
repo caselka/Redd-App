@@ -45,13 +45,13 @@ export function Sidebar() {
               <div className="p-4 pt-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                   <Link href="/" onClick={() => setIsOpen(false)}>
-                    <div className="flex items-center space-x-2 cursor-pointer">
-                      <div className="w-7 h-7 bg-charcoal-red rounded-lg flex items-center justify-center">
+                    <div className="flex items-center space-x-2 cursor-pointer max-w-[170px]">
+                      <div className="w-7 h-7 bg-charcoal-red rounded-lg flex items-center justify-center flex-shrink-0">
                         <span className="text-white text-xs font-bold">R</span>
                       </div>
-                      <div>
-                        <h1 className="text-base font-bold text-charcoal-red">Redd</h1>
-                        <p className="text-xs text-neutral-blue-grey -mt-1">Investment Platform</p>
+                      <div className="min-w-0">
+                        <h1 className="text-base font-bold text-charcoal-red truncate">Redd</h1>
+                        <p className="text-xs text-neutral-blue-grey -mt-1 truncate">Investment Platform</p>
                       </div>
                     </div>
                   </Link>
@@ -59,7 +59,7 @@ export function Sidebar() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsOpen(false)}
-                    className="p-1.5 ml-2"
+                    className="p-1.5 ml-4 flex-shrink-0"
                   >
                     <X size={18} className="text-charcoal-red" />
                   </Button>
