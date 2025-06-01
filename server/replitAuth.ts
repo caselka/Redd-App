@@ -116,15 +116,17 @@ export async function setupAuth(app: Express) {
     })(req, res, next);
   });
 
-  app.get("/api/logout", (req, res) => {
+  app.post("/api/logout", (req, res) => {
     console.log("Logout initiated for session:", req.sessionID);
     req.logout((err) => {
       if (err) {
         console.error("Passport logout error:", err);
+        return res.status(500).json({ error: "Logout failed" });
       }
       req.session.destroy((destroyErr) => {
         if (destroyErr) {
           console.error("Session destruction error:", destroyErr);
+          return res.status(500).json({ error: "Session destruction failed" });
         }
         res.clearCookie('connect.sid', { 
           path: '/',
@@ -132,7 +134,7 @@ export async function setupAuth(app: Express) {
           secure: true 
         });
         console.log("Session destroyed and cookie cleared");
-        res.redirect("/");
+        res.json({ success: true });
       });
     });
   });
