@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Loader2, Globe } from "lucide-react";
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface TradeData {
   exporter: string;
@@ -14,10 +16,15 @@ interface TradeData {
   year: number;
   exporter_code: string;
   importer_code: string;
+  exporter_lat?: number;
+  exporter_lng?: number;
+  importer_lat?: number;
+  importer_lng?: number;
 }
 
 export default function TradeMap() {
   const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<mapboxgl.Map | null>(null);
   const [selectedCommodity, setSelectedCommodity] = useState('Iron Ore');
   const [selectedYear, setSelectedYear] = useState('2023');
   const [tradeData, setTradeData] = useState<TradeData[]>([]);
@@ -32,7 +39,20 @@ export default function TradeMap() {
 
   const years = ['2023', '2022', '2021', '2020'];
 
-  // Sample trade data for demonstration
+  // Country coordinates for trade route visualization
+  const countryCoordinates: { [key: string]: [number, number] } = {
+    'AU': [133.7751, -25.2744], // Australia
+    'CN': [104.1954, 35.8617], // China
+    'BR': [-51.9253, -14.2350], // Brazil
+    'JP': [138.2529, 36.2048], // Japan
+    'US': [-95.7129, 37.0902], // United States
+    'ZA': [22.9375, -30.5595], // South Africa
+    'IN': [78.9629, 20.5937], // India
+    'TW': [120.9605, 23.6978], // Taiwan
+    'KR': [127.7669, 35.9078], // South Korea
+  };
+
+  // Enhanced trade data with coordinates
   const sampleTradeData: TradeData[] = [
     {
       exporter: "Australia",
@@ -41,7 +61,11 @@ export default function TradeMap() {
       value_usd: 54000000000,
       year: 2023,
       exporter_code: "AU",
-      importer_code: "CN"
+      importer_code: "CN",
+      exporter_lng: countryCoordinates['AU'][0],
+      exporter_lat: countryCoordinates['AU'][1],
+      importer_lng: countryCoordinates['CN'][0],
+      importer_lat: countryCoordinates['CN'][1]
     },
     {
       exporter: "Brazil",
@@ -50,7 +74,11 @@ export default function TradeMap() {
       value_usd: 28000000000,
       year: 2023,
       exporter_code: "BR",
-      importer_code: "CN"
+      importer_code: "CN",
+      exporter_lng: countryCoordinates['BR'][0],
+      exporter_lat: countryCoordinates['BR'][1],
+      importer_lng: countryCoordinates['CN'][0],
+      importer_lat: countryCoordinates['CN'][1]
     },
     {
       exporter: "Australia",
@@ -59,7 +87,11 @@ export default function TradeMap() {
       value_usd: 8500000000,
       year: 2023,
       exporter_code: "AU",
-      importer_code: "JP"
+      importer_code: "JP",
+      exporter_lng: countryCoordinates['AU'][0],
+      exporter_lat: countryCoordinates['AU'][1],
+      importer_lng: countryCoordinates['JP'][0],
+      importer_lat: countryCoordinates['JP'][1]
     },
     {
       exporter: "China",
@@ -68,7 +100,11 @@ export default function TradeMap() {
       value_usd: 15000000000,
       year: 2023,
       exporter_code: "CN",
-      importer_code: "US"
+      importer_code: "US",
+      exporter_lng: countryCoordinates['CN'][0],
+      exporter_lat: countryCoordinates['CN'][1],
+      importer_lng: countryCoordinates['US'][0],
+      importer_lat: countryCoordinates['US'][1]
     },
     {
       exporter: "South Africa",
@@ -77,7 +113,11 @@ export default function TradeMap() {
       value_usd: 12000000000,
       year: 2023,
       exporter_code: "ZA",
-      importer_code: "IN"
+      importer_code: "IN",
+      exporter_lng: countryCoordinates['ZA'][0],
+      exporter_lat: countryCoordinates['ZA'][1],
+      importer_lng: countryCoordinates['IN'][0],
+      importer_lat: countryCoordinates['IN'][1]
     },
     {
       exporter: "Taiwan",
@@ -86,7 +126,11 @@ export default function TradeMap() {
       value_usd: 75000000000,
       year: 2023,
       exporter_code: "TW",
-      importer_code: "US"
+      importer_code: "US",
+      exporter_lng: countryCoordinates['TW'][0],
+      exporter_lat: countryCoordinates['TW'][1],
+      importer_lng: countryCoordinates['US'][0],
+      importer_lat: countryCoordinates['US'][1]
     },
     {
       exporter: "South Korea",
@@ -95,7 +139,11 @@ export default function TradeMap() {
       value_usd: 45000000000,
       year: 2023,
       exporter_code: "KR",
-      importer_code: "CN"
+      importer_code: "CN",
+      exporter_lng: countryCoordinates['KR'][0],
+      exporter_lat: countryCoordinates['KR'][1],
+      importer_lng: countryCoordinates['CN'][0],
+      importer_lat: countryCoordinates['CN'][1]
     }
   ];
 
@@ -117,7 +165,42 @@ export default function TradeMap() {
     setIsLoading(true);
     
     try {
-      // Create a simple SVG-based world map for now
+      // Initialize Mapbox
+      mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '';
+      
+      if (!mapboxgl.accessToken) {
+        throw new Error('Mapbox access token not found');
+      }
+
+      const map = new mapboxgl.Map({
+        container: mapRef.current,
+        style: 'mapbox://styles/mapbox/light-v11',
+        center: [0, 20],
+        zoom: 2,
+        projection: 'globe' as any
+      });
+
+      mapInstanceRef.current = map;
+
+      map.on('load', () => {
+        // Add atmosphere effect
+        map.setFog({
+          color: 'rgb(186, 210, 235)',
+          'high-color': 'rgb(36, 92, 223)',
+          'horizon-blend': 0.02,
+          'space-color': 'rgb(11, 11, 25)',
+          'star-intensity': 0.6
+        });
+
+        setMapInitialized(true);
+        updateMapData();
+      });
+
+      map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      
+    } catch (error) {
+      console.error('Error loading map:', error);
+      // Fallback to simple visualization
       const mapContainer = mapRef.current;
       mapContainer.innerHTML = `
         <div class="relative w-full h-full bg-blue-50 rounded-lg overflow-hidden">
@@ -128,15 +211,15 @@ export default function TradeMap() {
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                 </svg>
               </div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">Interactive World Map</h3>
+              <h3 class="text-lg font-semibold text-gray-900 mb-2">Trade Intelligence Map</h3>
               <p class="text-gray-600 text-sm max-w-md">
-                This would display an interactive world map showing trade flows for ${selectedCommodity} in ${selectedYear}.
-                For a production version, this would integrate with Mapbox GL JS or Leaflet with real UN Comtrade data.
+                Interactive mapping requires Mapbox configuration. 
+                Showing trade data visualization below.
               </p>
             </div>
           </div>
           
-          <!-- Sample Trade Routes Visualization -->
+          <!-- Trade Routes Visualization -->
           <div class="absolute bottom-4 left-4 right-4">
             <div class="bg-white rounded-lg p-4 shadow-lg">
               <h4 class="font-semibold text-gray-900 mb-2">Top Trade Routes for ${selectedCommodity}</h4>
@@ -147,10 +230,7 @@ export default function TradeMap() {
           </div>
         </div>
       `;
-
       setMapInitialized(true);
-    } catch (error) {
-      console.error('Error loading map:', error);
     } finally {
       setIsLoading(false);
     }
@@ -161,7 +241,167 @@ export default function TradeMap() {
       trade => trade.commodity === selectedCommodity && trade.year.toString() === selectedYear
     );
 
-    // Update the trade routes display
+    // If Mapbox is initialized, add trade route visualizations
+    if (mapInstanceRef.current && filteredData.length > 0) {
+      // Remove existing layers
+      try {
+        if (mapInstanceRef.current.getLayer('trade-routes')) {
+          mapInstanceRef.current.removeLayer('trade-routes');
+        }
+        if (mapInstanceRef.current.getSource('trade-routes')) {
+          mapInstanceRef.current.removeSource('trade-routes');
+        }
+      } catch (e) {
+        // Layers don't exist yet
+      }
+
+      // Create GeoJSON for trade routes
+      const routeLines = filteredData.map(trade => ({
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: [
+            [trade.exporter_lng!, trade.exporter_lat!],
+            [trade.importer_lng!, trade.importer_lat!]
+          ]
+        },
+        properties: {
+          value: trade.value_usd,
+          exporter: trade.exporter,
+          importer: trade.importer,
+          commodity: trade.commodity
+        }
+      }));
+
+      // Add trade routes source
+      mapInstanceRef.current.addSource('trade-routes', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: routeLines
+        }
+      });
+
+      // Add trade routes layer
+      mapInstanceRef.current.addLayer({
+        id: 'trade-routes',
+        type: 'line',
+        source: 'trade-routes',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#D72638',
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['get', 'value'],
+            1000000000, 2,
+            50000000000, 8,
+            100000000000, 12
+          ],
+          'line-opacity': 0.8
+        }
+      });
+
+      // Add country markers
+      const countryMarkers = filteredData.flatMap(trade => [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [trade.exporter_lng!, trade.exporter_lat!]
+          },
+          properties: {
+            country: trade.exporter,
+            type: 'exporter',
+            value: trade.value_usd
+          }
+        },
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: [trade.importer_lng!, trade.importer_lat!]
+          },
+          properties: {
+            country: trade.importer,
+            type: 'importer',
+            value: trade.value_usd
+          }
+        }
+      ]);
+
+      // Remove existing markers
+      try {
+        if (mapInstanceRef.current.getLayer('country-markers')) {
+          mapInstanceRef.current.removeLayer('country-markers');
+        }
+        if (mapInstanceRef.current.getSource('country-markers')) {
+          mapInstanceRef.current.removeSource('country-markers');
+        }
+      } catch (e) {
+        // Layers don't exist yet
+      }
+
+      mapInstanceRef.current.addSource('country-markers', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: countryMarkers
+        }
+      });
+
+      mapInstanceRef.current.addLayer({
+        id: 'country-markers',
+        type: 'circle',
+        source: 'country-markers',
+        paint: {
+          'circle-radius': [
+            'case',
+            ['==', ['get', 'type'], 'exporter'],
+            8,
+            6
+          ],
+          'circle-color': [
+            'case',
+            ['==', ['get', 'type'], 'exporter'],
+            '#22C55E',
+            '#3B82F6'
+          ],
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff'
+        }
+      });
+
+      // Add click handlers for popups
+      mapInstanceRef.current.on('click', 'country-markers', (e) => {
+        const coordinates = e.features![0].geometry.coordinates.slice();
+        const properties = e.features![0].properties;
+
+        new mapboxgl.Popup()
+          .setLngLat(coordinates as [number, number])
+          .setHTML(`
+            <div class="p-2">
+              <h3 class="font-semibold">${properties!.country}</h3>
+              <p class="text-sm text-gray-600">${properties!.type === 'exporter' ? 'Exporter' : 'Importer'}</p>
+              <p class="text-sm font-medium">$${(properties!.value / 1000000000).toFixed(1)}B</p>
+            </div>
+          `)
+          .addTo(mapInstanceRef.current!);
+      });
+
+      mapInstanceRef.current.on('mouseenter', 'country-markers', () => {
+        mapInstanceRef.current!.getCanvas().style.cursor = 'pointer';
+      });
+
+      mapInstanceRef.current.on('mouseleave', 'country-markers', () => {
+        mapInstanceRef.current!.getCanvas().style.cursor = '';
+      });
+    }
+
+    // Update the trade routes display in the overlay
     const routesContainer = document.getElementById('trade-routes');
     if (routesContainer) {
       routesContainer.innerHTML = filteredData
