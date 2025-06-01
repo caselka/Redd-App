@@ -147,6 +147,8 @@ export function StockPriceChart({ ticker }: StockPriceChartProps) {
         borderWidth: 2,
         fill: true,
         tension: 0.1,
+        pointRadius: 0,
+        pointHoverRadius: 4,
       },
     ],
   };

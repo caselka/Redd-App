@@ -75,6 +75,8 @@ export function PortfolioPerformanceChart({ portfolioValue, totalCost }: Portfol
               borderWidth: 3,
               fill: false,
               tension: 0.4,
+              pointRadius: 0,
+              pointHoverRadius: 4,
             },
             {
               label: 'S&P 500',
@@ -84,6 +86,8 @@ export function PortfolioPerformanceChart({ portfolioValue, totalCost }: Portfol
               borderWidth: 2,
               fill: false,
               tension: 0.4,
+              pointRadius: 0,
+              pointHoverRadius: 4,
             },
             {
               label: 'Dow Jones',
@@ -93,6 +97,8 @@ export function PortfolioPerformanceChart({ portfolioValue, totalCost }: Portfol
               borderWidth: 2,
               fill: false,
               tension: 0.4,
+              pointRadius: 0,
+              pointHoverRadius: 4,
             },
           ],
         },
