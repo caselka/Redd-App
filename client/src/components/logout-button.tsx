@@ -16,15 +16,24 @@ export function LogoutButton({ variant = "ghost", size = "sm", className }: Logo
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [, setLocation] = useLocation();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (isLoggingOut) return;
     
     setIsLoggingOut(true);
-    // Clear React Query cache before redirect
-    queryClient.clear();
-    
-    // Navigate directly to the logout endpoint which will handle the OpenID Connect logout flow
-    window.location.href = "/api/logout";
+    try {
+      // Call the correct logout API endpoint
+      await apiRequest("/api/auth/logout", { method: "POST" });
+      
+      // Clear all React Query cache
+      queryClient.clear();
+      
+      // Navigate to landing page
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Force navigation to landing page as fallback
+      window.location.href = "/";
+    }
   };
 
   return (

@@ -48,9 +48,9 @@ export default function Login() {
     },
   });
 
-  const handleReplitLogin = () => {
+  const handleGoogleLogin = () => {
     setIsLoading(true);
-    window.location.href = "/api/login";
+    window.location.href = "/api/auth/google";
   };
 
   return (
@@ -71,12 +71,12 @@ export default function Login() {
             </div>
 
             <Button
-              onClick={handleReplitLogin}
+              onClick={handleGoogleLogin}
               className="w-full bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200"
               disabled={isLoading}
             >
-              <LogIn className="h-4 w-4 mr-2" />
-              {isLoading ? "Signing in..." : "Sign In with Replit"}
+              <Chrome className="h-4 w-4 mr-2" />
+              {isLoading ? "Signing in..." : "Sign In with Google"}
             </Button>
 
             <div className="mt-6 text-center">
