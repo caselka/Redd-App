@@ -70,7 +70,7 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
           <h3 className="text-lg font-semibold text-gray-900">Stock Watchlist</h3>
         </div>
         <div className="p-8 text-center">
-          <div className="animate-spin h-8 w-8 border-b-2 border-brand-blue mx-auto"></div>
+          <ReddSpinner size="lg" className="mx-auto" />
           <p className="mt-2 text-gray-500">Loading stocks...</p>
         </div>
       </div>
