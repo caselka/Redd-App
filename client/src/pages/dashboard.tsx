@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calculator, DollarSign, Link as LinkIcon, Eye, ChartLine, Trash2 } from "lucide-react";
+import { Calculator, DollarSign, Link as LinkIcon, Eye, ChartLine, Trash2, Calendar } from "lucide-react";
 import { Link } from "wouter";
 import type { StockWithLatestPrice, StockStats } from "@shared/schema";
 
@@ -216,6 +216,15 @@ export default function Dashboard() {
                                 >
                                   <ChartLine className="h-4 w-4" />
                                 </Button>
+                                <Link href="/price-history">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-purple-600 hover:text-purple-700 p-1"
+                                  >
+                                    <Calendar className="h-4 w-4" />
+                                  </Button>
+                                </Link>
                                 <Button
                                   variant="ghost"
                                   size="sm"

@@ -107,7 +107,7 @@ export default function PriceHistory() {
                           className="grid grid-cols-2 gap-4 p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                         >
                           <div className="text-sm text-gray-700">
-                            {formatDate(entry.timestamp)}
+                            {entry.timestamp ? formatDate(entry.timestamp) : 'N/A'}
                           </div>
                           <div className={`text-right font-medium ${
                             isUp ? 'text-green-600' : isDown ? 'text-red-600' : 'text-gray-900'

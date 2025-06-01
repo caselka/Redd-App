@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Search, RefreshCw, ChartLine, Trash2, Eye, Star } from "lucide-react";
+import { Search, RefreshCw, ChartLine, Trash2, Eye, Star, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ import { ReddSpinner } from "@/components/ui/redd-spinner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { Link } from "wouter";
 import type { StockWithLatestPrice } from "@shared/schema";
 
 interface StockTableProps {
@@ -205,6 +206,16 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
                       >
                         <ChartLine className="h-4 w-4" />
                       </Button>
+                      <Link href="/price-history">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-purple-600 hover:text-purple-700 p-1"
+                          title="Price History"
+                        >
+                          <Calendar className="h-4 w-4" />
+                        </Button>
+                      </Link>
                       <Button
                         variant="ghost"
                         size="sm"
