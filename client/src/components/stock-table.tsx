@@ -228,6 +228,16 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
           </table>
         </div>
       )}
+      
+      {/* Stock Details Modal */}
+      {selectedStock && (
+        <StockDetailsModal
+          isOpen={!!selectedStock}
+          onClose={() => setSelectedStock(null)}
+          ticker={selectedStock.ticker}
+          companyName={selectedStock.companyName}
+        />
+      )}
     </div>
   );
 }
