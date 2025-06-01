@@ -24,6 +24,7 @@ class TelegramBot {
   private botToken: string;
   private isRunning: boolean = false;
   private lastUpdateId: number = 0;
+  private alertChatIds: Set<number> = new Set();
 
   constructor(token: string) {
     this.botToken = token;
@@ -86,6 +87,7 @@ class TelegramBot {
             '• `/note TICKER your note` - Save investment note\n' +
             '• `/log TICKER` - Get recent price history\n' +
             '• `/conviction TICKER 1-10` - Set conviction score\n' +
+            '• `/alerts on/off` - Enable/disable price alerts\n' +
             '• `/list` - Show all watched stocks\n' +
             '• `/stats` - Portfolio statistics'
           );
@@ -117,6 +119,10 @@ class TelegramBot {
 
         case '/stats':
           await this.handleStatsCommand(chatId);
+          break;
+
+        case '/alerts':
+          await this.handleAlertsCommand(chatId, args.slice(1));
           break;
 
         default:
@@ -222,6 +228,7 @@ class TelegramBot {
     try {
       await storage.createNote({
         stockId: stock.id,
+        userId: `telegram_${chatId}`,
         content: noteContent,
       });
 
@@ -326,6 +333,71 @@ class TelegramBot {
       `🛡️ Avg. Margin of Safety: ${stats.avgMarginOfSafety.toFixed(1)}%\n` +
       `⭐ High Conviction (8+): ${stats.highConviction}`
     );
+  }
+
+  async handleAlertsCommand(chatId: number, args: string[]) {
+    if (args.length === 0 || args[0] === 'status') {
+      const isSubscribed = this.alertChatIds.has(chatId);
+      await this.sendMessage(chatId,
+        `🔔 *Price Alert Status:*\n\n` +
+        `Status: ${isSubscribed ? '🟢 Active' : '🔴 Inactive'}\n\n` +
+        `Commands:\n` +
+        `• \`/alerts on\` - Enable price alerts\n` +
+        `• \`/alerts off\` - Disable price alerts\n` +
+        `• \`/alerts status\` - Check current status\n\n` +
+        `💡 *How it works:*\n` +
+        `You'll receive alerts when any stock in your watchlist drops below its intrinsic value (positive margin of safety).`
+      );
+      return;
+    }
+
+    const action = args[0].toLowerCase();
+    
+    if (action === 'on' || action === 'enable') {
+      this.alertChatIds.add(chatId);
+      await this.sendMessage(chatId,
+        `🔔 *Price alerts enabled!*\n\n` +
+        `You'll now receive notifications when stocks in your watchlist reach attractive buying opportunities (below intrinsic value).\n\n` +
+        `Use \`/alerts off\` to disable alerts.`
+      );
+    } else if (action === 'off' || action === 'disable') {
+      this.alertChatIds.delete(chatId);
+      await this.sendMessage(chatId,
+        `🔕 *Price alerts disabled.*\n\n` +
+        `You will no longer receive price notifications.\n\n` +
+        `Use \`/alerts on\` to re-enable alerts.`
+      );
+    } else {
+      await this.sendMessage(chatId,
+        `❌ Invalid option. Use:\n` +
+        `• \`/alerts on\` - Enable alerts\n` +
+        `• \`/alerts off\` - Disable alerts\n` +
+        `• \`/alerts status\` - Check status`
+      );
+    }
+  }
+
+  async sendPriceAlert(ticker: string, currentPrice: number, intrinsicValue: number, marginOfSafety: number) {
+    if (this.alertChatIds.size === 0) return;
+
+    const alertMessage = 
+      `🚨 *PRICE ALERT* 🚨\n\n` +
+      `📊 *${ticker}* is now trading below intrinsic value!\n\n` +
+      `💰 Current Price: $${currentPrice.toFixed(2)}\n` +
+      `🎯 Intrinsic Value: $${intrinsicValue.toFixed(2)}\n` +
+      `🛡️ Margin of Safety: ${marginOfSafety.toFixed(1)}%\n\n` +
+      `✅ This could be a good buying opportunity!`;
+
+    // Send to all subscribed chats
+    for (const chatId of Array.from(this.alertChatIds)) {
+      try {
+        await this.sendMessage(chatId, alertMessage);
+      } catch (error) {
+        console.error(`Failed to send alert to chat ${chatId}:`, error);
+        // Remove chat if it's no longer accessible
+        this.alertChatIds.delete(chatId);
+      }
+    }
   }
 
   async start() {
