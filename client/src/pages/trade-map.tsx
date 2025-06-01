@@ -39,6 +39,37 @@ export default function TradeMap() {
 
   const years = ['2023', '2022', '2021', '2020'];
 
+  // Bloomberg terminal-style regional trading blocks
+  const createRegionalTradingBlocks = () => {
+    const regions = [
+      { name: 'NORTH AMERICA', countries: ['US', 'CA', 'MX'], color: 'bg-blue-500', intensity: 85 },
+      { name: 'EUROPE', countries: ['DE', 'GB', 'FR', 'IT'], color: 'bg-green-500', intensity: 72 },
+      { name: 'ASIA PACIFIC', countries: ['CN', 'JP', 'KR', 'IN'], color: 'bg-red-500', intensity: 93 },
+      { name: 'MIDDLE EAST', countries: ['SA', 'AE', 'QA'], color: 'bg-yellow-500', intensity: 67 },
+      { name: 'AFRICA', countries: ['ZA', 'NG', 'EG'], color: 'bg-purple-500', intensity: 45 },
+      { name: 'SOUTH AMERICA', countries: ['BR', 'AR', 'CL'], color: 'bg-orange-500', intensity: 58 }
+    ];
+
+    return regions.map((region, index) => {
+      const gridPosition = index < 3 ? 'col-span-4' : 'col-span-4';
+      const commodityFlow = tradeData
+        .filter(trade => trade.commodity === selectedCommodity && trade.year.toString() === selectedYear)
+        .filter(trade => region.countries.includes(trade.exporter_code) || region.countries.includes(trade.importer_code))
+        .reduce((sum, trade) => sum + trade.value_usd, 0);
+
+      return `
+        <div class="${gridPosition} ${region.color} bg-opacity-20 border border-current rounded p-2 hover:bg-opacity-30 transition-all cursor-pointer">
+          <div class="text-xs text-green-400 font-mono">${region.name}</div>
+          <div class="text-xs text-yellow-400 mt-1">$${(commodityFlow / 1000000000).toFixed(1)}B</div>
+          <div class="text-xs text-gray-300 mt-1">${region.intensity}% ACTIVITY</div>
+          <div class="w-full bg-gray-700 rounded h-1 mt-2">
+            <div class="h-1 rounded transition-all duration-1000 ${region.color}" style="width: ${region.intensity}%"></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  };
+
   // Country coordinates for trade route visualization
   const countryCoordinates: { [key: string]: [number, number] } = {
     'AU': [133.7751, -25.2744], // Australia
@@ -165,19 +196,23 @@ export default function TradeMap() {
     setIsLoading(true);
     
     try {
-      // Initialize Mapbox
-      mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || '';
+      // Initialize Mapbox with proper token access
+      const mapboxToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
       
-      if (!mapboxgl.accessToken) {
-        throw new Error('Mapbox access token not found');
+      if (!mapboxToken) {
+        console.log('Mapbox token not configured, using fallback visualization');
+        throw new Error('Mapbox access token not configured');
       }
+      
+      mapboxgl.accessToken = mapboxToken;
 
       const map = new mapboxgl.Map({
         container: mapRef.current,
-        style: 'mapbox://styles/mapbox/light-v11',
+        style: 'mapbox://styles/mapbox/dark-v11',
         center: [0, 20],
-        zoom: 2,
-        projection: 'globe' as any
+        zoom: 2.3,
+        projection: 'globe' as any,
+        attributionControl: false
       });
 
       mapInstanceRef.current = map;
@@ -200,31 +235,28 @@ export default function TradeMap() {
       
     } catch (error) {
       console.error('Error loading map:', error);
-      // Fallback to simple visualization
+      // Bloomberg terminal-style trade visualization
       const mapContainer = mapRef.current;
       mapContainer.innerHTML = `
-        <div class="relative w-full h-full bg-blue-50 rounded-lg overflow-hidden">
-          <div class="absolute inset-0 flex items-center justify-center">
-            <div class="text-center">
-              <div class="w-32 h-32 bg-blue-200 rounded-full flex items-center justify-center mb-4 mx-auto">
-                <svg class="w-16 h-16 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                </svg>
-              </div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-2">Trade Intelligence Map</h3>
-              <p class="text-gray-600 text-sm max-w-md">
-                Interactive mapping requires Mapbox configuration. 
-                Showing trade data visualization below.
-              </p>
+        <div class="relative w-full h-full bg-gray-900 rounded-lg overflow-hidden" style="font-family: 'Courier New', monospace;">
+          <!-- Bloomberg-style header -->
+          <div class="absolute top-0 left-0 right-0 bg-black text-green-400 p-3 text-xs">
+            <div class="flex justify-between items-center">
+              <span>REDD TRADE INTELLIGENCE MAP - ${selectedCommodity.toUpperCase()} ${selectedYear}</span>
+              <span class="text-yellow-400 animate-pulse">LIVE</span>
             </div>
           </div>
           
-          <!-- Trade Routes Visualization -->
+          <!-- World regions grid -->
+          <div class="absolute inset-0 pt-12 grid grid-cols-12 grid-rows-8 gap-1 p-4" id="regional-blocks">
+          </div>
+          
+          <!-- Real-time trade flows panel -->
           <div class="absolute bottom-4 left-4 right-4">
-            <div class="bg-white rounded-lg p-4 shadow-lg">
-              <h4 class="font-semibold text-gray-900 mb-2">Top Trade Routes for ${selectedCommodity}</h4>
-              <div class="space-y-2" id="trade-routes">
-                <!-- Will be populated by updateMapData -->
+            <div class="bg-black bg-opacity-90 border border-green-400 rounded p-4">
+              <div class="text-green-400 text-xs mb-2 font-mono">TRADE FLOWS - ${selectedCommodity.toUpperCase()}</div>
+              <div class="space-y-1" id="trade-routes">
+                <!-- Will show real trade data -->
               </div>
             </div>
           </div>
@@ -401,16 +433,54 @@ export default function TradeMap() {
       });
     }
 
-    // Update the trade routes display in the overlay
+    // Update regional blocks visualization
+    const regionalContainer = document.getElementById('regional-blocks');
+    if (regionalContainer) {
+      const regions = [
+        { name: 'NORTH AMERICA', countries: ['US', 'CA', 'MX'], color: 'bg-blue-500', intensity: 85 },
+        { name: 'EUROPE', countries: ['DE', 'GB', 'FR', 'IT'], color: 'bg-green-500', intensity: 72 },
+        { name: 'ASIA PACIFIC', countries: ['CN', 'JP', 'KR', 'IN'], color: 'bg-red-500', intensity: 93 },
+        { name: 'MIDDLE EAST', countries: ['SA', 'AE', 'QA'], color: 'bg-yellow-500', intensity: 67 },
+        { name: 'AFRICA', countries: ['ZA', 'NG', 'EG'], color: 'bg-purple-500', intensity: 45 },
+        { name: 'SOUTH AMERICA', countries: ['BR', 'AR', 'CL'], color: 'bg-orange-500', intensity: 58 }
+      ];
+
+      regionalContainer.innerHTML = regions.map((region) => {
+        const commodityFlow = filteredData
+          .filter(trade => region.countries.includes(trade.exporter_code) || region.countries.includes(trade.importer_code))
+          .reduce((sum, trade) => sum + trade.value_usd, 0);
+
+        return `
+          <div class="col-span-4 ${region.color} bg-opacity-20 border border-current rounded p-2 hover:bg-opacity-30 transition-all cursor-pointer">
+            <div class="text-xs text-green-400 font-mono">${region.name}</div>
+            <div class="text-xs text-yellow-400 mt-1">$${(commodityFlow / 1000000000).toFixed(1)}B</div>
+            <div class="text-xs text-gray-300 mt-1">${region.intensity}% ACTIVITY</div>
+            <div class="w-full bg-gray-700 rounded h-1 mt-2">
+              <div class="h-1 rounded transition-all duration-1000 ${region.color}" style="width: ${region.intensity}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Update the trade routes display in Bloomberg terminal style
     const routesContainer = document.getElementById('trade-routes');
     if (routesContainer) {
       routesContainer.innerHTML = filteredData
         .sort((a, b) => b.value_usd - a.value_usd)
-        .slice(0, 5)
-        .map(trade => `
-          <div class="flex justify-between items-center text-sm">
-            <span class="font-medium">${trade.exporter} → ${trade.importer}</span>
-            <span class="text-blue-600 font-semibold">$${(trade.value_usd / 1000000000).toFixed(1)}B</span>
+        .slice(0, 8)
+        .map((trade, index) => `
+          <div class="flex justify-between items-center text-xs font-mono py-1 border-b border-gray-600">
+            <div class="flex items-center space-x-2">
+              <span class="text-yellow-400 w-6">${(index + 1).toString().padStart(2, '0')}</span>
+              <span class="text-green-400">${trade.exporter_code}</span>
+              <span class="text-gray-400">→</span>
+              <span class="text-blue-400">${trade.importer_code}</span>
+            </div>
+            <div class="text-right">
+              <div class="text-white">$${(trade.value_usd / 1000000000).toFixed(2)}B</div>
+              <div class="text-gray-400 text-xs">${trade.commodity}</div>
+            </div>
           </div>
         `)
         .join('');
