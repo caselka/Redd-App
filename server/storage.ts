@@ -195,8 +195,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteStock(id: number): Promise<boolean> {
-    const result = await db.delete(stocks).where(eq(stocks.id, id));
-    return (result.rowCount || 0) > 0;
+    try {
+      // Delete related data first to avoid foreign key constraints
+      await db.delete(notes).where(eq(notes.stockId, id));
+      await db.delete(priceHistory).where(eq(priceHistory.stockId, id));
+      
+      // Then delete the stock
+      const result = await db.delete(stocks).where(eq(stocks.id, id));
+      return (result.rowCount || 0) > 0;
+    } catch (error) {
+      console.error("Error deleting stock:", error);
+      return false;
+    }
   }
 
   // Price history operations

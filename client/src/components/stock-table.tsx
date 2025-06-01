@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Search, RefreshCw, ChartLine, StickyNote, Trash2 } from "lucide-react";
+import { Search, RefreshCw, ChartLine, StickyNote, Trash2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { StockDetailsModal } from "@/components/stock-details-modal";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +17,7 @@ interface StockTableProps {
 
 export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStock, setSelectedStock] = useState<{ ticker: string; companyName: string } | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -184,6 +186,15 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <div className="flex space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setSelectedStock({ ticker: stock.ticker, companyName: stock.companyName })}
+                          className="text-green-600 hover:text-green-700"
+                          title="View company details and chart"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"

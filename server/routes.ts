@@ -189,6 +189,135 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to delete portfolio holding" });
     }
   });
+  // Stock company information route
+  app.get("/api/stocks/:ticker/company", async (req, res) => {
+    try {
+      const ticker = req.params.ticker.toUpperCase();
+      
+      // Fetch company overview from Alpha Vantage
+      const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
+      if (!alphaVantageKey) {
+        return res.status(503).json({ error: "Alpha Vantage API key not configured" });
+      }
+
+      const response = await fetch(
+        `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${ticker}&apikey=${alphaVantageKey}`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Alpha Vantage API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.Note) {
+        return res.status(429).json({ error: "API rate limit exceeded. Please try again later." });
+      }
+      
+      if (!data.Symbol) {
+        return res.status(404).json({ error: "Company information not found" });
+      }
+
+      const companyInfo = {
+        symbol: data.Symbol,
+        name: data.Name,
+        description: data.Description,
+        sector: data.Sector,
+        industry: data.Industry,
+        employees: data.FullTimeEmployees,
+        marketCap: data.MarketCapitalization,
+        revenue: data.RevenueTTM,
+        grossProfit: data.GrossProfitTTM,
+        profitMargin: data.ProfitMargin,
+        operatingMargin: data.OperatingMarginTTM,
+        returnOnAssets: data.ReturnOnAssetsTTM,
+        returnOnEquity: data.ReturnOnEquityTTM,
+        revenuePerShare: data.RevenuePerShareTTM,
+        quarterlyRevenueGrowth: data.QuarterlyRevenueGrowthYOY,
+        quarterlyEarningsGrowth: data.QuarterlyEarningsGrowthYOY,
+        analystTargetPrice: data.AnalystTargetPrice,
+        trailingPE: data.TrailingPE,
+        forwardPE: data.ForwardPE,
+        priceToSales: data.PriceToSalesRatioTTM,
+        priceToBook: data.PriceToBookRatio,
+        evToRevenue: data.EVToRevenue,
+        evToEbitda: data.EVToEBITDA,
+        beta: data.Beta,
+        week52High: data.Week52High,
+        week52Low: data.Week52Low,
+        movingAverage50: data.MovingAverage50Day,
+        movingAverage200: data.MovingAverage200Day,
+        sharesOutstanding: data.SharesOutstanding,
+        dividendPerShare: data.DividendPerShare,
+        dividendYield: data.DividendYield,
+        dividendDate: data.DividendDate,
+        exDividendDate: data.ExDividendDate,
+      };
+
+      res.json(companyInfo);
+    } catch (error) {
+      console.error("Error fetching company info:", error);
+      res.status(500).json({ error: "Failed to fetch company information" });
+    }
+  });
+
+  // Stock historical chart data route
+  app.get("/api/stocks/:ticker/chart", async (req, res) => {
+    try {
+      const ticker = req.params.ticker.toUpperCase();
+      const period = req.query.period || "1y"; // 1d, 5d, 1m, 3m, 6m, 1y, 2y, 5y, 10y, ytd, max
+      
+      // Use Yahoo Finance for chart data
+      const response = await fetch(
+        `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=${period}`
+      );
+      
+      if (!response.ok) {
+        throw new Error(`Yahoo Finance API error: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      const result = data?.chart?.result?.[0];
+      
+      if (!result) {
+        return res.status(404).json({ error: "Chart data not found" });
+      }
+
+      const timestamps = result.timestamp || [];
+      const quotes = result.indicators?.quote?.[0] || {};
+      const adjClose = result.indicators?.adjclose?.[0]?.adjclose || [];
+      
+      const chartData = timestamps.map((timestamp: number, index: number) => ({
+        date: new Date(timestamp * 1000).toISOString().split('T')[0],
+        timestamp: timestamp * 1000,
+        open: quotes.open?.[index] || null,
+        high: quotes.high?.[index] || null,
+        low: quotes.low?.[index] || null,
+        close: quotes.close?.[index] || null,
+        adjClose: adjClose[index] || null,
+        volume: quotes.volume?.[index] || null,
+      })).filter(item => item.close !== null);
+
+      res.json({
+        symbol: result.meta?.symbol || ticker,
+        currency: result.meta?.currency || "USD",
+        exchangeName: result.meta?.exchangeName || "",
+        instrumentType: result.meta?.instrumentType || "",
+        firstTradeDate: result.meta?.firstTradeDate,
+        regularMarketTime: result.meta?.regularMarketTime,
+        gmtoffset: result.meta?.gmtoffset,
+        timezone: result.meta?.timezone,
+        exchangeTimezoneName: result.meta?.exchangeTimezoneName,
+        regularMarketPrice: result.meta?.regularMarketPrice,
+        chartPreviousClose: result.meta?.chartPreviousClose,
+        data: chartData,
+      });
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
+      res.status(500).json({ error: "Failed to fetch chart data" });
+    }
+  });
+
   // Stock routes
   app.get("/api/stocks", async (req, res) => {
     try {
