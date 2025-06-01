@@ -23,20 +23,7 @@ class PriceFetcher {
   }
 
   async fetchStockPrice(ticker: string): Promise<YahooFinanceResult | null> {
-    // Try Alpha Vantage first if API key is available
-    if (this.alphaVantageKey) {
-      const alphaResult = await this.fetchFromAlphaVantage(ticker);
-      if (alphaResult) {
-        return {
-          symbol: alphaResult.symbol,
-          regularMarketPrice: alphaResult.price,
-          regularMarketChangePercent: alphaResult.changePercent,
-          regularMarketTime: Date.now() / 1000,
-        };
-      }
-    }
-
-    // Fallback to Yahoo Finance
+    // Use Yahoo Finance as primary source (more reliable and no rate limits)
     return this.fetchFromYahooFinance(ticker);
   }
 

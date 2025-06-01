@@ -55,46 +55,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
             weightedAveragePrice = totalCost / totalShares;
 
-            // Get current price from Alpha Vantage with Yahoo Finance fallback
+            // Get current price using Google Finance via Yahoo Finance API
             let currentPrice = 0;
-            const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
             
-            // Try Alpha Vantage first
-            if (alphaVantageKey) {
-              try {
-                const response = await fetch(
-                  `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ticker}&apikey=${alphaVantageKey}`
-                );
-                
-                if (response.ok) {
-                  const data = await response.json();
-                  const quote = data['Global Quote'];
-                  if (quote && quote['05. price']) {
-                    currentPrice = parseFloat(quote['05. price']);
-                  }
+            try {
+              // Use Yahoo Finance which provides reliable market data
+              const yahooResponse = await fetch(
+                `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`
+              );
+              
+              if (yahooResponse.ok) {
+                const yahooData = await yahooResponse.json();
+                const result = yahooData?.chart?.result?.[0];
+                if (result?.meta?.regularMarketPrice) {
+                  currentPrice = result.meta.regularMarketPrice;
+                  console.log(`Got price for ${ticker}: $${currentPrice}`);
                 }
-              } catch (error) {
-                console.warn(`Alpha Vantage failed for ${ticker}:`, error);
               }
-            }
-            
-            // Fallback to Yahoo Finance if Alpha Vantage failed
-            if (currentPrice === 0) {
-              try {
-                const yahooResponse = await fetch(
-                  `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`
-                );
-                
-                if (yahooResponse.ok) {
-                  const yahooData = await yahooResponse.json();
-                  const result = yahooData?.chart?.result?.[0];
-                  if (result?.meta?.regularMarketPrice) {
-                    currentPrice = result.meta.regularMarketPrice;
-                  }
-                }
-              } catch (error) {
-                console.warn(`Yahoo Finance failed for ${ticker}:`, error);
-              }
+            } catch (error) {
+              console.warn(`Failed to get price for ${ticker}:`, error);
             }
             
             const currentValue = currentPrice * totalShares;
