@@ -10,6 +10,7 @@ import { NewsPanel } from "@/components/news-panel";
 import { AddStockModal } from "@/components/add-stock-modal";
 import { StockDetailsModal } from "@/components/stock-details-modal";
 import { StockPriceChart } from "@/components/stock-price-chart";
+import { ClickableTicker } from "@/components/ui/clickable-ticker";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";

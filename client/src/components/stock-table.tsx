@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { StockDetailsModal } from "@/components/stock-details-modal";
 import { StockPriceChart } from "@/components/stock-price-chart";
+import { ClickableTicker } from "@/components/ui/clickable-ticker";
 import { ReddSpinner } from "@/components/ui/redd-spinner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -133,7 +134,9 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
                         </div>
                         <div className="min-w-0 flex-1">
                           <div className="text-sm font-medium text-gray-900 truncate">{stock.companyName}</div>
-                          <div className="text-sm text-gray-500">{stock.ticker}</div>
+                          <div className="text-sm text-gray-500">
+                            <ClickableTicker ticker={stock.ticker} companyName={stock.companyName} />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -260,7 +263,9 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="text-sm font-medium text-gray-900 truncate">{stock.companyName}</div>
-                            <div className="text-sm text-gray-500">{stock.ticker}</div>
+                            <div className="text-sm text-gray-500">
+                              <ClickableTicker ticker={stock.ticker} companyName={stock.companyName} />
+                            </div>
                           </div>
                         </div>
                       </td>
