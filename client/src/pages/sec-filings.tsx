@@ -150,7 +150,7 @@ export default function SECFilings() {
                     className="pl-10"
                   />
                 </div>
-                <Button type="submit" className="bg-brand-blue hover:bg-red-700">
+                <Button type="submit" className="bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200">
                   Search Filings
                 </Button>
               </form>

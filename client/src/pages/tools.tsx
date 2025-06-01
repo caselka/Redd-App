@@ -262,7 +262,7 @@ export default function Tools() {
               <p className="text-gray-600 mb-6">Please log in to access investment tools</p>
               <Button 
                 onClick={() => window.location.href = '/api/login'}
-                className="bg-brand-blue hover:bg-red-700"
+                className="bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200"
               >
                 Login with Replit
               </Button>
@@ -563,7 +563,7 @@ export default function Tools() {
                         <Label htmlFor="scenarios">Run Multiple Scenarios</Label>
                       </div>
 
-                      <Button onClick={calculateEPV} className="w-full bg-brand-blue hover:bg-red-700">
+                      <Button onClick={calculateEPV} className="w-full bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200">
                         Calculate EPV
                       </Button>
                     </div>

@@ -159,7 +159,7 @@ export default function Login() {
 
                   <Button 
                     type="submit" 
-                    className="w-full bg-brand-blue hover:bg-red-700" 
+                    className="w-full bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200" 
                     disabled={isLoading}
                   >
                     <LogIn className="h-4 w-4 mr-2" />
@@ -232,7 +232,7 @@ export default function Login() {
 
                   <Button 
                     type="submit" 
-                    className="w-full bg-brand-blue hover:bg-red-700" 
+                    className="w-full bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200" 
                     disabled={isLoading}
                   >
                     <UserPlus className="h-4 w-4 mr-2" />
