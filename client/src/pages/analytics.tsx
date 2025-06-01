@@ -2,6 +2,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { useState } from "react";
 import { AddStockModal } from "@/components/add-stock-modal";
+import { PortfolioPerformanceChart } from "@/components/portfolio-performance-chart";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -192,6 +193,14 @@ export default function Analytics() {
                     </div>
                   </CardContent>
                 </Card>
+              </div>
+              
+              {/* Portfolio Performance Chart */}
+              <div className="col-span-full">
+                <PortfolioPerformanceChart 
+                  portfolioValue={totalValue}
+                  totalCost={totalCost}
+                />
               </div>
             </>
           )}

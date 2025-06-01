@@ -337,7 +337,7 @@ export default function Dashboard() {
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mobile-grid">
               <div className="mobile-card">
-                <PriceChart selectedStock={selectedStock} />
+                <PriceChart selectedStock={selectedStock} onStockChange={setSelectedStock} />
               </div>
               
               <div className="mobile-card">
