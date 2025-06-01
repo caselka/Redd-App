@@ -2,35 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Mobile optimization */
-@media (max-width: 768px) {
-  .mobile-main {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    max-width: 100vw;
-    overflow-x: hidden;
-  }
-  
-  .mobile-grid {
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-  }
-  
-  .mobile-table {
-    margin-left: -0.5rem;
-    margin-right: -0.5rem;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-}
-
 /* Prevent horizontal scrolling globally */
-html, body {
-  overflow-x: hidden;
-  max-width: 100vw;
-}
-
-/* Prevent horizontal scrolling on mobile */
 html, body {
   overflow-x: hidden;
   max-width: 100vw;
@@ -40,52 +12,34 @@ html, body {
   box-sizing: border-box;
 }
 
-/* Mobile-specific improvements */
+/* Mobile optimization */
 @media (max-width: 768px) {
-  .container {
-    max-width: 100vw;
-    overflow-x: hidden;
-  }
-  
-  /* Ensure tables and cards don't overflow */
-  .table-container {
-    overflow-x: auto;
-    max-width: calc(100vw - 2rem);
-  }
-  
-  /* Improve button and form spacing on mobile */
-  .mobile-optimized {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-  
-  /* Ensure main content areas fit mobile screens */
   .mobile-main {
     min-width: 0;
     max-width: 100vw;
     padding-left: 0.75rem;
     padding-right: 0.75rem;
+    overflow-x: hidden;
   }
   
-  /* Mobile card improvements */
+  .mobile-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .mobile-table {
+    overflow-x: auto;
+    max-width: 100%;
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
   .mobile-card {
     margin-left: -0.5rem;
     margin-right: -0.5rem;
     border-radius: 0.5rem;
-  }
-  
-  /* Grid improvements for mobile */
-  .mobile-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  /* Table responsive wrapper */
-  .mobile-table {
-    display: block;
-    max-width: 100%;
-    overflow-x: auto;
-    white-space: nowrap;
   }
 }
 
