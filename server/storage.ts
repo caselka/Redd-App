@@ -18,7 +18,7 @@ import {
   type StockStats 
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 
 export interface IStorage {
   // Stock operations
@@ -73,7 +73,10 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByProviderId(provider: string, providerId: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(
-      eq(users.provider, provider)
+      and(
+        eq(users.provider, provider),
+        eq(users.providerId, providerId)
+      )
     );
     return user;
   }
