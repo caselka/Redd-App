@@ -20,8 +20,9 @@ export default function PriceHistory() {
 
   const selectedStock = stocks.find(s => s.ticker === selectedTicker);
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+  const formatDate = (dateString: string | Date) => {
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -30,6 +31,7 @@ export default function PriceHistory() {
 
   const formatPrice = (price: string | number) => {
     const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    if (isNaN(numPrice)) return '$0.00';
     return `$${numPrice.toFixed(2)}`;
   };
 
@@ -105,7 +107,7 @@ export default function PriceHistory() {
                           className="grid grid-cols-2 gap-4 p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                         >
                           <div className="text-sm text-gray-700">
-                            {formatDate(entry.timestamp.toString())}
+                            {formatDate(entry.timestamp)}
                           </div>
                           <div className={`text-right font-medium ${
                             isUp ? 'text-green-600' : isDown ? 'text-red-600' : 'text-gray-900'

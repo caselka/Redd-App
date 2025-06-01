@@ -8,6 +8,7 @@ import { NotesSection } from "@/components/notes-section";
 import { TelegramPanel } from "@/components/telegram-panel";
 import { NewsPanel } from "@/components/news-panel";
 import { AddStockModal } from "@/components/add-stock-modal";
+import { StockDetailsModal } from "@/components/stock-details-modal";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -348,6 +349,15 @@ export default function Dashboard() {
         isOpen={isAddStockModalOpen}
         onClose={() => setIsAddStockModalOpen(false)}
       />
+      
+      {selectedStockDetails && (
+        <StockDetailsModal
+          isOpen={!!selectedStockDetails}
+          onClose={() => setSelectedStockDetails(null)}
+          ticker={selectedStockDetails.ticker}
+          companyName={selectedStockDetails.companyName}
+        />
+      )}
     </div>
   );
 }

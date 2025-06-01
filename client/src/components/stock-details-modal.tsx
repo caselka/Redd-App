@@ -69,9 +69,18 @@ export function StockDetailsModal({ isOpen, onClose, ticker, companyName }: Stoc
 
         <Tabs defaultValue="overview" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="overview">Company Overview</TabsTrigger>
-            <TabsTrigger value="financials">Financial Metrics</TabsTrigger>
-            <TabsTrigger value="chart">Stock Chart</TabsTrigger>
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">
+              <span className="hidden sm:inline">Company Overview</span>
+              <span className="sm:hidden">Company</span>
+            </TabsTrigger>
+            <TabsTrigger value="financials" className="text-xs sm:text-sm">
+              <span className="hidden sm:inline">Financial Metrics</span>
+              <span className="sm:hidden">Financials</span>
+            </TabsTrigger>
+            <TabsTrigger value="chart" className="text-xs sm:text-sm">
+              <span className="hidden sm:inline">Stock Chart</span>
+              <span className="sm:hidden">Chart</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
