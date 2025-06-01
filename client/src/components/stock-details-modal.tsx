@@ -19,13 +19,13 @@ export function StockDetailsModal({ isOpen, onClose, ticker, companyName }: Stoc
   const [chartPeriod, setChartPeriod] = useState("1y");
 
   const { data: companyInfo, isLoading: companyLoading } = useQuery({
-    queryKey: ["/api/stocks", ticker, "company"],
+    queryKey: [`/api/stocks/${ticker}/company`],
     enabled: isOpen && !!ticker,
     retry: false, // Don't retry if Alpha Vantage fails
   });
 
   const { data: chartData, isLoading: chartLoading } = useQuery({
-    queryKey: ["/api/stocks", ticker, "chart", chartPeriod],
+    queryKey: [`/api/stocks/${ticker}/chart?period=${chartPeriod}`],
     enabled: isOpen && !!ticker,
   });
 
