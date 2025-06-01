@@ -52,6 +52,10 @@ export default function Landing() {
     pricing: false,
     cta: false
   });
+  const [animatedPrices, setAnimatedPrices] = useState({
+    aapl: { price: 200.85, change: 2.4, isAnimating: false },
+    msft: { price: 460.36, change: 1.8, isAnimating: false }
+  });
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -77,7 +81,34 @@ export default function Landing() {
       setIsVisible(prev => ({ ...prev, hero: true }));
     }, 100);
 
-    return () => observer.disconnect();
+    // Animate price changes every 10 seconds
+    const priceInterval = setInterval(() => {
+      setAnimatedPrices(prev => ({
+        aapl: {
+          price: Number((prev.aapl.price + (Math.random() - 0.5) * 2).toFixed(2)),
+          change: Number((prev.aapl.change + (Math.random() - 0.5) * 0.5).toFixed(1)),
+          isAnimating: true
+        },
+        msft: {
+          price: Number((prev.msft.price + (Math.random() - 0.5) * 5).toFixed(2)),
+          change: Number((prev.msft.change + (Math.random() - 0.5) * 0.3).toFixed(1)),
+          isAnimating: true
+        }
+      }));
+
+      // Reset animation state after 500ms
+      setTimeout(() => {
+        setAnimatedPrices(prev => ({
+          aapl: { ...prev.aapl, isAnimating: false },
+          msft: { ...prev.msft, isAnimating: false }
+        }));
+      }, 500);
+    }, 10000);
+
+    return () => {
+      observer.disconnect();
+      clearInterval(priceInterval);
+    };
   }, []);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -287,50 +318,82 @@ export default function Landing() {
                 <div className="mb-4">
                   <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Live Market Data</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div className="bg-gray-50 rounded-lg p-3">
+                    <div className={`bg-gray-50 rounded-lg p-3 transition-all duration-500 ${
+                      animatedPrices.aapl.isAnimating ? 'bg-green-50 scale-105 shadow-md' : ''
+                    }`}>
                       <div className="text-xs sm:text-sm text-gray-500">
                         <ClickableTicker ticker="AAPL" companyName="Apple Inc." />
                       </div>
-                      <div className="text-base sm:text-lg font-semibold text-gray-900">$200.85</div>
-                      <div className="text-xs sm:text-sm text-green-600">+2.4%</div>
+                      <div className={`text-base sm:text-lg font-semibold text-gray-900 transition-all duration-300 ${
+                        animatedPrices.aapl.isAnimating ? 'text-green-600' : ''
+                      }`}>
+                        ${animatedPrices.aapl.price}
+                      </div>
+                      <div className={`text-xs sm:text-sm transition-all duration-300 ${
+                        animatedPrices.aapl.change >= 0 ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {animatedPrices.aapl.change >= 0 ? '+' : ''}{animatedPrices.aapl.change}%
+                      </div>
                     </div>
-                    <div className="bg-gray-50 rounded-lg p-3">
+                    <div className={`bg-gray-50 rounded-lg p-3 transition-all duration-500 ${
+                      animatedPrices.msft.isAnimating ? 'bg-green-50 scale-105 shadow-md' : ''
+                    }`}>
                       <div className="text-xs sm:text-sm text-gray-500">
                         <ClickableTicker ticker="MSFT" companyName="Microsoft Corporation" />
                       </div>
-                      <div className="text-base sm:text-lg font-semibold text-gray-900">$460.36</div>
-                      <div className="text-xs sm:text-sm text-green-600">+1.8%</div>
+                      <div className={`text-base sm:text-lg font-semibold text-gray-900 transition-all duration-300 ${
+                        animatedPrices.msft.isAnimating ? 'text-green-600' : ''
+                      }`}>
+                        ${animatedPrices.msft.price}
+                      </div>
+                      <div className={`text-xs sm:text-sm transition-all duration-300 ${
+                        animatedPrices.msft.change >= 0 ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {animatedPrices.msft.change >= 0 ? '+' : ''}{animatedPrices.msft.change}%
+                      </div>
                     </div>
                   </div>
                 </div>
-                <div className="h-72 sm:h-80 lg:h-96">
+                <div className="h-80 sm:h-96 lg:h-[450px]">
                   <StockPriceChart ticker="AAPL" />
                 </div>
               </div>
-              <div className="absolute -top-4 -right-4 w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-red-400 to-red-600 rounded-full opacity-20"></div>
-              <div className="absolute -bottom-6 -left-6 w-20 h-20 sm:w-32 sm:h-32 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full opacity-10"></div>
+              <div className="absolute -top-4 -right-4 w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-red-400 to-red-600 rounded-full opacity-20 animate-pulse"></div>
+              <div className="absolute -bottom-6 -left-6 w-20 h-20 sm:w-32 sm:h-32 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full opacity-10 animate-bounce"></div>
+              
+              {/* Additional floating elements */}
+              <div className="absolute top-1/2 -left-8 w-12 h-12 bg-gradient-to-br from-green-300 to-green-500 rounded-full opacity-15 animate-ping"></div>
+              <div className="absolute top-1/4 -right-8 w-8 h-8 bg-gradient-to-br from-purple-300 to-purple-500 rounded-full opacity-20 animate-pulse delay-700"></div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-white" data-section="stats">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
+          <div className={`text-center mb-12 transition-all duration-1000 ${
+            isVisible.stats ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Trusted by Smart Investors</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
               Join thousands of investors who use Redd to make informed investment decisions
             </p>
           </div>
-          <StatsCards stats={stats} />
+          <div className={`transition-all duration-1000 delay-300 ${
+            isVisible.stats ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}>
+            <StatsCards stats={stats} />
+          </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-white">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-50 to-white" data-section="features">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+          <div className={`text-center mb-16 transition-all duration-1000 ${
+            isVisible.features ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
               Everything You Need for Smart Investing
             </h2>
@@ -340,7 +403,9 @@ export default function Landing() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className={`grid grid-cols-1 lg:grid-cols-2 gap-12 items-center transition-all duration-1000 delay-200 ${
+            isVisible.features ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}>
             <div>
               <div className="space-y-6">
                 {features.map((feature) => (
