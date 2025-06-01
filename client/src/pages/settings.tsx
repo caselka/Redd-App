@@ -18,6 +18,7 @@ export default function Settings() {
   const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { theme, setTheme } = useTheme();
 
   const [profileData, setProfileData] = useState({
     firstName: user?.firstName || "",
@@ -122,6 +123,22 @@ export default function Settings() {
                       onChange={(e) => setProfileData({...profileData, email: e.target.value})}
                       placeholder="Enter your email address"
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Theme</label>
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-2">
+                        {theme === "dark" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                        <span className="text-sm">
+                          {theme === "dark" ? "Dark Mode" : "Light Mode"}
+                        </span>
+                      </div>
+                      <Switch
+                        checked={theme === "dark"}
+                        onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+                      />
+                    </div>
                   </div>
 
                   <Button onClick={handleSaveProfile} className="flex items-center gap-2">
