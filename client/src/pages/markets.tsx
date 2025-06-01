@@ -2,7 +2,9 @@ import { useState } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { AddStockModal } from "@/components/add-stock-modal";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -21,10 +23,42 @@ export default function Markets() {
   const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedExchange, setSelectedExchange] = useState("ALL");
+  const { toast } = useToast();
 
   const { data: marketData = [], isLoading } = useQuery<MarketStock[]>({
     queryKey: ["/api/markets"],
   });
+
+  const addStockMutation = useMutation({
+    mutationFn: async (stockData: { ticker: string; companyName: string }) => {
+      return await apiRequest("/api/stocks", {
+        method: "POST",
+        body: JSON.stringify(stockData),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/stocks"] });
+      toast({
+        title: "Success",
+        description: "Stock added to your watchlist",
+        variant: "default",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add stock to watchlist",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleWatchStock = async (stock: MarketStock) => {
+    addStockMutation.mutate({
+      ticker: stock.symbol,
+      companyName: stock.name,
+    });
+  };
 
   const filteredStocks = marketData.filter((stock: MarketStock) => {
     const matchesSearch = stock.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -149,9 +183,11 @@ export default function Markets() {
                               size="sm"
                               variant="outline"
                               className="text-brand-blue border-brand-blue hover:bg-brand-blue hover:text-white"
+                              onClick={() => handleWatchStock(stock)}
+                              disabled={addStockMutation.isPending}
                             >
                               <Plus className="h-4 w-4 mr-1" />
-                              Watch
+                              {addStockMutation.isPending ? "Adding..." : "Watch"}
                             </Button>
                           </td>
                         </tr>

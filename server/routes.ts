@@ -829,47 +829,144 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Markets data endpoint for NASDAQ and NYSE
+  // Markets data endpoint for NASDAQ and NYSE with comprehensive ticker coverage
   app.get("/api/markets", async (req, res) => {
     try {
-      const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
-      
-      if (!alphaVantageKey) {
-        return res.status(503).json({ error: "Alpha Vantage API key not configured" });
-      }
-
-      // Define major stocks to display with real price data
-      const majorStocks = [
+      // Comprehensive list of major NASDAQ and NYSE stocks
+      const comprehensiveStocks = [
+        // NASDAQ Technology Giants
         { symbol: 'AAPL', name: 'Apple Inc.', exchange: 'NASDAQ', sector: 'Technology' },
         { symbol: 'MSFT', name: 'Microsoft Corporation', exchange: 'NASDAQ', sector: 'Technology' },
-        { symbol: 'GOOGL', name: 'Alphabet Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'GOOGL', name: 'Alphabet Inc. Class A', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'GOOG', name: 'Alphabet Inc. Class C', exchange: 'NASDAQ', sector: 'Technology' },
         { symbol: 'AMZN', name: 'Amazon.com Inc.', exchange: 'NASDAQ', sector: 'Consumer Discretionary' },
         { symbol: 'NVDA', name: 'NVIDIA Corporation', exchange: 'NASDAQ', sector: 'Technology' },
         { symbol: 'META', name: 'Meta Platforms Inc.', exchange: 'NASDAQ', sector: 'Technology' },
         { symbol: 'TSLA', name: 'Tesla Inc.', exchange: 'NASDAQ', sector: 'Consumer Discretionary' },
         { symbol: 'NFLX', name: 'Netflix Inc.', exchange: 'NASDAQ', sector: 'Communication Services' },
         { symbol: 'ADBE', name: 'Adobe Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'CRM', name: 'Salesforce Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'INTC', name: 'Intel Corporation', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'AMD', name: 'Advanced Micro Devices Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'QCOM', name: 'QUALCOMM Incorporated', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'AVGO', name: 'Broadcom Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'ORCL', name: 'Oracle Corporation', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'CSCO', name: 'Cisco Systems Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'CMCSA', name: 'Comcast Corporation', exchange: 'NASDAQ', sector: 'Communication Services' },
+        { symbol: 'PEP', name: 'PepsiCo Inc.', exchange: 'NASDAQ', sector: 'Consumer Staples' },
+        { symbol: 'COST', name: 'Costco Wholesale Corporation', exchange: 'NASDAQ', sector: 'Consumer Staples' },
+        
+        // NASDAQ Biotech and Healthcare
+        { symbol: 'AMGN', name: 'Amgen Inc.', exchange: 'NASDAQ', sector: 'Healthcare' },
+        { symbol: 'GILD', name: 'Gilead Sciences Inc.', exchange: 'NASDAQ', sector: 'Healthcare' },
+        { symbol: 'BIIB', name: 'Biogen Inc.', exchange: 'NASDAQ', sector: 'Healthcare' },
+        { symbol: 'REGN', name: 'Regeneron Pharmaceuticals Inc.', exchange: 'NASDAQ', sector: 'Healthcare' },
+        { symbol: 'VRTX', name: 'Vertex Pharmaceuticals Incorporated', exchange: 'NASDAQ', sector: 'Healthcare' },
+        { symbol: 'ILMN', name: 'Illumina Inc.', exchange: 'NASDAQ', sector: 'Healthcare' },
+        { symbol: 'MRNA', name: 'Moderna Inc.', exchange: 'NASDAQ', sector: 'Healthcare' },
+        
+        // NASDAQ Others
+        { symbol: 'SBUX', name: 'Starbucks Corporation', exchange: 'NASDAQ', sector: 'Consumer Discretionary' },
+        { symbol: 'PYPL', name: 'PayPal Holdings Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'ABNB', name: 'Airbnb Inc.', exchange: 'NASDAQ', sector: 'Consumer Discretionary' },
+        { symbol: 'ZM', name: 'Zoom Video Communications Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'DOCU', name: 'DocuSign Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'ROKU', name: 'Roku Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'LYFT', name: 'Lyft Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'UBER', name: 'Uber Technologies Inc.', exchange: 'NYSE', sector: 'Technology' },
+        
+        // NYSE Blue Chips and Financial Services
         { symbol: 'JPM', name: 'JPMorgan Chase & Co.', exchange: 'NYSE', sector: 'Financial Services' },
-        { symbol: 'BAC', name: 'Bank of America Corp.', exchange: 'NYSE', sector: 'Financial Services' },
+        { symbol: 'BAC', name: 'Bank of America Corporation', exchange: 'NYSE', sector: 'Financial Services' },
+        { symbol: 'WFC', name: 'Wells Fargo & Company', exchange: 'NYSE', sector: 'Financial Services' },
+        { symbol: 'C', name: 'Citigroup Inc.', exchange: 'NYSE', sector: 'Financial Services' },
+        { symbol: 'GS', name: 'Goldman Sachs Group Inc.', exchange: 'NYSE', sector: 'Financial Services' },
+        { symbol: 'MS', name: 'Morgan Stanley', exchange: 'NYSE', sector: 'Financial Services' },
+        { symbol: 'AXP', name: 'American Express Company', exchange: 'NYSE', sector: 'Financial Services' },
+        { symbol: 'BLK', name: 'BlackRock Inc.', exchange: 'NYSE', sector: 'Financial Services' },
+        { symbol: 'SPG', name: 'Simon Property Group Inc.', exchange: 'NYSE', sector: 'Real Estate' },
+        
+        // NYSE Healthcare
         { symbol: 'JNJ', name: 'Johnson & Johnson', exchange: 'NYSE', sector: 'Healthcare' },
-        { symbol: 'PG', name: 'Procter & Gamble Co.', exchange: 'NYSE', sector: 'Consumer Staples' },
-        { symbol: 'KO', name: 'Coca-Cola Co.', exchange: 'NYSE', sector: 'Consumer Staples' },
-        { symbol: 'XOM', name: 'Exxon Mobil Corp.', exchange: 'NYSE', sector: 'Energy' },
-        { symbol: 'V', name: 'Visa Inc.', exchange: 'NYSE', sector: 'Financial Services' },
-        { symbol: 'UNH', name: 'UnitedHealth Group Inc.', exchange: 'NYSE', sector: 'Healthcare' },
-        { symbol: 'HD', name: 'Home Depot Inc.', exchange: 'NYSE', sector: 'Consumer Discretionary' },
+        { symbol: 'PFE', name: 'Pfizer Inc.', exchange: 'NYSE', sector: 'Healthcare' },
+        { symbol: 'MRK', name: 'Merck & Co. Inc.', exchange: 'NYSE', sector: 'Healthcare' },
+        { symbol: 'ABT', name: 'Abbott Laboratories', exchange: 'NYSE', sector: 'Healthcare' },
+        { symbol: 'TMO', name: 'Thermo Fisher Scientific Inc.', exchange: 'NYSE', sector: 'Healthcare' },
+        { symbol: 'UNH', name: 'UnitedHealth Group Incorporated', exchange: 'NYSE', sector: 'Healthcare' },
+        { symbol: 'CVS', name: 'CVS Health Corporation', exchange: 'NYSE', sector: 'Healthcare' },
+        { symbol: 'ABBV', name: 'AbbVie Inc.', exchange: 'NYSE', sector: 'Healthcare' },
+        
+        // NYSE Consumer and Retail
+        { symbol: 'PG', name: 'Procter & Gamble Company', exchange: 'NYSE', sector: 'Consumer Staples' },
+        { symbol: 'KO', name: 'Coca-Cola Company', exchange: 'NYSE', sector: 'Consumer Staples' },
         { symbol: 'WMT', name: 'Walmart Inc.', exchange: 'NYSE', sector: 'Consumer Staples' },
-        { symbol: 'DIS', name: 'Walt Disney Co.', exchange: 'NYSE', sector: 'Communication Services' },
+        { symbol: 'HD', name: 'Home Depot Inc.', exchange: 'NYSE', sector: 'Consumer Discretionary' },
+        { symbol: 'LOW', name: 'Lowe\'s Companies Inc.', exchange: 'NYSE', sector: 'Consumer Discretionary' },
+        { symbol: 'TGT', name: 'Target Corporation', exchange: 'NYSE', sector: 'Consumer Discretionary' },
+        { symbol: 'DIS', name: 'Walt Disney Company', exchange: 'NYSE', sector: 'Communication Services' },
+        { symbol: 'MCD', name: 'McDonald\'s Corporation', exchange: 'NYSE', sector: 'Consumer Discretionary' },
+        { symbol: 'NKE', name: 'Nike Inc.', exchange: 'NYSE', sector: 'Consumer Discretionary' },
+        
+        // NYSE Financials and Payments
+        { symbol: 'V', name: 'Visa Inc.', exchange: 'NYSE', sector: 'Financial Services' },
+        { symbol: 'MA', name: 'Mastercard Incorporated', exchange: 'NYSE', sector: 'Financial Services' },
+        { symbol: 'SQ', name: 'Block Inc.', exchange: 'NYSE', sector: 'Technology' },
+        
+        // NYSE Energy and Utilities
+        { symbol: 'XOM', name: 'Exxon Mobil Corporation', exchange: 'NYSE', sector: 'Energy' },
+        { symbol: 'CVX', name: 'Chevron Corporation', exchange: 'NYSE', sector: 'Energy' },
+        { symbol: 'COP', name: 'ConocoPhillips', exchange: 'NYSE', sector: 'Energy' },
+        { symbol: 'SLB', name: 'Schlumberger NV', exchange: 'NYSE', sector: 'Energy' },
+        { symbol: 'NEE', name: 'NextEra Energy Inc.', exchange: 'NYSE', sector: 'Utilities' },
+        { symbol: 'DUK', name: 'Duke Energy Corporation', exchange: 'NYSE', sector: 'Utilities' },
+        { symbol: 'SO', name: 'Southern Company', exchange: 'NYSE', sector: 'Utilities' },
+        
+        // NYSE Telecommunications
+        { symbol: 'VZ', name: 'Verizon Communications Inc.', exchange: 'NYSE', sector: 'Communication Services' },
+        { symbol: 'T', name: 'AT&T Inc.', exchange: 'NYSE', sector: 'Communication Services' },
+        { symbol: 'TMUS', name: 'T-Mobile US Inc.', exchange: 'NASDAQ', sector: 'Communication Services' },
+        
+        // NYSE Industrials
+        { symbol: 'MMM', name: '3M Company', exchange: 'NYSE', sector: 'Industrials' },
+        { symbol: 'CAT', name: 'Caterpillar Inc.', exchange: 'NYSE', sector: 'Industrials' },
+        { symbol: 'BA', name: 'Boeing Company', exchange: 'NYSE', sector: 'Industrials' },
+        { symbol: 'UPS', name: 'United Parcel Service Inc.', exchange: 'NYSE', sector: 'Industrials' },
+        { symbol: 'FDX', name: 'FedEx Corporation', exchange: 'NYSE', sector: 'Industrials' },
+        { symbol: 'LMT', name: 'Lockheed Martin Corporation', exchange: 'NYSE', sector: 'Industrials' },
+        { symbol: 'RTX', name: 'Raytheon Technologies Corporation', exchange: 'NYSE', sector: 'Industrials' },
+        { symbol: 'HON', name: 'Honeywell International Inc.', exchange: 'NYSE', sector: 'Industrials' },
+        { symbol: 'GE', name: 'General Electric Company', exchange: 'NYSE', sector: 'Industrials' },
+        
+        // NYSE REITs and Real Estate
+        { symbol: 'AMT', name: 'American Tower Corporation', exchange: 'NYSE', sector: 'Real Estate' },
+        { symbol: 'CCI', name: 'Crown Castle International Corp.', exchange: 'NYSE', sector: 'Real Estate' },
+        { symbol: 'PLD', name: 'Prologis Inc.', exchange: 'NYSE', sector: 'Real Estate' },
+        { symbol: 'EQIX', name: 'Equinix Inc.', exchange: 'NASDAQ', sector: 'Real Estate' },
+        
+        // Additional Popular Stocks
+        { symbol: 'SHOP', name: 'Shopify Inc.', exchange: 'NYSE', sector: 'Technology' },
+        { symbol: 'SPOT', name: 'Spotify Technology S.A.', exchange: 'NYSE', sector: 'Communication Services' },
+        { symbol: 'SNAP', name: 'Snap Inc.', exchange: 'NYSE', sector: 'Communication Services' },
+        { symbol: 'PINS', name: 'Pinterest Inc.', exchange: 'NYSE', sector: 'Communication Services' },
+        { symbol: 'TWTR', name: 'Twitter Inc.', exchange: 'NYSE', sector: 'Communication Services' },
+        { symbol: 'DBX', name: 'Dropbox Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'OKTA', name: 'Okta Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'PLTR', name: 'Palantir Technologies Inc.', exchange: 'NYSE', sector: 'Technology' },
+        { symbol: 'SNOW', name: 'Snowflake Inc.', exchange: 'NYSE', sector: 'Technology' },
+        { symbol: 'DDOG', name: 'Datadog Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'CRWD', name: 'CrowdStrike Holdings Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'ZS', name: 'Zscaler Inc.', exchange: 'NASDAQ', sector: 'Technology' },
+        { symbol: 'NET', name: 'Cloudflare Inc.', exchange: 'NYSE', sector: 'Technology' },
         { symbol: 'PLAB', name: 'Photronics Inc.', exchange: 'NASDAQ', sector: 'Technology' }
       ];
 
       const marketData = [];
 
-      // Fetch real price data for each stock
-      for (const stock of majorStocks) {
+      // Fetch real price data using Yahoo Finance for reliable live prices
+      for (const stock of comprehensiveStocks) {
         try {
           const response = await fetch(
-            `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${stock.symbol}&apikey=${alphaVantageKey}`
+            `https://query1.finance.yahoo.com/v8/finance/chart/${stock.symbol}?interval=1d&range=1d`
           );
 
           let price = undefined;
@@ -877,11 +974,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           if (response.ok) {
             const data = await response.json();
-            const quote = data['Global Quote'];
+            const result = data?.chart?.result?.[0];
             
-            if (quote && quote['05. price']) {
-              price = parseFloat(quote['05. price']);
-              change = parseFloat(quote['10. change percent'].replace('%', ''));
+            if (result?.meta) {
+              price = result.meta.regularMarketPrice;
+              const previousClose = result.meta.previousClose;
+              if (price && previousClose) {
+                change = ((price - previousClose) / previousClose) * 100;
+              }
             }
           }
 
@@ -894,12 +994,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             change: change
           });
 
-          // Rate limiting - wait 200ms between requests
-          await new Promise(resolve => setTimeout(resolve, 200));
+          // Small delay to avoid overwhelming the API
+          await new Promise(resolve => setTimeout(resolve, 30));
         } catch (error) {
           console.warn(`Failed to fetch data for ${stock.symbol}:`, error);
           
-          // Add stock without price data if API fails
           marketData.push({
             symbol: stock.symbol,
             name: stock.name,
