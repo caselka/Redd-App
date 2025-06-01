@@ -16,16 +16,17 @@ export function PriceChart({ selectedStock }: PriceChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<any>(null);
 
-  const { data: priceHistory = [] } = useQuery({
-    queryKey: ["/api/stocks", selectedStock, "prices"],
-    enabled: !!selectedStock,
-  });
-
-  const { data: stocks = [] } = useQuery({
+  const { data: stocks = [] } = useQuery<any[]>({
     queryKey: ["/api/stocks"],
   });
 
   const selectedStockData = stocks.find((s: any) => s.ticker === selectedStock);
+  const stockId = selectedStockData?.id;
+
+  const { data: priceHistory = [] } = useQuery<any[]>({
+    queryKey: [`/api/stocks/${stockId}/prices`],
+    enabled: !!stockId,
+  });
 
   useEffect(() => {
     const loadChart = async () => {

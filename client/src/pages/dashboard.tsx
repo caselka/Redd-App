@@ -23,7 +23,7 @@ export default function Dashboard() {
     queryKey: ["/api/stats"],
   });
 
-  const { data: notes = [] } = useQuery({
+  const { data: notes = [] } = useQuery<any[]>({
     queryKey: ["/api/notes"],
   });
 
