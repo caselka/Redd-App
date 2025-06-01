@@ -7,6 +7,7 @@ import { StatsCards } from "@/components/stats-cards";
 import { NewsPanel } from "@/components/news-panel";
 import { ClickableTicker } from "@/components/ui/clickable-ticker";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { 
   ArrowRight, 
   TrendingUp, 
@@ -28,6 +29,12 @@ import {
 export default function Landing() {
   const [selectedFeature, setSelectedFeature] = useState("watchlist");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Fetch stats for public display
+  const { data: stats } = useQuery({
+    queryKey: ["/api/stats"],
+    retry: false,
+  }) as { data?: any };
 
   const features = [
     {
@@ -257,7 +264,7 @@ export default function Landing() {
               Join thousands of investors who use Redd to make informed investment decisions
             </p>
           </div>
-          <StatsCards />
+          <StatsCards stats={stats} />
         </div>
       </section>
 
@@ -524,8 +531,8 @@ export default function Landing() {
             <div>
               <h3 className="font-semibold mb-4">Product</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="#" className="hover:text-white">Features</Link></li>
-                <li><Link href="#" className="hover:text-white">Pricing</Link></li>
+                <li><Link href="/features" className="hover:text-white">Features</Link></li>
+                <li><Link href="/pricing" className="hover:text-white">Pricing</Link></li>
                 <li><Link href="#" className="hover:text-white">API</Link></li>
                 <li><Link href="#" className="hover:text-white">Mobile App</Link></li>
               </ul>

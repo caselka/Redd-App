@@ -24,6 +24,8 @@ import TermsOfService from "@/pages/terms-of-service";
 import About from "@/pages/about";
 import Contact from "@/pages/contact";
 import Security from "@/pages/security";
+import Features from "@/pages/features";
+import Pricing from "@/pages/pricing";
 import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
 
@@ -65,6 +67,8 @@ function Router() {
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
           <Route path="/security" component={Security} />
+          <Route path="/features" component={Features} />
+          <Route path="/pricing" component={Pricing} />
           <Route path="/privacy-policy" component={PrivacyPolicy} />
           <Route path="/terms-of-service" component={TermsOfService} />
           <Route component={NotFound} />
