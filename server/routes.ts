@@ -1,11 +1,13 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertStockSchema, insertNoteSchema, insertPortfolioHoldingSchema } from "@shared/schema";
+import { insertStockSchema, insertNoteSchema, insertPortfolioHoldingSchema, insertTenKAnalysisSchema } from "@shared/schema";
 import { z } from "zod";
 import { startTelegramBot } from "./telegram-bot";
 import { startPriceFetcher, triggerPriceUpdate } from "./price-fetcher";
 import { setupAuth, isAuthenticated } from "./auth";
+import { analyze10K, summarizeSection } from "./openai-service";
+import crypto from "crypto";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -781,6 +783,123 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ ticker, companyName, exchange: 'NASDAQ/NYSE' });
     } catch (error) {
       res.status(500).json({ error: "Failed to lookup ticker" });
+    }
+  });
+
+  // 10-K Analysis routes
+  app.post("/api/10k/analyze", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const { ticker, companyName, documentText, filingDate } = req.body;
+
+      if (!ticker || !companyName || !documentText) {
+        return res.status(400).json({ error: "Missing required fields: ticker, companyName, documentText" });
+      }
+
+      // Generate document hash for duplicate detection
+      const documentHash = crypto.createHash('sha256').update(documentText).digest('hex');
+
+      // Check if this document was already analyzed
+      const existingAnalyses = await storage.getTenKAnalysisByTicker(userId, ticker);
+      const duplicateAnalysis = existingAnalyses.find(analysis => analysis.documentHash === documentHash);
+      
+      if (duplicateAnalysis) {
+        return res.json({
+          message: "This document has already been analyzed",
+          analysis: duplicateAnalysis
+        });
+      }
+
+      // Perform AI analysis using OpenAI
+      const analysisResult = await analyze10K(documentText, ticker);
+
+      // Save analysis to database
+      const analysisData = {
+        ticker: ticker.toUpperCase(),
+        companyName,
+        filingDate: filingDate ? new Date(filingDate) : undefined,
+        analysisData: analysisResult,
+        documentHash
+      };
+
+      const validatedData = insertTenKAnalysisSchema.parse(analysisData);
+      const savedAnalysis = await storage.createTenKAnalysis({ ...validatedData, userId });
+
+      res.status(201).json({
+        message: "10-K analysis completed successfully",
+        analysis: savedAnalysis
+      });
+
+    } catch (error) {
+      console.error("Error analyzing 10-K:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ error: "Invalid analysis data", details: error.errors });
+      } else {
+        res.status(500).json({ 
+          error: "Failed to analyze 10-K document", 
+          details: error instanceof Error ? error.message : "Unknown error"
+        });
+      }
+    }
+  });
+
+  app.get("/api/10k/analyses", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const analyses = await storage.getTenKAnalysesByUser(userId);
+      res.json(analyses);
+    } catch (error) {
+      console.error("Error fetching 10-K analyses:", error);
+      res.status(500).json({ error: "Failed to fetch analyses" });
+    }
+  });
+
+  app.get("/api/10k/analyses/:ticker", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const ticker = req.params.ticker.toUpperCase();
+      const analyses = await storage.getTenKAnalysisByTicker(userId, ticker);
+      res.json(analyses);
+    } catch (error) {
+      console.error("Error fetching 10-K analyses for ticker:", error);
+      res.status(500).json({ error: "Failed to fetch analyses for ticker" });
+    }
+  });
+
+  app.delete("/api/10k/analyses/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const id = parseInt(req.params.id);
+      const deleted = await storage.deleteTenKAnalysis(id, userId);
+      
+      if (!deleted) {
+        return res.status(404).json({ error: "Analysis not found or not authorized" });
+      }
+      
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting 10-K analysis:", error);
+      res.status(500).json({ error: "Failed to delete analysis" });
+    }
+  });
+
+  app.post("/api/10k/summarize-section", isAuthenticated, async (req: any, res) => {
+    try {
+      const { sectionText, sectionName } = req.body;
+
+      if (!sectionText || !sectionName) {
+        return res.status(400).json({ error: "Missing required fields: sectionText, sectionName" });
+      }
+
+      const summary = await summarizeSection(sectionText, sectionName);
+      res.json({ summary });
+
+    } catch (error) {
+      console.error("Error summarizing section:", error);
+      res.status(500).json({ 
+        error: "Failed to summarize section", 
+        details: error instanceof Error ? error.message : "Unknown error"
+      });
     }
   });
 

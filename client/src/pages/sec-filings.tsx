@@ -1,420 +1,549 @@
 import { useState } from "react";
-import { Sidebar } from "@/components/layout/sidebar";
-import { Header } from "@/components/layout/header";
-import { AddStockModal } from "@/components/add-stock-modal";
-import { useQuery } from "@tanstack/react-query";
-import { Input } from "@/components/ui/input";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, ExternalLink, Download, Calendar, Filter, ArrowUpDown } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  Brain, 
+  FileText, 
+  Upload, 
+  Trash2, 
+  TrendingUp, 
+  TrendingDown, 
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  DollarSign,
+  BarChart3,
+  Target
+} from "lucide-react";
 
-interface SECFiling {
-  accessionNumber: string;
-  filingDate: string;
-  reportDate: string;
-  acceptanceDateTime: string;
-  act: string;
-  form: string;
-  fileNumber: string;
-  filmNumber: string;
-  items: string;
-  size: number;
-  isXBRL: boolean;
-  isInlineXBRL: boolean;
-  primaryDocument: string;
-  primaryDocDescription: string;
-  cik: string;
+interface TenKAnalysisData {
+  summary: string;
+  financialHighlights: {
+    revenue: string;
+    netIncome: string;
+    totalAssets: string;
+    debt: string;
+    cashFlow: string;
+  };
+  businessOverview: string;
+  riskFactors: string[];
+  competitivePosition: string;
+  managementDiscussion: string;
+  keyMetrics: {
+    profitMargin: string;
+    returnOnEquity: string;
+    debtToEquity: string;
+    currentRatio: string;
+  };
+  investmentThesis: {
+    bullCase: string[];
+    bearCase: string[];
+    valuation: string;
+  };
+  sentiment: 'positive' | 'neutral' | 'negative';
+  confidenceScore: number;
 }
 
-export default function SECFilings() {
-  const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
-  const [searchTicker, setSearchTicker] = useState("");
-  const [searchSubmitted, setSearchSubmitted] = useState(false);
-  const [selectedFilingTypes, setSelectedFilingTypes] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState<string>("date-desc");
-  const [dateFilter, setDateFilter] = useState<string>("all");
-  const [formTypeFilter, setFormTypeFilter] = useState<string>("all");
+interface TenKAnalysis {
+  id: number;
+  ticker: string;
+  companyName: string;
+  filingDate: string;
+  analysisData: TenKAnalysisData;
+  createdAt: string;
+}
 
-  const { data: filings = [], isLoading, error } = useQuery<SECFiling[]>({
-    queryKey: [`/api/sec-filings/${searchTicker}`],
-    enabled: searchSubmitted && searchTicker.length > 0,
+export default function SecFilings() {
+  const { user, isAuthenticated } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  const [uploadForm, setUploadForm] = useState({
+    ticker: "",
+    companyName: "",
+    documentText: "",
+    filingDate: ""
+  });
+  const [selectedAnalysis, setSelectedAnalysis] = useState<TenKAnalysis | null>(null);
+
+  // Fetch user's 10-K analyses
+  const { data: analyses = [], isLoading } = useQuery<TenKAnalysis[]>({
+    queryKey: ["/api/10k/analyses"],
+    enabled: isAuthenticated,
   });
 
-  const handleSearch = (e: React.FormEvent) => {
+  // Upload and analyze 10-K mutation
+  const analyzeMutation = useMutation({
+    mutationFn: async (data: typeof uploadForm) => {
+      return await apiRequest("/api/10k/analyze", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" }
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Analysis Complete",
+        description: "Your 10-K document has been successfully analyzed with AI insights.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/10k/analyses"] });
+      setUploadForm({ ticker: "", companyName: "", documentText: "", filingDate: "" });
+    },
+    onError: (error) => {
+      toast({
+        title: "Analysis Failed",
+        description: error instanceof Error ? error.message : "Failed to analyze 10-K document",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete analysis mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return await apiRequest(`/api/10k/analyses/${id}`, {
+        method: "DELETE"
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Analysis Deleted",
+        description: "The 10-K analysis has been removed.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/10k/analyses"] });
+      setSelectedAnalysis(null);
+    },
+    onError: () => {
+      toast({
+        title: "Delete Failed",
+        description: "Failed to delete the analysis.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchTicker.trim()) {
-      setSearchSubmitted(true);
+    if (!uploadForm.ticker || !uploadForm.companyName || !uploadForm.documentText) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in ticker, company name, and document text.",
+        variant: "destructive",
+      });
+      return;
+    }
+    analyzeMutation.mutate(uploadForm);
+  };
+
+  const getSentimentColor = (sentiment: string) => {
+    switch (sentiment) {
+      case 'positive': return 'text-green-600 dark:text-green-400';
+      case 'negative': return 'text-red-600 dark:text-red-400';
+      default: return 'text-yellow-600 dark:text-yellow-400';
     }
   };
 
-  const filingTypes = [
-    { type: "10-K", description: "Annual Report" },
-    { type: "10-Q", description: "Quarterly Report" },
-    { type: "8-K", description: "Current Report" },
-    { type: "DEF 14A", description: "Proxy Statement" },
-    { type: "13F", description: "Institutional Holdings" },
-    { type: "SC 13G", description: "Beneficial Ownership" },
-  ];
-
-  // Apply filters and sorting
-  const filteredAndSortedFilings = filings
-    .filter(filing => {
-      // Form type filter
-      if (formTypeFilter !== "all" && filing.form !== formTypeFilter) return false;
-      
-      // Date filter
-      if (dateFilter !== "all") {
-        const filingDate = new Date(filing.filingDate);
-        const now = new Date();
-        const monthsAgo = new Date();
-        
-        switch (dateFilter) {
-          case "1month":
-            monthsAgo.setMonth(now.getMonth() - 1);
-            if (filingDate < monthsAgo) return false;
-            break;
-          case "3months":
-            monthsAgo.setMonth(now.getMonth() - 3);
-            if (filingDate < monthsAgo) return false;
-            break;
-          case "1year":
-            monthsAgo.setFullYear(now.getFullYear() - 1);
-            if (filingDate < monthsAgo) return false;
-            break;
-        }
-      }
-      
-      // Legacy selected filing types filter
-      if (selectedFilingTypes.length > 0 && !selectedFilingTypes.includes(filing.form)) return false;
-      
-      return true;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "date-desc":
-          return new Date(b.filingDate).getTime() - new Date(a.filingDate).getTime();
-        case "date-asc":
-          return new Date(a.filingDate).getTime() - new Date(b.filingDate).getTime();
-        case "form-asc":
-          return a.form.localeCompare(b.form);
-        case "form-desc":
-          return b.form.localeCompare(a.form);
-        case "size-desc":
-          return b.size - a.size;
-        case "size-asc":
-          return a.size - b.size;
-        default:
-          return 0;
-      }
-    });
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-  };
-
-  const getFilingUrl = (filing: SECFiling) => {
-    // Construct proper SEC EDGAR document URL using CIK and accession number
-    if (filing.cik && filing.primaryDocument) {
-      const accessionNoHyphens = filing.accessionNumber.replace(/-/g, '');
-      return `https://www.sec.gov/Archives/edgar/data/${filing.cik}/${accessionNoHyphens}/${filing.primaryDocument}`;
+  const getSentimentIcon = (sentiment: string) => {
+    switch (sentiment) {
+      case 'positive': return <TrendingUp className="h-4 w-4" />;
+      case 'negative': return <TrendingDown className="h-4 w-4" />;
+      default: return <AlertTriangle className="h-4 w-4" />;
     }
-    // Fallback to SEC search page if CIK or document info is missing
-    return `https://www.sec.gov/edgar/search/#/q=${searchTicker}&dateRange=all&forms=${filing.form}`;
   };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card>
+          <CardContent className="pt-6 text-center">
+            <p>Please log in to access SEC filing analysis.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-x-hidden">
-      <Sidebar />
-      
-      <div className="flex-1 flex flex-col md:ml-64 min-w-0">
-        <Header onAddStock={() => setIsAddStockModalOpen(true)} />
-        
-        <main className="flex-1 overflow-y-auto p-2 md:p-6 pt-16 md:pt-6 mobile-main max-w-full">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">SEC Filings</h1>
-            <p className="text-gray-600">Search and view official SEC filings for public companies</p>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
-            <div className="p-6 border-b border-gray-200">
-              <form onSubmit={handleSearch} className="flex gap-4 mb-6">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Enter stock symbol (e.g., AAPL, MSFT)"
-                    value={searchTicker}
-                    onChange={(e) => setSearchTicker(e.target.value.toUpperCase())}
-                    className="pl-10"
-                  />
-                </div>
-                <Button type="submit" className="bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200">
-                  Search Filings
-                </Button>
-              </form>
-
-              {/* Filtering and Sorting Controls */}
-              {searchSubmitted && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <Filter className="inline h-4 w-4 mr-1" />
-                      Form Type
-                    </label>
-                    <Select value={formTypeFilter} onValueChange={setFormTypeFilter}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="All forms" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Forms</SelectItem>
-                        <SelectItem value="10-K">10-K (Annual Report)</SelectItem>
-                        <SelectItem value="10-Q">10-Q (Quarterly Report)</SelectItem>
-                        <SelectItem value="8-K">8-K (Current Report)</SelectItem>
-                        <SelectItem value="DEF 14A">DEF 14A (Proxy Statement)</SelectItem>
-                        <SelectItem value="13F">13F (Institutional Holdings)</SelectItem>
-                        <SelectItem value="SC 13G">SC 13G (Beneficial Ownership)</SelectItem>
-                        <SelectItem value="4">Form 4 (Insider Trading)</SelectItem>
-                        <SelectItem value="3">Form 3 (Initial Ownership)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <Calendar className="inline h-4 w-4 mr-1" />
-                      Date Range
-                    </label>
-                    <Select value={dateFilter} onValueChange={setDateFilter}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="All dates" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Time</SelectItem>
-                        <SelectItem value="1month">Last Month</SelectItem>
-                        <SelectItem value="3months">Last 3 Months</SelectItem>
-                        <SelectItem value="1year">Last Year</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <ArrowUpDown className="inline h-4 w-4 mr-1" />
-                      Sort By
-                    </label>
-                    <Select value={sortBy} onValueChange={setSortBy}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sort by..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="date-desc">Date (Newest First)</SelectItem>
-                        <SelectItem value="date-asc">Date (Oldest First)</SelectItem>
-                        <SelectItem value="form-asc">Form Type (A-Z)</SelectItem>
-                        <SelectItem value="form-desc">Form Type (Z-A)</SelectItem>
-                        <SelectItem value="size-desc">File Size (Largest)</SelectItem>
-                        <SelectItem value="size-asc">File Size (Smallest)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex items-end">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => {
-                        setFormTypeFilter("all");
-                        setDateFilter("all");
-                        setSortBy("date-desc");
-                        setSelectedFilingTypes([]);
-                      }}
-                      className="w-full"
-                    >
-                      Clear Filters
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              <div className="flex flex-wrap gap-2">
-                <span className="text-sm font-medium text-gray-700 mr-2">Filter by type:</span>
-                {filingTypes.map((type) => (
-                  <Button
-                    key={type.type}
-                    variant={selectedFilingTypes.includes(type.type) ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => {
-                      setSelectedFilingTypes(prev => 
-                        prev.includes(type.type)
-                          ? prev.filter(t => t !== type.type)
-                          : [...prev, type.type]
-                      );
-                    }}
-                    className={selectedFilingTypes.includes(type.type) ? "bg-brand-blue" : ""}
-                  >
-                    {type.type}
-                  </Button>
-                ))}
-                {selectedFilingTypes.length > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSelectedFilingTypes([])}
-                    className="text-gray-500"
-                  >
-                    Clear All
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {error && (
-              <div className="p-6 border-b border-gray-200">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="text-red-800">Failed to fetch SEC filings. Please check the ticker symbol and try again.</p>
-                </div>
-              </div>
-            )}
-
-            {isLoading ? (
-              <div className="p-8 text-center">
-                <div className="animate-spin h-8 w-8 border-b-2 border-brand-blue mx-auto"></div>
-                <p className="mt-2 text-gray-500">Searching SEC filings...</p>
-              </div>
-            ) : !searchSubmitted ? (
-              <div className="p-8 text-center">
-                <div className="text-4xl mb-4">📄</div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Search SEC Filings</h3>
-                <p className="text-gray-500">Enter a stock symbol to view official SEC filings</p>
-              </div>
-            ) : filteredAndSortedFilings.length === 0 ? (
-              <div className="p-8 text-center">
-                <div className="text-4xl mb-4">📋</div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No filings found</h3>
-                <p className="text-gray-500">
-                  {selectedFilingTypes.length > 0 || formTypeFilter !== "all" || dateFilter !== "all"
-                    ? `No filings match your current filters for ${searchTicker}`
-                    : `No recent filings found for ${searchTicker}`
-                  }
-                </p>
-              </div>
-            ) : (
-              <div>
-                <div className="mb-4 text-sm text-gray-600 px-4 lg:px-0">
-                  Showing {filteredAndSortedFilings.length} filing{filteredAndSortedFilings.length !== 1 ? 's' : ''} for {searchTicker}
-                </div>
-                
-                {/* Mobile Card Layout */}
-                <div className="block lg:hidden">
-                  <div className="divide-y divide-gray-200">
-                    {filteredAndSortedFilings.map((filing) => (
-                      <div key={filing.accessionNumber} className="p-4 hover:bg-gray-50 transition-colors">
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center mb-2">
-                              <Badge variant="outline" className="font-mono text-xs mr-2">
-                                {filing.form}
-                              </Badge>
-                              <span className="text-xs text-gray-500">{formatFileSize(filing.size)}</span>
-                            </div>
-                            <div className="text-sm font-medium text-gray-900 mb-1">{filing.primaryDocDescription}</div>
-                            <div className="text-xs text-gray-500 mb-2">Accession: {filing.accessionNumber}</div>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => window.open(getFilingUrl(filing), '_blank')}
-                            className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white ml-2 flex-shrink-0"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-3 text-sm">
-                          <div>
-                            <div className="text-gray-500 text-xs uppercase tracking-wide">Filing Date</div>
-                            <div className="flex items-center">
-                              <Calendar className="h-3 w-3 mr-1 text-gray-400" />
-                              <span className="text-xs">{new Date(filing.filingDate).toLocaleDateString()}</span>
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-gray-500 text-xs uppercase tracking-wide">Period</div>
-                            <div className="text-xs">
-                              {filing.reportDate ? new Date(filing.reportDate).toLocaleDateString() : 'N/A'}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Desktop Table Layout */}
-                <div className="hidden lg:block overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Form Type</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Filing Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Period</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Size</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {filteredAndSortedFilings.map((filing) => (
-                        <tr key={filing.accessionNumber} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <Badge variant="outline" className="font-mono text-xs">
-                              {filing.form}
-                            </Badge>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm font-medium text-gray-900">{filing.primaryDocDescription}</div>
-                            <div className="text-sm text-gray-500">Accession: {filing.accessionNumber}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center text-sm text-gray-900">
-                              <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                              {new Date(filing.filingDate).toLocaleDateString()}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {filing.reportDate ? new Date(filing.reportDate).toLocaleDateString() : 'N/A'}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {formatFileSize(filing.size)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex space-x-2">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => window.open(getFilingUrl(filing), '_blank')}
-                                className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
-                              >
-                                <ExternalLink className="h-4 w-4 mr-1" />
-                                View
-                              </Button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
-        </main>
+    <div className="container mx-auto px-4 py-6 max-w-7xl">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+          SEC Filing Analysis
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          Upload and analyze 10-K filings with AI-powered insights for investment decisions
+        </p>
       </div>
 
-      <AddStockModal 
-        isOpen={isAddStockModalOpen}
-        onClose={() => setIsAddStockModalOpen(false)}
-      />
+      <Tabs defaultValue="upload" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="upload" className="flex items-center gap-2">
+            <Upload className="h-4 w-4" />
+            Upload & Analyze
+          </TabsTrigger>
+          <TabsTrigger value="analyses" className="flex items-center gap-2">
+            <Brain className="h-4 w-4" />
+            Past Analyses ({analyses.length})
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="upload">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Upload 10-K Filing
+              </CardTitle>
+              <CardDescription>
+                Upload a 10-K SEC filing document to get comprehensive AI analysis including financial insights, risk assessment, and investment thesis.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="ticker">Stock Ticker</Label>
+                    <Input
+                      id="ticker"
+                      placeholder="e.g., AAPL"
+                      value={uploadForm.ticker}
+                      onChange={(e) => setUploadForm(prev => ({ ...prev, ticker: e.target.value.toUpperCase() }))}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="companyName">Company Name</Label>
+                    <Input
+                      id="companyName"
+                      placeholder="e.g., Apple Inc."
+                      value={uploadForm.companyName}
+                      onChange={(e) => setUploadForm(prev => ({ ...prev, companyName: e.target.value }))}
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="filingDate">Filing Date (Optional)</Label>
+                  <Input
+                    id="filingDate"
+                    type="date"
+                    value={uploadForm.filingDate}
+                    onChange={(e) => setUploadForm(prev => ({ ...prev, filingDate: e.target.value }))}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="documentText">10-K Document Text</Label>
+                  <Textarea
+                    id="documentText"
+                    placeholder="Paste the complete 10-K filing text here..."
+                    value={uploadForm.documentText}
+                    onChange={(e) => setUploadForm(prev => ({ ...prev, documentText: e.target.value }))}
+                    className="min-h-[200px]"
+                    required
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Paste the complete text from the 10-K filing. The AI will analyze all sections including financials, business overview, and risk factors.
+                  </p>
+                </div>
+
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={analyzeMutation.isPending}
+                >
+                  {analyzeMutation.isPending ? (
+                    <>
+                      <Clock className="mr-2 h-4 w-4 animate-spin" />
+                      Analyzing Document...
+                    </>
+                  ) : (
+                    <>
+                      <Brain className="mr-2 h-4 w-4" />
+                      Analyze with AI
+                    </>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="analyses">
+          <div className="grid gap-4">
+            {isLoading ? (
+              <Card>
+                <CardContent className="pt-6 text-center">
+                  <Clock className="h-8 w-8 mx-auto mb-2 animate-spin" />
+                  <p>Loading analyses...</p>
+                </CardContent>
+              </Card>
+            ) : analyses.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6 text-center">
+                  <FileText className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                  <p className="text-gray-500">No 10-K analyses yet. Upload your first filing to get started.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              analyses.map((analysis) => (
+                <Card key={analysis.id} className="cursor-pointer hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle className="flex items-center gap-2">
+                          {analysis.ticker}
+                          <Badge variant="secondary">{analysis.companyName}</Badge>
+                        </CardTitle>
+                        <CardDescription>
+                          Analyzed on {new Date(analysis.createdAt).toLocaleDateString()}
+                          {analysis.filingDate && ` • Filed ${new Date(analysis.filingDate).toLocaleDateString()}`}
+                        </CardDescription>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className={`flex items-center gap-1 ${getSentimentColor(analysis.analysisData.sentiment)}`}>
+                          {getSentimentIcon(analysis.analysisData.sentiment)}
+                          <span className="text-sm font-medium capitalize">
+                            {analysis.analysisData.sentiment}
+                          </span>
+                        </div>
+                        <Badge variant="outline">
+                          {Math.round(analysis.analysisData.confidenceScore * 100)}% confidence
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3">
+                      {analysis.analysisData.summary}
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            onClick={() => setSelectedAnalysis(analysis)}
+                          >
+                            View Full Analysis
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl max-h-[80vh]">
+                          <DialogHeader>
+                            <DialogTitle>{analysis.ticker} - {analysis.companyName}</DialogTitle>
+                          </DialogHeader>
+                          <ScrollArea className="h-full">
+                            {selectedAnalysis && (
+                              <AnalysisDetails analysis={selectedAnalysis.analysisData} />
+                            )}
+                          </ScrollArea>
+                        </DialogContent>
+                      </Dialog>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteMutation.mutate(analysis.id)}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+function AnalysisDetails({ analysis }: { analysis: TenKAnalysisData }) {
+  return (
+    <div className="space-y-6 p-4">
+      {/* Executive Summary */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Executive Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>{analysis.summary}</p>
+        </CardContent>
+      </Card>
+
+      {/* Financial Highlights */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign className="h-5 w-5" />
+            Financial Highlights
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-sm font-medium">Revenue</Label>
+              <p className="text-sm">{analysis.financialHighlights.revenue}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Net Income</Label>
+              <p className="text-sm">{analysis.financialHighlights.netIncome}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Total Assets</Label>
+              <p className="text-sm">{analysis.financialHighlights.totalAssets}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Debt</Label>
+              <p className="text-sm">{analysis.financialHighlights.debt}</p>
+            </div>
+            <div className="md:col-span-2">
+              <Label className="text-sm font-medium">Cash Flow</Label>
+              <p className="text-sm">{analysis.financialHighlights.cashFlow}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Key Metrics */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5" />
+            Key Metrics
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-sm font-medium">Profit Margin</Label>
+              <p className="text-sm">{analysis.keyMetrics.profitMargin}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Return on Equity</Label>
+              <p className="text-sm">{analysis.keyMetrics.returnOnEquity}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Debt to Equity</Label>
+              <p className="text-sm">{analysis.keyMetrics.debtToEquity}</p>
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Current Ratio</Label>
+              <p className="text-sm">{analysis.keyMetrics.currentRatio}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Business Overview */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Business Overview</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>{analysis.businessOverview}</p>
+        </CardContent>
+      </Card>
+
+      {/* Risk Factors */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5" />
+            Risk Factors
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-2">
+            {analysis.riskFactors.map((risk, index) => (
+              <li key={index} className="flex items-start gap-2">
+                <span className="text-red-500 mt-1">•</span>
+                <span className="text-sm">{risk}</span>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+
+      {/* Investment Thesis */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Target className="h-5 w-5" />
+            Investment Thesis
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label className="text-sm font-medium text-green-600 dark:text-green-400">Bull Case</Label>
+            <ul className="mt-2 space-y-1">
+              {analysis.investmentThesis.bullCase.map((point, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">{point}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          <Separator />
+          
+          <div>
+            <Label className="text-sm font-medium text-red-600 dark:text-red-400">Bear Case</Label>
+            <ul className="mt-2 space-y-1">
+              {analysis.investmentThesis.bearCase.map((point, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm">{point}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          <Separator />
+          
+          <div>
+            <Label className="text-sm font-medium">Valuation Assessment</Label>
+            <p className="text-sm mt-1">{analysis.investmentThesis.valuation}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Competitive Position */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Competitive Position</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>{analysis.competitivePosition}</p>
+        </CardContent>
+      </Card>
+
+      {/* Management Discussion */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Management Discussion & Analysis</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>{analysis.managementDiscussion}</p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
