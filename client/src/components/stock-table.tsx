@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { StockDetailsModal } from "@/components/stock-details-modal";
 import { StockPriceChart } from "@/components/stock-price-chart";
+import { ReddSpinner } from "@/components/ui/redd-spinner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";

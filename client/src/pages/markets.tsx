@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Plus, TrendingUp, TrendingDown } from "lucide-react";
+import { ReddSpinner } from "@/components/ui/redd-spinner";
 
 interface MarketStock {
   symbol: string;
@@ -33,7 +34,12 @@ export default function Markets() {
     mutationFn: async (stockData: { ticker: string; companyName: string }) => {
       return await apiRequest("/api/stocks", {
         method: "POST",
-        body: JSON.stringify(stockData),
+        body: JSON.stringify({
+          ticker: stockData.ticker,
+          companyName: stockData.companyName,
+          intrinsicValue: 0, // Default value for market explorer additions
+          convictionScore: 5, // Default medium conviction
+        }),
       });
     },
     onSuccess: () => {
@@ -120,7 +126,7 @@ export default function Markets() {
 
             {isLoading ? (
               <div className="p-8 text-center">
-                <div className="animate-spin h-8 w-8 border-b-2 border-brand-blue mx-auto"></div>
+                <ReddSpinner size="lg" className="mx-auto" />
                 <p className="mt-2 text-gray-500">Loading market data...</p>
               </div>
             ) : (
@@ -186,7 +192,11 @@ export default function Markets() {
                               onClick={() => handleWatchStock(stock)}
                               disabled={addStockMutation.isPending}
                             >
-                              <Plus className="h-4 w-4 mr-1" />
+                              {addStockMutation.isPending ? (
+                                <ReddSpinner size="sm" className="mr-1" />
+                              ) : (
+                                <Plus className="h-4 w-4 mr-1" />
+                              )}
                               {addStockMutation.isPending ? "Adding..." : "Watch"}
                             </Button>
                           </td>
