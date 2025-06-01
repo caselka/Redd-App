@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
+import { LogoutButton } from "@/components/logout-button";
 
 export function Sidebar() {
   const [location] = useLocation();
@@ -96,10 +97,7 @@ export function Sidebar() {
                   </li>
                   
                   <li>
-                    <a href="/api/logout" className="flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer text-gray-700 hover:bg-gray-100">
-                      <LogOut size={20} />
-                      <span>Sign Out</span>
-                    </a>
+                    <LogoutButton variant="ghost" className="flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer text-gray-700 hover:bg-gray-100 w-full justify-start h-auto" />
                   </li>
                   
                   <li className="pt-4">
@@ -182,10 +180,7 @@ export function Sidebar() {
               </div>
             </Link>
             
-            <a href="/api/logout" className="flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer text-gray-700 hover:bg-gray-100">
-              <LogOut size={16} />
-              <span className="text-sm">Sign Out</span>
-            </a>
+            <LogoutButton variant="ghost" size="sm" className="flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer text-gray-700 hover:bg-gray-100 w-full justify-start h-auto" />
           </div>
           
           <div className="pt-2 border-t border-gray-100">
