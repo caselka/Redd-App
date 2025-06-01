@@ -21,6 +21,7 @@ export function StockDetailsModal({ isOpen, onClose, ticker, companyName }: Stoc
   const { data: companyInfo, isLoading: companyLoading } = useQuery({
     queryKey: ["/api/stocks", ticker, "company"],
     enabled: isOpen && !!ticker,
+    retry: false, // Don't retry if Alpha Vantage fails
   });
 
   const { data: chartData, isLoading: chartLoading } = useQuery({
@@ -307,7 +308,7 @@ export function StockDetailsModal({ isOpen, onClose, ticker, companyName }: Stoc
               <div className="flex items-center justify-center h-96">
                 <div className="animate-spin h-8 w-8 border-b-2 border-brand-blue"></div>
               </div>
-            ) : chartData && chartData.data ? (
+            ) : chartData && chartData.data && chartData.data.length > 0 ? (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -365,7 +366,15 @@ export function StockDetailsModal({ isOpen, onClose, ticker, companyName }: Stoc
             ) : (
               <Card>
                 <CardContent className="flex items-center justify-center h-96">
-                  <p className="text-gray-500">Chart data not available</p>
+                  <div className="text-center">
+                    <p className="text-gray-500 mb-2">Chart data not available</p>
+                    {chartData && (
+                      <div className="text-xs text-gray-400">
+                        <p>API Response: {JSON.stringify(chartData).substring(0, 100)}...</p>
+                        <p>Data length: {chartData.data?.length || 0}</p>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             )}
