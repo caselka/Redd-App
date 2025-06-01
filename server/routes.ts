@@ -280,9 +280,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/notes", async (req, res) => {
+  app.post("/api/notes", isAuthenticated, async (req: any, res) => {
     try {
-      const validatedData = insertNoteSchema.parse(req.body);
+      const userId = req.user.claims?.sub || req.user.id;
+      const noteData = {
+        ...req.body,
+        userId: userId
+      };
+      const validatedData = insertNoteSchema.parse(noteData);
       const note = await storage.createNote(validatedData);
       res.status(201).json(note);
     } catch (error) {

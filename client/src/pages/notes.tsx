@@ -111,13 +111,13 @@ export default function Notes() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 overflow-x-hidden">
       <Sidebar />
       
-      <div className="flex-1 flex flex-col md:ml-64">
+      <div className="flex-1 flex flex-col md:ml-64 min-w-0">
         <Header onAddStock={() => setIsAddStockModalOpen(true)} />
         
-        <main className="flex-1 overflow-y-auto p-3 md:p-6 pt-16 md:pt-6">
+        <main className="flex-1 overflow-y-auto p-3 md:p-6 pt-16 md:pt-6 mobile-optimized">
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
               <div>
@@ -131,20 +131,20 @@ export default function Notes() {
             </div>
 
             {/* Search and Filter Controls */}
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
-              <div className="relative flex-1">
+            <div className="flex flex-col gap-4 mb-6">
+              <div className="relative w-full">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   placeholder="Search notes, tickers, or companies..."
                   value={searchTicker}
                   onChange={(e) => setSearchTicker(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 w-full"
                 />
               </div>
               
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Select value={filterTicker} onValueChange={setFilterTicker}>
-                  <SelectTrigger className="w-40">
+                  <SelectTrigger className="w-full sm:w-40">
                     <Filter className="h-4 w-4 mr-2" />
                     <SelectValue placeholder="Filter by ticker" />
                   </SelectTrigger>
@@ -157,7 +157,7 @@ export default function Notes() {
                 </Select>
 
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-32">
+                  <SelectTrigger className="w-full sm:w-32">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
                   <SelectContent>
