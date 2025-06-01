@@ -196,13 +196,23 @@ export class DatabaseStorage implements IStorage {
 
   async deleteStock(id: number): Promise<boolean> {
     try {
+      console.log(`Attempting to delete stock with ID: ${id}`);
+      
       // Delete related data first to avoid foreign key constraints
-      await db.delete(notes).where(eq(notes.stockId, id));
-      await db.delete(priceHistory).where(eq(priceHistory.stockId, id));
+      const notesDeleted = await db.delete(notes).where(eq(notes.stockId, id));
+      console.log(`Deleted ${notesDeleted.rowCount || 0} notes for stock ${id}`);
+      
+      const pricesDeleted = await db.delete(priceHistory).where(eq(priceHistory.stockId, id));
+      console.log(`Deleted ${pricesDeleted.rowCount || 0} price records for stock ${id}`);
       
       // Then delete the stock
       const result = await db.delete(stocks).where(eq(stocks.id, id));
-      return (result.rowCount || 0) > 0;
+      console.log(`Delete stock result:`, result);
+      
+      const success = (result.rowCount || 0) > 0;
+      console.log(`Stock deletion ${success ? 'successful' : 'failed'} for ID: ${id}`);
+      
+      return success;
     } catch (error) {
       console.error("Error deleting stock:", error);
       return false;

@@ -478,15 +478,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/stocks/:id", async (req, res) => {
+  app.delete("/api/stocks/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      console.log(`DELETE request for stock ID: ${id}`);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid stock ID" });
+      }
+      
       const deleted = await storage.deleteStock(id);
       if (!deleted) {
+        console.log(`Stock with ID ${id} not found or could not be deleted`);
         return res.status(404).json({ error: "Stock not found" });
       }
+      
+      console.log(`Successfully deleted stock with ID: ${id}`);
       res.status(204).send();
     } catch (error) {
+      console.error("Error in delete stock route:", error);
       res.status(500).json({ error: "Failed to delete stock" });
     }
   });
