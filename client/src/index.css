@@ -20,6 +20,7 @@ html, body {
     padding-left: 0.75rem;
     padding-right: 0.75rem;
     overflow-x: hidden;
+    padding-top: 5rem !important; /* Ensure enough space for mobile header */
   }
   
   .mobile-grid {

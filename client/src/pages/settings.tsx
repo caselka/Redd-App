@@ -53,7 +53,7 @@ export default function Settings() {
       <div className="flex-1 flex flex-col md:ml-64 min-w-0">
         <Header onAddStock={() => setIsAddStockModalOpen(true)} />
         
-        <main className="flex-1 overflow-y-auto p-2 md:p-6 pt-20 md:pt-6 mobile-main max-w-full">
+        <main className="flex-1 overflow-y-auto p-2 md:p-6 pt-24 md:pt-6 mobile-main max-w-full">
           <div className="mb-4 md:mb-6">
             <h1 className="text-xl md:text-2xl font-bold text-gray-900">Account Settings</h1>
             <p className="text-sm md:text-base text-gray-600">Manage your account preferences and settings</p>
