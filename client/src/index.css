@@ -37,19 +37,16 @@
   0% { 
     transform: translateY(0) rotate(0deg); 
     opacity: 1; 
-    scale: 0.3;
+    scale: 0.5;
   }
-  10% {
+  5% {
     scale: 1;
     opacity: 1;
   }
-  90% {
-    opacity: 0.8;
-  }
   100% { 
-    transform: translateY(100vh) rotate(720deg); 
+    transform: translateY(150vh) rotate(1080deg); 
     opacity: 0;
-    scale: 0.5;
+    scale: 0.3;
   }
 }
 
@@ -70,7 +67,7 @@
 .animate-slide-left { animation: slideInLeft 0.8s ease-out forwards; }
 .animate-slide-right { animation: slideInRight 0.8s ease-out forwards; }
 .animate-price-flash { animation: priceFlash 0.8s ease-out; }
-.animate-coin-fall { animation: coinFall 3s ease-in forwards; }
+.animate-coin-fall { animation: coinFall 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
 .animate-coin-sparkle { animation: coinSparkle 2s ease-in-out infinite; }
 
 .gold-coin {

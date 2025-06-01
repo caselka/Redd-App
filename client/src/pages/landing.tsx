@@ -123,7 +123,7 @@ export default function Landing() {
         // Remove coin after animation completes
         setTimeout(() => {
           setCoins(prev => prev.filter(coin => coin.id !== coinId));
-        }, 3000);
+        }, 1500);
       }
     };
 
@@ -142,7 +142,7 @@ export default function Landing() {
         
         setTimeout(() => {
           setCoins(prev => prev.filter(coin => coin.id !== coinId));
-        }, 3000);
+        }, 1500);
       }
     };
 
