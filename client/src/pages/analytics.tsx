@@ -8,15 +8,18 @@ import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, DollarSign, Target } from "lucide-react";
 
 interface PortfolioHolding {
-  id: number;
   ticker: string;
   companyName: string;
-  shares: number;
-  avgCostBasis: number;
+  totalShares: number;
+  weightedAveragePrice: number;
   currentPrice: number;
+  totalCost: number;
   totalValue: number;
+  currentValue: number;
   gainLoss: number;
   gainLossPercent: number;
+  intrinsicValue?: number;
+  marginOfSafety?: number;
 }
 
 export default function Analytics() {
@@ -28,8 +31,8 @@ export default function Analytics() {
 
   // Calculate portfolio metrics
   const totalValue = holdings.reduce((sum, holding) => sum + (holding.totalValue || 0), 0);
-  const totalCost = holdings.reduce((sum, holding) => sum + ((holding.shares || 0) * (holding.avgCostBasis || 0)), 0);
-  const totalGainLoss = totalValue - totalCost;
+  const totalCost = holdings.reduce((sum, holding) => sum + (holding.totalCost || 0), 0);
+  const totalGainLoss = holdings.reduce((sum, holding) => sum + (holding.gainLoss || 0), 0);
   const totalGainLossPercent = totalCost > 0 ? (totalGainLoss / totalCost) * 100 : 0;
 
   const winnersCount = holdings.filter(h => h.gainLoss > 0).length;
@@ -139,7 +142,7 @@ export default function Analytics() {
                         .sort((a, b) => b.gainLossPercent - a.gainLossPercent)
                         .slice(0, 5)
                         .map((holding) => (
-                          <div key={holding.id} className="flex items-center justify-between">
+                          <div key={holding.ticker} className="flex items-center justify-between">
                             <div>
                               <div className="font-medium">{holding.ticker}</div>
                               <div className="text-sm text-gray-500">{holding.companyName}</div>

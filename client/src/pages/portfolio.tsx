@@ -318,7 +318,7 @@ export default function Portfolio() {
                         <div className="grid grid-cols-2 gap-3 text-sm">
                           <div>
                             <div className="text-gray-500">Shares</div>
-                            <div className="font-medium">{holding.shares}</div>
+                            <div className="font-medium">{holding.totalShares?.toFixed(2) || '0'}</div>
                           </div>
                           <div>
                             <div className="text-gray-500">Current Price</div>
