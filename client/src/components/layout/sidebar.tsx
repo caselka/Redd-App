@@ -1,4 +1,4 @@
-import { ChartLine, List, BarChart3, StickyNote, MessageSquare, TrendingUp, Building2, FileText, Calculator, Briefcase, Menu, X, Settings, LogOut } from "lucide-react";
+import { ChartLine, List, BarChart3, StickyNote, MessageSquare, TrendingUp, Building2, FileText, Calculator, Briefcase, Menu, X, Settings, LogOut, Calendar } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";

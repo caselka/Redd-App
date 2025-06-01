@@ -13,6 +13,7 @@ import SECFilings from "@/pages/sec-filings";
 import Tools from "@/pages/tools";
 import Analytics from "@/pages/analytics";
 import Notes from "@/pages/notes";
+import PriceHistory from "@/pages/price-history";
 import Telegram from "@/pages/telegram";
 import Settings from "@/pages/settings";
 import PrivacyPolicy from "@/pages/privacy-policy";
@@ -43,6 +44,7 @@ function Router() {
           <Route path="/tools" component={Tools} />
           <Route path="/analytics" component={Analytics} />
           <Route path="/notes" component={Notes} />
+          <Route path="/price-history" component={PriceHistory} />
           <Route path="/telegram" component={Telegram} />
           <Route path="/settings" component={Settings} />
           <Route path="/privacy-policy" component={PrivacyPolicy} />

@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import { Link } from "wouter";
 
 interface HeaderProps {
   onAddStock: () => void;
@@ -94,7 +95,7 @@ export function Header({ onAddStock }: HeaderProps) {
     <header className="bg-white border-b border-gray-200 px-3 md:px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="pl-16 md:pl-0">
-          <div className="flex items-center space-x-3">
+          <Link href="/" className="flex items-center space-x-3 cursor-pointer hover:opacity-80 transition-opacity">
             <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
               <span className="text-white text-xs font-bold">Redd</span>
             </div>
@@ -102,7 +103,7 @@ export function Header({ onAddStock }: HeaderProps) {
               <h2 className="text-lg md:text-2xl font-bold text-red-600">{title}</h2>
               <p className="text-xs md:text-sm text-gray-500 hidden sm:block">{getPageDescription()}</p>
             </div>
-          </div>
+          </Link>
         </div>
         <div className="flex items-center space-x-2 md:space-x-4">
           <div className="hidden sm:flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-lg">
