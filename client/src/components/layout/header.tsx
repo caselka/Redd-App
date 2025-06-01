@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 interface HeaderProps {
   onAddStock: () => void;
@@ -11,6 +12,7 @@ interface HeaderProps {
 export function Header({ onAddStock }: HeaderProps) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [location] = useLocation();
 
   const updatePricesMutation = useMutation({
     mutationFn: () => apiRequest("/api/prices/update", {
@@ -32,12 +34,83 @@ export function Header({ onAddStock }: HeaderProps) {
     },
   });
 
+  const getPageTitle = () => {
+    switch (location) {
+      case '/':
+        return "Investment Dashboard";
+      case '/watchlist':
+        return "Watchlist";
+      case '/portfolio':
+        return "Portfolio";
+      case '/markets':
+        return "Market Explorer";
+      case '/sec-filings':
+        return "SEC Filings";
+      case '/tools':
+        return "Investment Tools";
+      case '/analytics':
+        return "Analytics";
+      case '/notes':
+        return "Investment Notes";
+      case '/telegram':
+        return "Telegram Bot";
+      case '/settings':
+        return "Settings";
+      default:
+        return "Redd";
+    }
+  };
+
+  const getPageDescription = () => {
+    switch (location) {
+      case '/':
+        return "Monitor your portfolio and track market opportunities";
+      case '/watchlist':
+        return "Track your favorite stocks and investment opportunities";
+      case '/portfolio':
+        return "Manage your investment holdings and performance";
+      case '/markets':
+        return "Browse all NASDAQ and NYSE listed companies";
+      case '/sec-filings':
+        return "Access SEC filing documents and reports";
+      case '/tools':
+        return "Investment analysis and valuation tools";
+      case '/analytics':
+        return "Portfolio performance and market analysis";
+      case '/notes':
+        return "Your investment research and notes";
+      case '/telegram':
+        return "Configure price alerts and notifications";
+      case '/settings':
+        return "Account preferences and configuration";
+      default:
+        return "Investment tracking platform";
+    }
+  };
+
+  const isDashboard = location === '/';
+  const title = getPageTitle();
+
   return (
     <header className="bg-white border-b border-gray-200 px-3 md:px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="pl-12 md:pl-0">
-          <h2 className="text-lg md:text-2xl font-bold text-gray-900">Investment Dashboard</h2>
-          <p className="text-xs md:text-sm text-gray-500 hidden sm:block">Monitor your portfolio and track market opportunities</p>
+          {isDashboard ? (
+            <>
+              <h2 className="text-lg md:text-2xl font-bold text-gray-900">{title}</h2>
+              <p className="text-xs md:text-sm text-gray-500 hidden sm:block">{getPageDescription()}</p>
+            </>
+          ) : (
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs font-bold">Redd</span>
+              </div>
+              <div>
+                <h2 className="text-lg md:text-2xl font-bold text-red-600">{title}</h2>
+                <p className="text-xs md:text-sm text-gray-500 hidden sm:block">{getPageDescription()}</p>
+              </div>
+            </div>
+          )}
         </div>
         <div className="flex items-center space-x-2 md:space-x-4">
           <div className="hidden sm:flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-lg">
