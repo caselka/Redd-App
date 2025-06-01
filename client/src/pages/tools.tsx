@@ -31,10 +31,18 @@ export default function Tools() {
   const [compoundResult, setCompoundResult] = useState<any>(null);
 
   // EPV Calculator State
+  const [earningsBase, setEarningsBase] = useState("netIncome");
   const [normalizedIncome, setNormalizedIncome] = useState("");
+  const [taxRate, setTaxRate] = useState("21");
   const [costOfCapital, setCostOfCapital] = useState("9");
   const [adjustForCyclicality, setAdjustForCyclicality] = useState(false);
   const [cyclicalYears, setCyclicalYears] = useState("5");
+  const [includeMaintenanceCapex, setIncludeMaintenanceCapex] = useState(false);
+  const [maintenanceCapex, setMaintenanceCapex] = useState("");
+  const [adjustForDebt, setAdjustForDebt] = useState(false);
+  const [cash, setCash] = useState("");
+  const [debt, setDebt] = useState("");
+  const [runScenarios, setRunScenarios] = useState(false);
   const [epvResult, setEpvResult] = useState<any>(null);
 
   // Price Alert State
@@ -83,6 +91,7 @@ export default function Tools() {
   const calculateEPV = () => {
     let income = parseFloat(normalizedIncome);
     const costCap = parseFloat(costOfCapital) / 100;
+    const taxRateDecimal = parseFloat(taxRate) / 100;
 
     if (isNaN(income) || isNaN(costCap)) {
       toast({
@@ -93,21 +102,64 @@ export default function Tools() {
       return;
     }
 
+    // Adjust for earnings base type
+    let adjustedIncome = income;
+    let earningsLabel = "Net Income";
+    
+    if (earningsBase === "ebit") {
+      // Apply tax adjustment for EBIT
+      adjustedIncome = income * (1 - taxRateDecimal);
+      earningsLabel = "EBIT (Tax-Adjusted)";
+    } else if (earningsBase === "ownerEarnings") {
+      earningsLabel = "Owner Earnings";
+      // Subtract maintenance capex if specified
+      if (includeMaintenanceCapex && maintenanceCapex) {
+        const capex = parseFloat(maintenanceCapex);
+        if (!isNaN(capex)) {
+          adjustedIncome = income - capex;
+        }
+      }
+    }
+
     // Adjust for cyclicality if enabled
     if (adjustForCyclicality) {
       const cycYears = parseFloat(cyclicalYears);
       if (!isNaN(cycYears)) {
-        income = income * (cycYears / 10); // Simple cyclical adjustment
+        adjustedIncome = adjustedIncome * (cycYears / 10);
       }
     }
 
-    const epv = income / costCap;
+    // Calculate enterprise EPV
+    const enterpriseEPV = adjustedIncome / costCap;
+    
+    // Calculate equity EPV if debt adjustment is enabled
+    let equityEPV = enterpriseEPV;
+    let netDebt = 0;
+    
+    if (adjustForDebt) {
+      const cashAmount = parseFloat(cash) || 0;
+      const debtAmount = parseFloat(debt) || 0;
+      netDebt = debtAmount - cashAmount;
+      equityEPV = enterpriseEPV - netDebt;
+    }
+
+    // Calculate scenarios if enabled
+    const scenarios = runScenarios ? [
+      { name: "Conservative (10%)", rate: 0.10, epv: adjustedIncome / 0.10 - netDebt },
+      { name: "Base (9%)", rate: 0.09, epv: adjustedIncome / 0.09 - netDebt },
+      { name: "Optimistic (7%)", rate: 0.07, epv: adjustedIncome / 0.07 - netDebt },
+    ] : [];
     
     setEpvResult({
-      epv,
-      normalizedIncome: income,
+      enterpriseEPV,
+      equityEPV,
+      adjustedIncome,
+      earningsLabel,
       costOfCapital: costCap * 100,
+      netDebt,
       cyclicallyAdjusted: adjustForCyclicality,
+      scenarios,
+      formula: `${adjustedIncome.toFixed(0)} / ${(costCap * 100).toFixed(1)}% = ${enterpriseEPV.toFixed(0)}`,
     });
   };
 
@@ -350,7 +402,23 @@ export default function Tools() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="income">Normalized Net Income ($M)</Label>
+                        <Label htmlFor="earningsBase">Earnings Base</Label>
+                        <Select value={earningsBase} onValueChange={setEarningsBase}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="netIncome">Net Income</SelectItem>
+                            <SelectItem value="ebit">EBIT</SelectItem>
+                            <SelectItem value="ownerEarnings">Owner Earnings</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="income">
+                          Normalized {earningsBase === 'ebit' ? 'EBIT' : earningsBase === 'ownerEarnings' ? 'Owner Earnings' : 'Net Income'} ($M)
+                        </Label>
                         <Input
                           id="income"
                           type="number"
@@ -360,6 +428,19 @@ export default function Tools() {
                         />
                       </div>
 
+                      {earningsBase === 'ebit' && (
+                        <div>
+                          <Label htmlFor="taxRate">Tax Rate (%)</Label>
+                          <Input
+                            id="taxRate"
+                            type="number"
+                            placeholder="21"
+                            value={taxRate}
+                            onChange={(e) => setTaxRate(e.target.value)}
+                          />
+                        </div>
+                      )}
+
                       <div>
                         <Label htmlFor="cost">Cost of Capital (%)</Label>
                         <Select value={costOfCapital} onValueChange={setCostOfCapital}>
@@ -367,13 +448,34 @@ export default function Tools() {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="8">8% (Conservative)</SelectItem>
-                            <SelectItem value="9">9% (Moderate)</SelectItem>
-                            <SelectItem value="10">10% (Aggressive)</SelectItem>
+                            <SelectItem value="7">7% (Optimistic)</SelectItem>
+                            <SelectItem value="9">9% (Base Case)</SelectItem>
+                            <SelectItem value="10">10% (Conservative)</SelectItem>
                             <SelectItem value="12">12% (High Risk)</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
+
+                      {earningsBase === 'ownerEarnings' && (
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <Switch
+                              id="includeCapex"
+                              checked={includeMaintenanceCapex}
+                              onCheckedChange={setIncludeMaintenanceCapex}
+                            />
+                            <Label htmlFor="includeCapex">Include Maintenance CapEx</Label>
+                          </div>
+                          {includeMaintenanceCapex && (
+                            <Input
+                              type="number"
+                              placeholder="Maintenance CapEx ($M)"
+                              value={maintenanceCapex}
+                              onChange={(e) => setMaintenanceCapex(e.target.value)}
+                            />
+                          )}
+                        </div>
+                      )}
 
                       <div className="flex items-center space-x-2">
                         <Switch
@@ -396,6 +498,42 @@ export default function Tools() {
                         </div>
                       )}
 
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="adjustDebt"
+                            checked={adjustForDebt}
+                            onCheckedChange={setAdjustForDebt}
+                          />
+                          <Label htmlFor="adjustDebt">Adjust for Debt</Label>
+                        </div>
+                        {adjustForDebt && (
+                          <div className="grid grid-cols-2 gap-2">
+                            <Input
+                              type="number"
+                              placeholder="Cash ($M)"
+                              value={cash}
+                              onChange={(e) => setCash(e.target.value)}
+                            />
+                            <Input
+                              type="number"
+                              placeholder="Debt ($M)"
+                              value={debt}
+                              onChange={(e) => setDebt(e.target.value)}
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id="scenarios"
+                          checked={runScenarios}
+                          onCheckedChange={setRunScenarios}
+                        />
+                        <Label htmlFor="scenarios">Run Multiple Scenarios</Label>
+                      </div>
+
                       <Button onClick={calculateEPV} className="w-full bg-brand-blue hover:bg-red-700">
                         Calculate EPV
                       </Button>
@@ -406,18 +544,53 @@ export default function Tools() {
                         <h3 className="text-lg font-semibold">EPV Results</h3>
                         <div className="space-y-3">
                           <div className="p-4 bg-green-50 rounded-lg border-l-4 border-green-500">
-                            <div className="text-sm text-green-600">Earnings Power Value</div>
+                            <div className="text-sm text-green-600">Enterprise EPV</div>
                             <div className="text-2xl font-bold text-green-700">
-                              ${epvResult.epv.toLocaleString('en-US', { maximumFractionDigits: 0 })}M
+                              ${epvResult.enterpriseEPV.toLocaleString('en-US', { maximumFractionDigits: 0 })}M
+                            </div>
+                            <div className="text-xs text-green-600 mt-1">
+                              Formula: {epvResult.formula}
                             </div>
                           </div>
-                          <div className="text-sm text-gray-600 space-y-1">
-                            <div>Normalized Income: ${epvResult.normalizedIncome.toLocaleString()}M</div>
-                            <div>Cost of Capital: {epvResult.costOfCapital}%</div>
+
+                          {adjustForDebt && (
+                            <div className="p-4 bg-blue-50 rounded-lg border-l-4 border-blue-500">
+                              <div className="text-sm text-blue-600">Equity EPV</div>
+                              <div className="text-2xl font-bold text-blue-700">
+                                ${epvResult.equityEPV.toLocaleString('en-US', { maximumFractionDigits: 0 })}M
+                              </div>
+                              <div className="text-xs text-blue-600 mt-1">
+                                Net Debt: ${epvResult.netDebt.toLocaleString()}M
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="text-sm text-gray-600 space-y-1 p-3 bg-gray-50 rounded">
+                            <div className="font-medium">Assumptions:</div>
+                            <div>• Earnings: {epvResult.earningsLabel}</div>
+                            <div>• Cost of Capital: {epvResult.costOfCapital}%</div>
+                            <div>• No growth, {adjustForDebt ? 'with' : 'no'} debt adjustment</div>
                             {epvResult.cyclicallyAdjusted && (
-                              <Badge variant="outline" className="mt-2">Cyclically Adjusted</Badge>
+                              <div>• Cyclically adjusted earnings</div>
                             )}
                           </div>
+
+                          {epvResult.scenarios && epvResult.scenarios.length > 0 && (
+                            <div className="space-y-2">
+                              <h4 className="font-medium">Scenario Analysis</h4>
+                              <div className="grid grid-cols-1 gap-2">
+                                {epvResult.scenarios.map((scenario: any, index: number) => (
+                                  <div key={index} className="flex justify-between p-2 bg-purple-50 rounded">
+                                    <span className="text-sm">{scenario.name}</span>
+                                    <span className="font-bold text-purple-700">
+                                      ${scenario.epv.toLocaleString('en-US', { maximumFractionDigits: 0 })}M
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
                           <div className="p-3 bg-blue-50 rounded text-sm text-blue-800">
                             <strong>Note:</strong> EPV assumes no growth. Consider adding a growth premium for growing companies.
                           </div>

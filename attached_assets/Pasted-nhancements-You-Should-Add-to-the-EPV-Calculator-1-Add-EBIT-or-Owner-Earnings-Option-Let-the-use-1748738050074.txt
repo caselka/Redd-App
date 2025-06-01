@@ -1,0 +1,120 @@
+nhancements You Should Add to the EPV Calculator
+1. 📉 Add EBIT or Owner Earnings Option
+Let the user choose the base input:
+
+Normalized Net Income (default)
+
+EBIT (more stable across capital structures)
+
+Owner Earnings (Buffett’s preferred, if available)
+
+📌 Why: Net income can be distorted by non-cash items, taxes, or capital structure.
+
+Add a dropdown:
+
+css
+Copy
+Edit
+[ Net Income | EBIT | Owner Earnings ]
+2. 📉 Tax Adjustment Toggle
+If using EBIT, you should adjust for taxes:
+
+ini
+Copy
+Edit
+EPV = Normalized EBIT × (1 - tax rate) / cost of capital
+📌 Why: EBIT is pre-tax. If left unadjusted, EPV will be overstated.
+
+Add a field:
+
+Tax Rate (%): 21% (default US corp rate)
+
+3. 💰 Maintenance CapEx Input (Optional)
+If using Owner Earnings, subtract maintenance capex:
+
+java
+Copy
+Edit
+Owner Earnings = CFO - Maintenance CapEx
+📌 Why: It separates true cash generation from growth spending
+
+Let the user input:
+
+Maintenance CapEx ($M)
+
+Or let them check a box: "Estimate maintenance CapEx as % of depreciation" (e.g. 70%)
+
+4. 🧾 Add EPV Output Detail
+Show how the result is calculated:
+
+text
+Copy
+Edit
+Earnings Power Value (EPV): $11,111M  
+Formula: 1000 / 0.09 = 11,111  
+Assumptions:
+- Earnings: Net Income
+- Cost of Capital: 9%
+- No growth, no debt adjustment
+5. ⚖️ Debt Adjustment (Optional)
+EPV is enterprise value. If you want equity value, subtract net debt:
+
+java
+Copy
+Edit
+Equity EPV = EPV - Net Debt
+📌 Why: A company with heavy debt deserves a discount
+
+Add optional input:
+
+Cash: $
+
+Total Debt: $
+→ Net Debt = Debt – Cash
+
+6. 🔁 Scenario Toggle
+Allow the user to run multiple cost of capital scenarios quickly:
+
+Conservative (10%)
+
+Base (9%)
+
+Optimistic (7%)
+
+📌 Why: Sensitivity range lets you stress test assumptions
+
+✅ Example: Better UI Mockup
+yaml
+Copy
+Edit
+Earnings Base:
+[ Net Income ▼ ]
+
+Normalized Value ($M):
+[ 1,000 ]
+
+Tax Rate (if EBIT used):
+[ 21% ]
+
+Cost of Capital:
+[ 9% ▼ ]
+
+Include Maintenance CapEx?
+[✓] Yes — Enter amount: [ 300 ]
+
+Adjust for Debt?
+[✓] Cash: 200 | Debt: 1,000
+
+Run Scenarios:
+[✓] Conservative (10%)   [✓] Base (9%)   [✓] Aggressive (7%)
+
+[ Calculate EPV ]
+
+----------------------
+📊 Results:
+
+EPV (Enterprise Value): $11,111M  
+Net Debt: $800M  
+EPV (Equity): $10,311M
+
+EPV/share: $37.56
