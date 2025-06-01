@@ -116,43 +116,14 @@ export async function setupAuth(app: Express) {
     })(req, res, next);
   });
 
-  app.post("/api/logout", (req, res) => {
-    console.log("Logout initiated for session:", req.sessionID);
-    req.logout((err) => {
-      if (err) {
-        console.error("Passport logout error:", err);
-        return res.status(500).json({ error: "Logout failed" });
-      }
-      
-      // Clear the session
-      req.session.destroy((destroyErr) => {
-        if (destroyErr) {
-          console.error("Session destruction error:", destroyErr);
-        }
-        
-        // Clear all possible session cookies
-        res.clearCookie('connect.sid', { 
-          path: '/',
-          httpOnly: true,
-          secure: true,
-          sameSite: 'strict'
-        });
-        
-        // Also try clearing without secure flag for local development
-        res.clearCookie('connect.sid', { 
-          path: '/',
-          httpOnly: true,
-          sameSite: 'strict'
-        });
-        
-        // Clear any other potential session cookies
-        res.clearCookie('session', { path: '/' });
-        res.clearCookie('express:sess', { path: '/' });
-        res.clearCookie('express:sess.sig', { path: '/' });
-        
-        console.log("Session destroyed and cookies cleared");
-        res.json({ success: true, message: "Logged out successfully" });
-      });
+  app.get("/api/logout", (req, res) => {
+    req.logout(() => {
+      res.redirect(
+        client.buildEndSessionUrl(config, {
+          client_id: process.env.REPL_ID!,
+          post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
+        }).href
+      );
     });
   });
 }
