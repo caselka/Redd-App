@@ -81,7 +81,7 @@ export default function Landing() {
       setIsVisible(prev => ({ ...prev, hero: true }));
     }, 100);
 
-    // Animate price changes every 10 seconds
+    // Animate price changes every 5 seconds for more frequent updates
     const priceInterval = setInterval(() => {
       setAnimatedPrices(prev => ({
         aapl: {
@@ -96,14 +96,14 @@ export default function Landing() {
         }
       }));
 
-      // Reset animation state after 500ms
+      // Reset animation state after 800ms
       setTimeout(() => {
         setAnimatedPrices(prev => ({
           aapl: { ...prev.aapl, isAnimating: false },
           msft: { ...prev.msft, isAnimating: false }
         }));
-      }, 500);
-    }, 10000);
+      }, 800);
+    }, 5000);
 
     return () => {
       observer.disconnect();
@@ -319,7 +319,7 @@ export default function Landing() {
                   <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Live Market Data</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div className={`bg-gray-50 rounded-lg p-3 transition-all duration-500 ${
-                      animatedPrices.aapl.isAnimating ? 'bg-green-50 scale-105 shadow-md' : ''
+                      animatedPrices.aapl.isAnimating ? 'bg-green-50 scale-105 shadow-md animate-price-flash' : ''
                     }`}>
                       <div className="text-xs sm:text-sm text-gray-500">
                         <ClickableTicker ticker="AAPL" companyName="Apple Inc." />
@@ -336,7 +336,7 @@ export default function Landing() {
                       </div>
                     </div>
                     <div className={`bg-gray-50 rounded-lg p-3 transition-all duration-500 ${
-                      animatedPrices.msft.isAnimating ? 'bg-green-50 scale-105 shadow-md' : ''
+                      animatedPrices.msft.isAnimating ? 'bg-green-50 scale-105 shadow-md animate-price-flash' : ''
                     }`}>
                       <div className="text-xs sm:text-sm text-gray-500">
                         <ClickableTicker ticker="MSFT" companyName="Microsoft Corporation" />
@@ -354,16 +354,18 @@ export default function Landing() {
                     </div>
                   </div>
                 </div>
-                <div className="h-80 sm:h-96 lg:h-[450px]">
+                <div className="h-96 sm:h-[500px] lg:h-[600px]">
                   <StockPriceChart ticker="AAPL" />
                 </div>
               </div>
-              <div className="absolute -top-4 -right-4 w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-red-400 to-red-600 rounded-full opacity-20 animate-pulse"></div>
+              <div className="absolute -top-4 -right-4 w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-red-400 to-red-600 rounded-full opacity-20 animate-float"></div>
               <div className="absolute -bottom-6 -left-6 w-20 h-20 sm:w-32 sm:h-32 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full opacity-10 animate-bounce"></div>
               
               {/* Additional floating elements */}
               <div className="absolute top-1/2 -left-8 w-12 h-12 bg-gradient-to-br from-green-300 to-green-500 rounded-full opacity-15 animate-ping"></div>
               <div className="absolute top-1/4 -right-8 w-8 h-8 bg-gradient-to-br from-purple-300 to-purple-500 rounded-full opacity-20 animate-pulse delay-700"></div>
+              <div className="absolute top-3/4 -right-12 w-6 h-6 bg-gradient-to-br from-yellow-300 to-yellow-500 rounded-full opacity-25 animate-float delay-1000"></div>
+              <div className="absolute top-1/3 -left-4 w-4 h-4 bg-gradient-to-br from-indigo-300 to-indigo-500 rounded-full opacity-30 animate-bounce delay-500"></div>
             </div>
           </div>
         </div>
