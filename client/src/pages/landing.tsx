@@ -280,7 +280,9 @@ export default function Landing() {
                 </div>
               </div>
             </div>
-            <div className="relative">
+            <div className={`relative transition-all duration-1000 delay-400 ${
+              isVisible.hero ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'
+            }`}>
               <div className="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 border">
                 <div className="mb-4">
                   <h3 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">Live Market Data</h3>
