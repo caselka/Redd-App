@@ -275,15 +275,15 @@ class TelegramBot {
 
   async handleConvictionCommand(chatId: number, args: string[]) {
     if (args.length < 2) {
-      await this.sendMessage(chatId, '❌ Please provide ticker and conviction score (1-10).\nExample: `/conviction AAPL 8`');
+      await this.sendMessage(chatId, '❌ Please provide ticker and conviction score (1-5).\nExample: `/conviction AAPL 4`');
       return;
     }
 
     const ticker = args[0].toUpperCase();
     const convictionScore = parseInt(args[1]);
     
-    if (isNaN(convictionScore) || convictionScore < 1 || convictionScore > 10) {
-      await this.sendMessage(chatId, '❌ Conviction score must be between 1 and 10.');
+    if (isNaN(convictionScore) || convictionScore < 1 || convictionScore > 5) {
+      await this.sendMessage(chatId, '❌ Conviction score must be between 1 and 5.');
       return;
     }
 
@@ -295,7 +295,7 @@ class TelegramBot {
 
     try {
       await storage.updateStock(stock.id, { convictionScore });
-      await this.sendMessage(chatId, `✅ Updated conviction for *${ticker}* to ${convictionScore}/10 ⭐`);
+      await this.sendMessage(chatId, `✅ Updated conviction for *${ticker}* to ${convictionScore}/5 ⭐`);
     } catch (error) {
       await this.sendMessage(chatId, `❌ Failed to update conviction for ${ticker}.`);
     }

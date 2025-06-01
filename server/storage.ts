@@ -282,7 +282,7 @@ export class DatabaseStorage implements IStorage {
     let highConviction = 0;
 
     for (const stock of stocksArray) {
-      if (stock.convictionScore >= 8) {
+      if (stock.convictionScore >= 4) {
         highConviction++;
       }
 

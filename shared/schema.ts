@@ -8,7 +8,7 @@ export const stocks = pgTable("stocks", {
   ticker: text("ticker").notNull().unique(),
   companyName: text("company_name").notNull(),
   intrinsicValue: decimal("intrinsic_value", { precision: 10, scale: 2 }).notNull(),
-  convictionScore: integer("conviction_score").notNull(), // 1-10
+  convictionScore: integer("conviction_score").notNull(), // 1-5
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

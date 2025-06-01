@@ -56,7 +56,7 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
   };
 
   const renderStars = (conviction: number) => {
-    return Array.from({ length: 10 }, (_, i) => (
+    return Array.from({ length: 5 }, (_, i) => (
       <span key={i} className={`text-sm ${i < conviction ? 'text-yellow-400' : 'text-gray-300'}`}>
         ★
       </span>
@@ -197,7 +197,7 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
                           <div className="flex space-x-0.5">
                             {renderStars(stock.convictionScore)}
                           </div>
-                          <span className="ml-1 text-xs text-gray-600">{stock.convictionScore}/10</span>
+                          <span className="ml-1 text-xs text-gray-600">{stock.convictionScore}/5</span>
                         </div>
                       </div>
                     </div>

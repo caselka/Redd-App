@@ -155,7 +155,7 @@ export function AddStockModal({ isOpen, onClose }: AddStockModalProps) {
           </div>
           
           <div>
-            <Label htmlFor="conviction">Conviction Score (1-10) *</Label>
+            <Label htmlFor="conviction">Conviction Score (1-5) *</Label>
             <Select
               value={formData.convictionScore}
               onValueChange={(value) => setFormData({ ...formData, convictionScore: value })}
@@ -165,15 +165,10 @@ export function AddStockModal({ isOpen, onClose }: AddStockModalProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="1">1 - Very Low</SelectItem>
-                <SelectItem value="2">2</SelectItem>
-                <SelectItem value="3">3</SelectItem>
-                <SelectItem value="4">4</SelectItem>
-                <SelectItem value="5">5 - Medium</SelectItem>
-                <SelectItem value="6">6</SelectItem>
-                <SelectItem value="7">7</SelectItem>
-                <SelectItem value="8">8</SelectItem>
-                <SelectItem value="9">9</SelectItem>
-                <SelectItem value="10">10 - Very High</SelectItem>
+                <SelectItem value="2">2 - Low</SelectItem>
+                <SelectItem value="3">3 - Medium</SelectItem>
+                <SelectItem value="4">4 - High</SelectItem>
+                <SelectItem value="5">5 - Very High</SelectItem>
               </SelectContent>
             </Select>
           </div>
