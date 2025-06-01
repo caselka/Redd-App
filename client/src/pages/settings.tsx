@@ -10,8 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { User, Mail, Shield, Bell, CreditCard, HelpCircle, LogOut, Save } from "lucide-react";
+import { User, Mail, Shield, Bell, CreditCard, HelpCircle, LogOut, Save, Moon, Sun } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/components/theme-provider";
 
 export default function Settings() {
   const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
@@ -60,26 +61,31 @@ export default function Settings() {
           </div>
 
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="profile" className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Profile
+            <TabsList className="grid w-full grid-cols-5 h-auto">
+              <TabsTrigger value="profile" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-1 sm:p-2 text-xs sm:text-sm">
+                <User className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Profile</span>
+                <span className="sm:hidden">Prof</span>
               </TabsTrigger>
-              <TabsTrigger value="security" className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                Security
+              <TabsTrigger value="security" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-1 sm:p-2 text-xs sm:text-sm">
+                <Shield className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Security</span>
+                <span className="sm:hidden">Sec</span>
               </TabsTrigger>
-              <TabsTrigger value="notifications" className="flex items-center gap-2">
-                <Bell className="h-4 w-4" />
-                Notifications
+              <TabsTrigger value="notifications" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-1 sm:p-2 text-xs sm:text-sm">
+                <Bell className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Notifications</span>
+                <span className="sm:hidden">Not</span>
               </TabsTrigger>
-              <TabsTrigger value="subscription" className="flex items-center gap-2">
-                <CreditCard className="h-4 w-4" />
-                Subscription
+              <TabsTrigger value="subscription" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-1 sm:p-2 text-xs sm:text-sm">
+                <CreditCard className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Subscription</span>
+                <span className="sm:hidden">Sub</span>
               </TabsTrigger>
-              <TabsTrigger value="support" className="flex items-center gap-2">
-                <HelpCircle className="h-4 w-4" />
-                Support
+              <TabsTrigger value="support" className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 p-1 sm:p-2 text-xs sm:text-sm">
+                <HelpCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="hidden sm:inline">Support</span>
+                <span className="sm:hidden">Help</span>
               </TabsTrigger>
             </TabsList>
 
