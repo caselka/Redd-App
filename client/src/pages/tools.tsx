@@ -362,7 +362,7 @@ export default function Tools() {
                         />
                       </div>
 
-                      <Button onClick={calculateCompoundInterest} className="w-full bg-brand-blue hover:bg-red-700">
+                      <Button onClick={calculateCompoundInterest} className="w-full bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200">
                         Calculate
                       </Button>
                     </div>
@@ -681,7 +681,7 @@ export default function Tools() {
                     </div>
 
                     <div className="flex items-end">
-                      <Button onClick={createPriceAlert} className="w-full bg-brand-blue hover:bg-red-700">
+                      <Button onClick={createPriceAlert} className="w-full bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200">
                         Create Alert
                       </Button>
                     </div>
@@ -737,7 +737,7 @@ export default function Tools() {
                     <Button 
                       onClick={generateAIQuestions} 
                       disabled={isGeneratingQuestions}
-                      className="w-full bg-brand-blue hover:bg-red-700"
+                      className="w-full bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200"
                     >
                       {isGeneratingQuestions ? "Generating Questions..." : "Get Gut Check Questions"}
                     </Button>

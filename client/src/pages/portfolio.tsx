@@ -114,7 +114,7 @@ export default function Portfolio() {
               <p className="text-gray-600 mb-6">Please log in to view your portfolio</p>
               <Button 
                 onClick={() => window.location.href = '/api/login'}
-                className="bg-brand-blue hover:bg-red-700"
+                className="bg-charcoal-red hover:bg-charcoal-red/90 text-white shadow-sm transition-all duration-200"
               >
                 Login with Replit
               </Button>
