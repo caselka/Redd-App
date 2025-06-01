@@ -794,6 +794,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Watchlist historical data endpoint
+  app.get("/api/watchlist-historical", async (req, res) => {
+    try {
+      const period = req.query.period as string || '5D';
+      const stocks = await storage.getAllStocks();
+      
+      if (stocks.length === 0) {
+        return res.json({});
+      }
+
+      const historicalData: { [ticker: string]: any } = {};
+      
+      // Calculate date range based on period
+      const endDate = new Date();
+      const startDate = new Date();
+      
+      switch (period) {
+        case '5D':
+          startDate.setDate(endDate.getDate() - 5);
+          break;
+        case '1M':
+          startDate.setMonth(endDate.getMonth() - 1);
+          break;
+        case '3M':
+          startDate.setMonth(endDate.getMonth() - 3);
+          break;
+        case '6M':
+          startDate.setMonth(endDate.getMonth() - 6);
+          break;
+        case '1Y':
+          startDate.setFullYear(endDate.getFullYear() - 1);
+          break;
+        default:
+          startDate.setDate(endDate.getDate() - 5);
+      }
+
+      // Fetch historical data for each stock from the database
+      for (const stock of stocks) {
+        try {
+          const priceHistory = await storage.getPriceHistory(stock.id, 100);
+          
+          // Filter by date range and format for chart
+          const filteredHistory = priceHistory
+            .filter(price => new Date(price.timestamp) >= startDate)
+            .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+            .map(price => ({
+              date: price.timestamp,
+              price: parseFloat(price.price),
+              change: parseFloat(price.changePercent || '0')
+            }));
+
+          if (filteredHistory.length > 0) {
+            // Calculate period performance
+            const firstPrice = filteredHistory[0].price;
+            const lastPrice = filteredHistory[filteredHistory.length - 1].price;
+            const periodReturn = ((lastPrice - firstPrice) / firstPrice) * 100;
+
+            historicalData[stock.ticker] = {
+              history: filteredHistory,
+              periodReturn,
+              currentPrice: lastPrice,
+              startPrice: firstPrice
+            };
+          }
+        } catch (error) {
+          console.error(`Error fetching history for ${stock.ticker}:`, error);
+        }
+      }
+
+      res.json(historicalData);
+    } catch (error) {
+      console.error("Error fetching watchlist historical data:", error);
+      res.status(500).json({ error: "Failed to fetch historical data" });
+    }
+  });
+
   // Test Telegram price alert (for development)
   app.post('/api/telegram/test-alert', async (req, res) => {
     try {

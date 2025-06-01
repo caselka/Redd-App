@@ -1,35 +1,43 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { TrendingUp, TrendingDown } from "lucide-react";
 
 export function WatchlistPerformanceChart() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chartRef = useRef<any>(null);
+  const [selectedPeriod, setSelectedPeriod] = useState('5D');
 
   const { data: stocks = [] } = useQuery<any[]>({
     queryKey: ["/api/stocks"],
   });
 
-  // Calculate overall watchlist performance
-  const totalStocks = stocks.length;
-  const gainers = stocks.filter(stock => stock.changePercent > 0).length;
-  const losers = stocks.filter(stock => stock.changePercent < 0).length;
+  // Fetch historical data for all stocks for the selected period
+  const { data: historicalData = {} } = useQuery({
+    queryKey: ["/api/watchlist-historical", selectedPeriod],
+    enabled: stocks.length > 0,
+  });
+
+  // Calculate period-based performance from historical data
+  const stockPerformances = historicalData && typeof historicalData === 'object' 
+    ? Object.entries(historicalData).map(([ticker, data]: [string, any]) => ({
+        ticker,
+        periodReturn: data.periodReturn || 0,
+        currentPrice: data.currentPrice || 0,
+        startPrice: data.startPrice || 0,
+      }))
+    : [];
+
+  const totalStocks = stockPerformances.length;
+  const gainers = stockPerformances.filter(stock => stock.periodReturn > 0).length;
+  const losers = stockPerformances.filter(stock => stock.periodReturn < 0).length;
   const unchanged = totalStocks - gainers - losers;
 
-  // Calculate average performance
-  const avgPerformance = stocks.length > 0 
-    ? stocks.reduce((sum, stock) => sum + (stock.changePercent || 0), 0) / stocks.length
-    : 0;
-
-  // Calculate weighted performance (by current price)
-  const totalValue = stocks.reduce((sum, stock) => sum + (stock.currentPrice || 0), 0);
-  const weightedPerformance = totalValue > 0
-    ? stocks.reduce((sum, stock) => {
-        const weight = (stock.currentPrice || 0) / totalValue;
-        return sum + ((stock.changePercent || 0) * weight);
-      }, 0)
+  // Calculate average performance for the selected period
+  const avgPerformance = stockPerformances.length > 0 
+    ? stockPerformances.reduce((sum, stock) => sum + stock.periodReturn, 0) / stockPerformances.length
     : 0;
 
   useEffect(() => {
@@ -231,12 +239,35 @@ export function WatchlistPerformanceChart() {
   return (
     <Card className="bg-white">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold text-gray-900">
-          Watchlist Performance Overview
-        </CardTitle>
-        <p className="text-sm text-gray-600">
-          Daily performance and margin of safety for all watched stocks
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <CardTitle className="text-lg font-semibold text-gray-900">
+              Watchlist Performance Overview
+            </CardTitle>
+            <p className="text-sm text-gray-600">
+              Period performance for all watched stocks ({selectedPeriod})
+            </p>
+          </div>
+          
+          {/* Time Period Selector */}
+          <div className="flex gap-2">
+            {['5D', '1M', '3M', '6M', '1Y'].map((period) => (
+              <Button
+                key={period}
+                variant={selectedPeriod === period ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedPeriod(period)}
+                className={`text-xs ${
+                  selectedPeriod === period 
+                    ? 'bg-brand-red text-white hover:bg-brand-red/90' 
+                    : 'hover:bg-gray-50'
+                }`}
+              >
+                {period}
+              </Button>
+            ))}
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         {/* Performance Summary */}
