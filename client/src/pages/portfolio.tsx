@@ -143,11 +143,11 @@ export default function Portfolio() {
       <div className="flex-1 overflow-hidden">
         <Header onAddStock={() => setIsAddStockModalOpen(true)} />
         
-        <main className="flex-1 overflow-y-auto p-6">
-          <div className="mb-6 flex justify-between items-center">
+        <main className="flex-1 overflow-y-auto p-3 md:p-6 pt-16 md:pt-6">
+          <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Portfolio</h1>
-              <p className="text-gray-600">Track your stock holdings with live prices</p>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Portfolio</h1>
+              <p className="text-gray-600 text-sm md:text-base">Track your stock holdings with live prices</p>
             </div>
             <Button onClick={() => setIsAddHoldingModalOpen(true)} className="bg-brand-blue hover:bg-red-700">
               <Plus className="h-4 w-4 mr-2" />

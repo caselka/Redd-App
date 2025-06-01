@@ -25,51 +25,51 @@ export function StatsCards({ stats }: StatsCardsProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500">Total Watched</p>
-            <p className="text-3xl font-bold text-gray-900">{stats.totalWatched}</p>
+            <p className="text-xs md:text-sm font-medium text-gray-500">Total Watched</p>
+            <p className="text-xl md:text-3xl font-bold text-gray-900">{stats.totalWatched}</p>
           </div>
-          <div className="w-12 h-12 bg-brand-blue bg-opacity-10 rounded-lg flex items-center justify-center">
-            <Eye className="text-brand-blue text-xl" size={24} />
+          <div className="w-8 h-8 md:w-12 md:h-12 bg-brand-blue bg-opacity-10 rounded-lg flex items-center justify-center">
+            <Eye className="text-brand-blue" size={16} />
           </div>
         </div>
       </div>
       
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500">Undervalued</p>
-            <p className="text-3xl font-bold text-profit-green">{stats.undervalued}</p>
+            <p className="text-xs md:text-sm font-medium text-gray-500">Undervalued</p>
+            <p className="text-xl md:text-3xl font-bold text-profit-green">{stats.undervalued}</p>
           </div>
-          <div className="w-12 h-12 bg-profit-green bg-opacity-10 rounded-lg flex items-center justify-center">
-            <TrendingDown className="text-profit-green text-xl" size={24} />
+          <div className="w-8 h-8 md:w-12 md:h-12 bg-profit-green bg-opacity-10 rounded-lg flex items-center justify-center">
+            <TrendingDown className="text-profit-green" size={16} />
           </div>
         </div>
       </div>
       
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500">Avg. MoS</p>
-            <p className="text-3xl font-bold text-gray-900">{stats.avgMarginOfSafety.toFixed(1)}%</p>
+            <p className="text-xs md:text-sm font-medium text-gray-500">Avg. MoS</p>
+            <p className="text-xl md:text-3xl font-bold text-gray-900">{stats.avgMarginOfSafety.toFixed(1)}%</p>
           </div>
-          <div className="w-12 h-12 bg-success-green bg-opacity-10 rounded-lg flex items-center justify-center">
-            <Shield className="text-success-green text-xl" size={24} />
+          <div className="w-8 h-8 md:w-12 md:h-12 bg-success-green bg-opacity-10 rounded-lg flex items-center justify-center">
+            <Shield className="text-success-green" size={16} />
           </div>
         </div>
       </div>
       
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-3 md:p-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-500">High Conviction</p>
-            <p className="text-3xl font-bold text-gray-900">{stats.highConviction}</p>
+            <p className="text-xs md:text-sm font-medium text-gray-500">High Conviction</p>
+            <p className="text-xl md:text-3xl font-bold text-gray-900">{stats.highConviction}</p>
           </div>
-          <div className="w-12 h-12 bg-yellow-500 bg-opacity-10 rounded-lg flex items-center justify-center">
-            <Star className="text-yellow-500 text-xl" size={24} />
+          <div className="w-8 h-8 md:w-12 md:h-12 bg-yellow-500 bg-opacity-10 rounded-lg flex items-center justify-center">
+            <Star className="text-yellow-500" size={16} />
           </div>
         </div>
       </div>
