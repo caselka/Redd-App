@@ -116,14 +116,28 @@ export async function setupAuth(app: Express) {
     })(req, res, next);
   });
 
-  app.get("/api/logout", (req, res) => {
-    req.logout(() => {
-      res.redirect(
-        client.buildEndSessionUrl(config, {
-          client_id: process.env.REPL_ID!,
-          post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
-        }).href
-      );
+  app.get("/api/logout", async (req, res) => {
+    console.log("Logout initiated for session:", req.sessionID);
+    req.logout((err) => {
+      if (err) {
+        console.error("Passport logout error:", err);
+        return res.redirect("/");
+      }
+      
+      req.session.destroy((destroyErr) => {
+        if (destroyErr) {
+          console.error("Session destruction error:", destroyErr);
+        }
+        
+        res.clearCookie('connect.sid', { 
+          path: '/',
+          httpOnly: true,
+          secure: true
+        });
+        
+        console.log("Session destroyed, redirecting to landing page");
+        res.redirect("/");
+      });
     });
   });
 }
