@@ -76,6 +76,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const gainLoss = currentValue - totalCost;
             const gainLossPercent = totalCost > 0 ? ((gainLoss / totalCost) * 100) : 0;
             
+            // Get intrinsic value from watchlist if exists
+            let intrinsicValue = null;
+            let marginOfSafety = null;
+            try {
+              const watchlistStock = await storage.getStockByTicker(ticker);
+              if (watchlistStock && watchlistStock.intrinsicValue) {
+                intrinsicValue = parseFloat(watchlistStock.intrinsicValue);
+                if (currentPrice > 0) {
+                  marginOfSafety = ((intrinsicValue - currentPrice) / intrinsicValue) * 100;
+                }
+              }
+            } catch (error) {
+              console.warn(`Could not fetch intrinsic value for ${ticker}`);
+            }
+            
             return {
               ticker,
               companyName: transactions[0].companyName,
@@ -86,6 +101,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
               currentValue,
               gainLoss,
               gainLossPercent,
+              intrinsicValue,
+              marginOfSafety,
               transactions,
             };
           } catch (error) {

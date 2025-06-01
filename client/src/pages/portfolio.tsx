@@ -251,9 +251,18 @@ export default function Portfolio() {
                             {holding.currentValue > 0 ? `$${holding.currentValue.toLocaleString()}` : `$${holding.totalCost.toLocaleString()}`}
                           </td>
                           <td className="p-3 text-right">
-                            <span className="text-blue-600">
-                              N/A
-                            </span>
+                            {holding.intrinsicValue ? (
+                              <div className="flex flex-col">
+                                <span className="text-blue-600">${holding.intrinsicValue.toFixed(2)}</span>
+                                {holding.marginOfSafety && (
+                                  <span className={`text-xs ${holding.marginOfSafety > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    {holding.marginOfSafety.toFixed(1)}% MOS
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 text-sm">Add to Watchlist</span>
+                            )}
                           </td>
                           <td className={`p-3 text-right font-semibold ${holding.gainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                             {holding.currentPrice > 0 ? `$${holding.gainLoss.toLocaleString()}` : '-'}
