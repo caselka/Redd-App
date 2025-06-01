@@ -55,50 +55,50 @@ html, body {
   --card-foreground: 215 25% 27%; /* #3A404D */
   --border: 220 13% 93%; /* #ECEFF2 - Softer borders */
   --input: 220 13% 95%; /* #F1F4F7 - Apple-like input background */
-  --primary: 211 100% 50%; /* #007AFF - Apple blue primary */
+  --primary: 211 45% 65%; /* #7BB3F0 - Soft pastel blue */
   --primary-foreground: 0 0% 100%; /* #FFFFFF */
-  --secondary: 45 100% 51%; /* #FFCC00 - Apple yellow accent */
+  --secondary: 45 35% 75%; /* #E8D5A3 - Muted pastel yellow */
   --secondary-foreground: 215 25% 27%; /* #3A404D */
-  --accent: 142 71% 45%; /* #34C759 - Apple green accent */
+  --accent: 142 35% 65%; /* #8BC4A0 - Soft pastel green */
   --accent-foreground: 0 0% 100%; /* #FFFFFF */
-  --destructive: 0 100% 58%; /* #FF3B30 - Apple red */
-  --destructive-foreground: 0 0% 100%; /* #FFFFFF */
-  --ring: 211 100% 50%; /* #007AFF - Apple blue */
+  --destructive: 0 45% 75%; /* #E8A3A3 - Soft pastel red */
+  --destructive-foreground: 215 25% 27%; /* #3A404D */
+  --ring: 211 35% 70%; /* #9AC3E8 - Very soft blue ring */
   --radius: 0.75rem;
   
-  /* Custom brand colors - Apple-inspired pastels */
-  --brand-blue: 211 100% 50%; /* #007AFF - Apple blue */
-  --brand-red: 0 73% 55%; /* #DC2626 - Redd primary (keeping brand identity) */
-  --success-green: 142 71% 45%; /* #34C759 - Apple green */
-  --profit-green: 142 76% 55%; /* #30D158 - Lighter Apple green */
-  --loss-red: 0 100% 58%; /* #FF3B30 - Apple red */
-  --danger-red: 0 100% 58%; /* #FF3B30 - Apple red */
-  --warning-orange: 35 91% 62%; /* #FF9500 - Apple orange */
-  --info-blue: 211 100% 50%; /* #007AFF - Apple blue */
-  --purple-accent: 274 70% 55%; /* #AF52DE - Apple purple */
-  --pink-accent: 330 81% 60%; /* #FF2D92 - Apple pink */
+  /* Custom brand colors - Soft pastels */
+  --brand-blue: 211 30% 70%; /* #A3C7E8 - Very soft blue */
+  --brand-red: 0 35% 70%; /* #C7A3A3 - Soft red (keeping brand identity but muted) */
+  --success-green: 142 25% 70%; /* #A8C7B8 - Very soft green */
+  --profit-green: 142 30% 75%; /* #B8D1C4 - Even softer green */
+  --loss-red: 0 25% 75%; /* #D1B8B8 - Very soft red */
+  --danger-red: 0 30% 70%; /* #C7A8A8 - Soft danger red */
+  --warning-orange: 35 35% 75%; /* #D1C4A8 - Soft orange */
+  --info-blue: 211 25% 75%; /* #B8C7D1 - Very soft info blue */
+  --purple-accent: 274 25% 75%; /* #C4B8D1 - Soft purple */
+  --pink-accent: 330 25% 75%; /* #D1B8C7 - Soft pink */
 }
 
 .dark {
   --background: 220 13% 9%; /* #1C1C1E - Apple dark background */
-  --foreground: 0 0% 98%; /* #FAFAFA - Soft white text */
+  --foreground: 0 0% 95%; /* #F2F2F2 - Softer white text */
   --muted: 220 13% 15%; /* #2C2C2E - Apple dark elevated */
   --muted-foreground: 220 9% 65%; /* #98989D - Apple secondary text */
   --popover: 220 13% 9%; /* #1C1C1E */
-  --popover-foreground: 0 0% 98%; /* #FAFAFA */
+  --popover-foreground: 0 0% 95%; /* #F2F2F2 */
   --card: 220 13% 13%; /* #242426 - Apple dark card */
-  --card-foreground: 0 0% 98%; /* #FAFAFA */
+  --card-foreground: 0 0% 95%; /* #F2F2F2 */
   --border: 220 13% 20%; /* #39393C - Apple dark border */
   --input: 220 13% 15%; /* #2C2C2E - Apple dark input */
-  --primary: 211 100% 50%; /* #007AFF - Apple blue */
+  --primary: 211 25% 60%; /* #7A9FC7 - Muted blue for dark mode */
   --primary-foreground: 0 0% 100%; /* #FFFFFF */
-  --secondary: 45 100% 51%; /* #FFCC00 - Apple yellow */
-  --secondary-foreground: 220 13% 9%; /* #1C1C1E */
-  --accent: 142 71% 45%; /* #34C759 - Apple green */
+  --secondary: 45 20% 60%; /* #B8A67A - Muted yellow for dark mode */
+  --secondary-foreground: 0 0% 95%; /* #F2F2F2 */
+  --accent: 142 20% 60%; /* #7AB89F - Muted green for dark mode */
   --accent-foreground: 0 0% 100%; /* #FFFFFF */
-  --destructive: 0 100% 58%; /* #FF3B30 - Apple red */
+  --destructive: 0 25% 65%; /* #B8857A - Muted red for dark mode */
   --destructive-foreground: 0 0% 100%; /* #FFFFFF */
-  --ring: 211 100% 50%; /* #007AFF - Apple blue */
+  --ring: 211 20% 65%; /* #85A3C7 - Very soft blue ring for dark mode */
 }
 
 @layer base {
@@ -111,7 +111,7 @@ html, body {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(220 13% 95%) 100%);
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(220 20% 97%) 50%, hsl(210 25% 96%) 100%);
     min-height: 100vh;
   }
 }
@@ -164,18 +164,19 @@ html, body {
   }
 
   .apple-button {
-    @apply bg-primary text-primary-foreground font-medium rounded-2xl px-6 py-3 transition-all duration-200;
-    box-shadow: 0 4px 16px 0 rgba(0, 122, 255, 0.2);
+    @apply bg-primary text-primary-foreground font-medium rounded-2xl px-6 py-3 transition-all duration-300;
+    box-shadow: 0 2px 8px 0 rgba(123, 179, 240, 0.1);
   }
 
   .apple-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px 0 rgba(0, 122, 255, 0.3);
+    transform: translateY(-0.5px);
+    box-shadow: 0 3px 12px 0 rgba(123, 179, 240, 0.15);
+    @apply bg-primary/90;
   }
 
   .apple-button:active {
     transform: translateY(0);
-    box-shadow: 0 2px 8px 0 rgba(0, 122, 255, 0.2);
+    box-shadow: 0 1px 4px 0 rgba(123, 179, 240, 0.1);
   }
 
   .glass-effect {
@@ -205,9 +206,10 @@ html, body {
   }
   
   .mobile-card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-3 md:p-6;
+    @apply bg-white/90 dark:bg-card/90 backdrop-blur-sm rounded-2xl shadow-sm border border-border/50 p-3 md:p-6;
     min-height: 300px;
     overflow: hidden;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.04);
   }
   
   .mobile-grid {
