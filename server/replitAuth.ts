@@ -36,6 +36,7 @@ export function getSession() {
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
+    name: 'connect.sid',
     cookie: {
       httpOnly: true,
       secure: true,
@@ -116,12 +117,21 @@ export async function setupAuth(app: Express) {
   });
 
   app.get("/api/logout", (req, res) => {
-    req.logout(() => {
-      req.session.destroy((err) => {
-        if (err) {
-          console.error("Session destruction error:", err);
+    console.log("Logout initiated for session:", req.sessionID);
+    req.logout((err) => {
+      if (err) {
+        console.error("Passport logout error:", err);
+      }
+      req.session.destroy((destroyErr) => {
+        if (destroyErr) {
+          console.error("Session destruction error:", destroyErr);
         }
-        res.clearCookie('connect.sid');
+        res.clearCookie('connect.sid', { 
+          path: '/',
+          httpOnly: true,
+          secure: true 
+        });
+        console.log("Session destroyed and cookie cleared");
         res.redirect("/");
       });
     });
