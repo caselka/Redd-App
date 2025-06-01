@@ -45,62 +45,67 @@ html, body {
 }
 
 :root {
-  --background: 220 13% 98%; /* #F8F9FB - Apple-inspired soft white */
-  --foreground: 215 25% 27%; /* #3A404D - Warmer dark text */
-  --muted: 220 9% 96%; /* #F5F6F8 - Softer muted background */
-  --muted-foreground: 215 16% 56%; /* #8B92A5 - Softer muted text */
+  --background: 0 0% 92%; /* #EAEAEA - Moon Silver background */
+  --foreground: 215 18% 35%; /* #5C677D - Neutral Blue-Grey text */
+  --muted: 0 0% 88%; /* #E0E0E0 - Lighter silver for muted areas */
+  --muted-foreground: 215 18% 45%; /* #6B7489 - Lighter blue-grey */
   --popover: 0 0% 100%; /* #FFFFFF */
-  --popover-foreground: 215 25% 27%; /* #3A404D */
+  --popover-foreground: 215 18% 35%; /* #5C677D */
   --card: 0 0% 100%; /* #FFFFFF */
-  --card-foreground: 215 25% 27%; /* #3A404D */
-  --border: 220 13% 93%; /* #ECEFF2 - Softer borders */
-  --input: 220 13% 95%; /* #F1F4F7 - Apple-like input background */
-  --primary: 211 45% 65%; /* #7BB3F0 - Soft pastel blue */
+  --card-foreground: 215 18% 35%; /* #5C677D */
+  --border: 0 0% 88%; /* #E0E0E0 - Soft borders */
+  --input: 0 0% 95%; /* #F2F2F2 - Clean input background */
+  --primary: 355 70% 51%; /* #D72638 - Charcoal Red primary */
   --primary-foreground: 0 0% 100%; /* #FFFFFF */
-  --secondary: 45 35% 75%; /* #E8D5A3 - Muted pastel yellow */
-  --secondary-foreground: 215 25% 27%; /* #3A404D */
-  --accent: 142 35% 65%; /* #8BC4A0 - Soft pastel green */
+  --secondary: 215 18% 35%; /* #5C677D - Neutral Blue-Grey */
+  --secondary-foreground: 0 0% 100%; /* #FFFFFF */
+  --accent: 142 40% 55%; /* #5CB270 - Sage Green */
   --accent-foreground: 0 0% 100%; /* #FFFFFF */
-  --destructive: 0 45% 75%; /* #E8A3A3 - Soft pastel red */
-  --destructive-foreground: 215 25% 27%; /* #3A404D */
-  --ring: 211 35% 70%; /* #9AC3E8 - Very soft blue ring */
-  --radius: 0.75rem;
+  --destructive: 355 70% 51%; /* #D72638 - Same as primary for consistency */
+  --destructive-foreground: 0 0% 100%; /* #FFFFFF */
+  --ring: 355 70% 51%; /* #D72638 - Charcoal Red ring */
+  --radius: 0.5rem;
   
-  /* Custom brand colors - Soft pastels */
-  --brand-blue: 211 30% 70%; /* #A3C7E8 - Very soft blue */
-  --brand-red: 0 35% 70%; /* #C7A3A3 - Soft red (keeping brand identity but muted) */
-  --success-green: 142 71% 45%; /* #34C759 - Bright green for margin of safety */
-  --success-green-foreground: 0 0% 100%; /* #FFFFFF - White text on green background */
-  --profit-green: 142 76% 55%; /* #30D158 - Bright green for profits */
-  --profit-green-foreground: 0 0% 100%; /* #FFFFFF - White text on green background */
-  --loss-red: 0 25% 75%; /* #D1B8B8 - Very soft red */
-  --danger-red: 0 30% 70%; /* #C7A8A8 - Soft danger red */
-  --warning-orange: 35 35% 75%; /* #D1C4A8 - Soft orange */
-  --info-blue: 211 25% 75%; /* #B8C7D1 - Very soft info blue */
-  --purple-accent: 274 25% 75%; /* #C4B8D1 - Soft purple */
-  --pink-accent: 330 25% 75%; /* #D1B8C7 - Soft pink */
+  /* Redd Brand Identity Colors */
+  --charcoal-red: 355 70% 51%; /* #D72638 - Primary brand color */
+  --space-graphite: 0 0% 7%; /* #121212 - Dark background */
+  --moon-silver: 0 0% 92%; /* #EAEAEA - Light accent */
+  --neutral-blue-grey: 215 18% 35%; /* #5C677D - Text headings */
+  --sage-green: 142 40% 55%; /* #5CB270 - Success/MoS indicators */
+  --sage-green-foreground: 0 0% 100%; /* #FFFFFF - White text on green */
+  --soft-amber: 41 93% 55%; /* #F5A623 - Warning/Alert */
+  --soft-amber-foreground: 0 0% 7%; /* #121212 - Dark text on amber */
+  
+  /* Legacy compatibility mappings */
+  --brand-red: 355 70% 51%; /* #D72638 - Charcoal Red */
+  --success-green: 142 40% 55%; /* #5CB270 - Sage Green */
+  --success-green-foreground: 0 0% 100%; /* #FFFFFF */
+  --profit-green: 142 40% 55%; /* #5CB270 - Sage Green */
+  --profit-green-foreground: 0 0% 100%; /* #FFFFFF */
+  --warning-orange: 41 93% 55%; /* #F5A623 - Soft Amber */
+  --pink-accent: 355 45% 75%; /* #E8A3A3 - Muted pink for hover */
 }
 
 .dark {
-  --background: 220 13% 9%; /* #1C1C1E - Apple dark background */
-  --foreground: 0 0% 95%; /* #F2F2F2 - Softer white text */
-  --muted: 220 13% 15%; /* #2C2C2E - Apple dark elevated */
-  --muted-foreground: 220 9% 65%; /* #98989D - Apple secondary text */
-  --popover: 220 13% 9%; /* #1C1C1E */
-  --popover-foreground: 0 0% 95%; /* #F2F2F2 */
-  --card: 220 13% 13%; /* #242426 - Apple dark card */
-  --card-foreground: 0 0% 95%; /* #F2F2F2 */
-  --border: 220 13% 20%; /* #39393C - Apple dark border */
-  --input: 220 13% 15%; /* #2C2C2E - Apple dark input */
-  --primary: 211 25% 60%; /* #7A9FC7 - Muted blue for dark mode */
+  --background: 0 0% 7%; /* #121212 - Space Graphite background */
+  --foreground: 0 0% 92%; /* #EAEAEA - Moon Silver text */
+  --muted: 0 0% 13%; /* #212121 - Elevated dark areas */
+  --muted-foreground: 215 18% 55%; /* #8B95A5 - Lighter blue-grey */
+  --popover: 0 0% 10%; /* #1A1A1A */
+  --popover-foreground: 0 0% 92%; /* #EAEAEA */
+  --card: 0 0% 10%; /* #1A1A1A - Dark card */
+  --card-foreground: 0 0% 92%; /* #EAEAEA */
+  --border: 0 0% 20%; /* #333333 - Dark border */
+  --input: 0 0% 13%; /* #212121 - Dark input */
+  --primary: 355 70% 51%; /* #D72638 - Charcoal Red (same in dark) */
   --primary-foreground: 0 0% 100%; /* #FFFFFF */
-  --secondary: 45 20% 60%; /* #B8A67A - Muted yellow for dark mode */
-  --secondary-foreground: 0 0% 95%; /* #F2F2F2 */
-  --accent: 142 20% 60%; /* #7AB89F - Muted green for dark mode */
+  --secondary: 215 18% 45%; /* #707B91 - Lighter blue-grey for dark */
+  --secondary-foreground: 0 0% 100%; /* #FFFFFF */
+  --accent: 142 40% 55%; /* #5CB270 - Sage Green (same in dark) */
   --accent-foreground: 0 0% 100%; /* #FFFFFF */
-  --destructive: 0 25% 65%; /* #B8857A - Muted red for dark mode */
+  --destructive: 355 70% 51%; /* #D72638 - Same as primary */
   --destructive-foreground: 0 0% 100%; /* #FFFFFF */
-  --ring: 211 20% 65%; /* #85A3C7 - Very soft blue ring for dark mode */
+  --ring: 355 70% 51%; /* #D72638 - Charcoal Red ring */
 }
 
 @layer base {
@@ -113,7 +118,6 @@ html, body {
     font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(220 20% 97%) 50%, hsl(210 25% 96%) 100%);
     min-height: 100vh;
   }
 }

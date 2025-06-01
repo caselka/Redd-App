@@ -54,18 +54,22 @@ export default {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
-        // Apple-inspired brand colors
-        "brand-blue": "hsl(var(--brand-blue))",
+        // Redd Brand Identity Colors
+        "charcoal-red": "hsl(var(--charcoal-red))",
+        "space-graphite": "hsl(var(--space-graphite))",
+        "moon-silver": "hsl(var(--moon-silver))",
+        "neutral-blue-grey": "hsl(var(--neutral-blue-grey))",
+        "sage-green": "hsl(var(--sage-green))",
+        "sage-green-foreground": "hsl(var(--sage-green-foreground))",
+        "soft-amber": "hsl(var(--soft-amber))",
+        "soft-amber-foreground": "hsl(var(--soft-amber-foreground))",
+        // Legacy compatibility
         "brand-red": "hsl(var(--brand-red))",
         "success-green": "hsl(var(--success-green))",
         "success-green-foreground": "hsl(var(--success-green-foreground))",
         "profit-green": "hsl(var(--profit-green))",
         "profit-green-foreground": "hsl(var(--profit-green-foreground))",
-        "loss-red": "hsl(var(--loss-red))",
-        "danger-red": "hsl(var(--danger-red))",
         "warning-orange": "hsl(var(--warning-orange))",
-        "info-blue": "hsl(var(--info-blue))",
-        "purple-accent": "hsl(var(--purple-accent))",
         "pink-accent": "hsl(var(--pink-accent))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
