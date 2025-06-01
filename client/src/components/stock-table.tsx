@@ -323,6 +323,16 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
                           >
                             <ChartLine className="h-4 w-4" />
                           </Button>
+                          <Link href="/price-history">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-purple-600 hover:text-purple-700"
+                              title="Price History"
+                            >
+                              <Calendar className="h-4 w-4" />
+                            </Button>
+                          </Link>
                           <Button
                             variant="ghost"
                             size="sm"
