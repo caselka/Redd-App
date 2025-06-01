@@ -134,12 +134,12 @@ export default function Markets() {
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Symbol</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Exchange</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Change</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Symbol</th>
+                      <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Company</th>
+                      <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Exchange</th>
+                      <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                      <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Change</th>
+                      <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -152,27 +152,30 @@ export default function Markets() {
                     ) : (
                       filteredStocks.slice(0, 50).map((stock: MarketStock) => (
                         <tr key={stock.symbol} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
-                              <div className="w-8 h-8 bg-brand-blue rounded-lg flex items-center justify-center text-white text-xs font-bold mr-3">
+                              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-white text-xs font-bold mr-2 md:mr-3">
                                 {stock.symbol.slice(0, 2)}
                               </div>
-                              <span className="font-medium text-gray-900">{stock.symbol}</span>
+                              <div>
+                                <span className="font-medium text-gray-900 text-sm">{stock.symbol}</span>
+                                <div className="text-xs text-gray-500 sm:hidden">{stock.name.length > 20 ? stock.name.substring(0, 20) + '...' : stock.name}</div>
+                              </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className="px-3 md:px-6 py-4 hidden sm:table-cell">
                             <div className="text-sm font-medium text-gray-900">{stock.name}</div>
                             <div className="text-sm text-gray-500">{stock.sector}</div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap hidden md:table-cell">
                             <Badge variant="outline" className="text-xs">
                               {stock.exchange}
                             </Badge>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                             {stock.price ? `$${stock.price.toFixed(2)}` : 'N/A'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
                             {stock.change !== undefined ? (
                               <div className={`flex items-center ${stock.change >= 0 ? 'text-profit-green' : 'text-loss-red'}`}>
                                 {stock.change >= 0 ? <TrendingUp className="h-4 w-4 mr-1" /> : <TrendingDown className="h-4 w-4 mr-1" />}
@@ -184,20 +187,20 @@ export default function Markets() {
                               <span className="text-sm text-gray-500">N/A</span>
                             )}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                             <Button
                               size="sm"
                               variant="outline"
-                              className="text-brand-blue border-brand-blue hover:bg-brand-blue hover:text-white"
+                              className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white text-xs px-2 py-1"
                               onClick={() => handleWatchStock(stock)}
                               disabled={addStockMutation.isPending}
                             >
                               {addStockMutation.isPending ? (
                                 <ReddSpinner size="sm" className="mr-1" />
                               ) : (
-                                <Plus className="h-4 w-4 mr-1" />
+                                <Plus className="h-3 w-3 md:h-4 md:w-4 mr-0 md:mr-1" />
                               )}
-                              {addStockMutation.isPending ? "Adding..." : "Watch"}
+                              <span className="hidden md:inline">{addStockMutation.isPending ? "Adding..." : "Watch"}</span>
                             </Button>
                           </td>
                         </tr>

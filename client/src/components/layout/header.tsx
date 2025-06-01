@@ -63,7 +63,7 @@ export function Header({ onAddStock }: HeaderProps) {
           >
             <RefreshCw className={`h-4 w-4 ${updatePricesMutation.isPending ? 'animate-spin' : ''}`} />
           </Button>
-          <Button onClick={onAddStock} size="sm" className="bg-brand-blue hover:bg-red-700">
+          <Button onClick={onAddStock} size="sm" className="bg-red-600 hover:bg-red-700 text-white">
             <Plus className="mr-0 md:mr-2 h-4 w-4" />
             <span className="hidden md:inline">Add Stock</span>
           </Button>

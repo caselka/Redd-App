@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ReddSpinner } from "@/components/ui/redd-spinner";
 
 ChartJS.register(
   CategoryScale,
@@ -62,7 +63,7 @@ export function StockPriceChart({ ticker }: StockPriceChartProps) {
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-blue mx-auto mb-2"></div>
+          <ReddSpinner size="lg" className="mx-auto mb-2" />
           <p className="text-gray-500">Loading chart data...</p>
         </div>
       </div>
