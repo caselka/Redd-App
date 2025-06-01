@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { StockDetailsModal } from "@/components/stock-details-modal";
-import { PriceChart } from "@/components/price-chart";
+import { StockPriceChart } from "@/components/stock-price-chart";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -246,7 +246,7 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
               </DialogTitle>
             </DialogHeader>
             <div className="flex-1 h-full">
-              <PriceChart selectedStock={chartStock.ticker} />
+              <StockPriceChart ticker={chartStock.ticker} />
             </div>
           </DialogContent>
         </Dialog>
