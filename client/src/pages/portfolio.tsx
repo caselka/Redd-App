@@ -217,22 +217,21 @@ export default function Portfolio() {
                   </Button>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left p-3">Symbol</th>
-                        <th className="text-left p-3">Company</th>
-                        <th className="text-right p-3">Shares</th>
-                        <th className="text-right p-3">Avg Cost</th>
-                        <th className="text-right p-3">Current Price</th>
-                        <th className="text-right p-3">Market Value</th>
-                        <th className="text-right p-3">Intrinsic Value</th>
-                        <th className="text-right p-3">Gain/Loss</th>
-                        <th className="text-right p-3">Return %</th>
-                        <th className="text-right p-3">Actions</th>
-                      </tr>
-                    </thead>
+                <>
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left p-3">Symbol</th>
+                          <th className="text-left p-3">Company</th>
+                          <th className="text-right p-3">Shares</th>
+                          <th className="text-right p-3">Avg Cost</th>
+                          <th className="text-right p-3">Current Price</th>
+                          <th className="text-right p-3">Market Value</th>
+                          <th className="text-right p-3">Gain/Loss</th>
+                          <th className="text-right p-3">Actions</th>
+                        </tr>
+                      </thead>
                     <tbody>
                       {holdings.map((holding: any) => (
                         <tr key={holding.ticker} className="border-b hover:bg-gray-50">
@@ -284,8 +283,57 @@ export default function Portfolio() {
                         </tr>
                       ))}
                     </tbody>
-                  </table>
-                </div>
+                    </table>
+                  </div>
+                  
+                  {/* Mobile Card Layout */}
+                  <div className="md:hidden space-y-4">
+                    {holdings.map((holding: any) => (
+                      <div key={holding.ticker} className="border rounded-lg p-4 bg-white">
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <Badge variant="outline" className="font-mono mb-1">
+                              {holding.ticker}
+                            </Badge>
+                            <div className="text-sm text-gray-600">{holding.companyName}</div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => deleteHoldingMutation.mutate(holding.id)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <div className="text-gray-500">Shares</div>
+                            <div className="font-medium">{holding.shares}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">Current Price</div>
+                            <div className="font-medium">${holding.currentPrice?.toFixed(2) || 'N/A'}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">Market Value</div>
+                            <div className="font-medium">${holding.totalValue?.toLocaleString() || '0'}</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-500">Gain/Loss</div>
+                            <div className={`font-medium ${(holding.gainLoss || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                              {(holding.gainLoss || 0) >= 0 ? '+' : ''}${holding.gainLoss?.toFixed(2) || '0'}
+                              <span className="text-xs ml-1">
+                                ({(holding.gainLossPercent || 0) >= 0 ? '+' : ''}{holding.gainLossPercent?.toFixed(1) || '0'}%)
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
