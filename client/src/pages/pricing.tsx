@@ -1,14 +1,19 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Link } from "wouter";
 import { CheckCircle, X, ArrowRight } from "lucide-react";
 
 export default function Pricing() {
+  const [isAnnual, setIsAnnual] = useState(false);
+
   const plans = [
     {
       name: "Free",
-      price: "$0",
+      monthlyPrice: 0,
+      annualPrice: 0,
       period: "forever",
       description: "Perfect for getting started with basic investment tracking",
       features: [
@@ -29,8 +34,9 @@ export default function Pricing() {
     },
     {
       name: "Pro",
-      price: "$19",
-      period: "per month",
+      monthlyPrice: 19,
+      annualPrice: 15.20, // 20% discount
+      period: isAnnual ? "per month (billed annually)" : "per month",
       description: "Advanced features for serious investors and professionals",
       features: [
         "Unlimited stock tracking",
@@ -50,7 +56,8 @@ export default function Pricing() {
     },
     {
       name: "Enterprise",
-      price: "Custom",
+      monthlyPrice: 0, // Custom pricing
+      annualPrice: 0, // Custom pricing
       period: "contact us",
       description: "Tailored solutions for institutions and large teams",
       features: [
@@ -133,14 +140,14 @@ export default function Pricing() {
             Choose the plan that fits your investment needs. Start free and upgrade as you grow.
           </p>
           <div className="flex justify-center items-center space-x-4 mb-12">
-            <span className="text-gray-600">Monthly</span>
-            <div className="relative">
-              <input type="checkbox" className="sr-only" />
-              <div className="w-10 h-6 bg-gray-300 rounded-full shadow-inner"></div>
-              <div className="absolute w-4 h-4 bg-white rounded-full shadow left-1 top-1 transition"></div>
-            </div>
-            <span className="text-gray-600">Annual</span>
-            <Badge variant="secondary" className="text-xs">Save 20%</Badge>
+            <span className={`text-sm font-medium ${!isAnnual ? 'text-gray-900' : 'text-gray-500'}`}>Monthly</span>
+            <Switch 
+              checked={isAnnual} 
+              onCheckedChange={setIsAnnual}
+              className="data-[state=checked]:bg-red-600"
+            />
+            <span className={`text-sm font-medium ${isAnnual ? 'text-gray-900' : 'text-gray-500'}`}>Annual</span>
+            <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">Save 20%</Badge>
           </div>
         </div>
       </section>
@@ -159,8 +166,20 @@ export default function Pricing() {
                 <CardHeader className="text-center">
                   <CardTitle className="text-2xl font-bold text-gray-900">{plan.name}</CardTitle>
                   <div className="mt-4">
-                    <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
+                    <span className="text-4xl font-bold text-gray-900">
+                      {plan.name === "Enterprise" 
+                        ? "Custom" 
+                        : plan.name === "Free" 
+                        ? "$0" 
+                        : `$${isAnnual ? plan.annualPrice.toFixed(2) : plan.monthlyPrice}`
+                      }
+                    </span>
                     <span className="text-gray-600">/{plan.period}</span>
+                    {isAnnual && plan.name === "Pro" && (
+                      <div className="text-sm text-green-600 mt-1">
+                        Save ${((plan.monthlyPrice - plan.annualPrice) * 12).toFixed(0)}/year
+                      </div>
+                    )}
                   </div>
                   <p className="text-gray-600 mt-4">{plan.description}</p>
                 </CardHeader>

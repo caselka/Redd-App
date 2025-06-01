@@ -153,10 +153,10 @@ export function StockPriceChart({ ticker }: StockPriceChartProps) {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 gap-2">
         <h3 className="text-lg font-semibold">{ticker} Stock Price</h3>
         <Select value={period} onValueChange={setPeriod}>
-          <SelectTrigger className="w-32">
+          <SelectTrigger className="w-full sm:w-32">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -168,7 +168,7 @@ export function StockPriceChart({ ticker }: StockPriceChartProps) {
           </SelectContent>
         </Select>
       </div>
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 w-full overflow-hidden">
         <Line data={chartDataConfig} options={chartOptions} />
       </div>
     </div>
