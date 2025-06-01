@@ -54,6 +54,8 @@ export const users = pgTable("users", {
   tier: varchar("tier").notNull().default("free"), // "free" or "pro"
   apiRequestsUsed: integer("api_requests_used").default(0),
   apiRequestsResetAt: timestamp("api_requests_reset_at").defaultNow(),
+  telegramBotToken: varchar("telegram_bot_token"),
+  telegramBotUsername: varchar("telegram_bot_username"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

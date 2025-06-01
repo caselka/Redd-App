@@ -506,6 +506,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get Telegram bot configuration
+  app.get('/api/telegram/config', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const user = await storage.getUser(userId);
+      
+      if (!user || !user.telegramBotToken) {
+        return res.json({ isConfigured: false });
+      }
+
+      res.json({
+        isConfigured: true,
+        username: user.telegramBotUsername || 'Unknown',
+        hasToken: true
+      });
+    } catch (error) {
+      console.error('Error fetching bot config:', error);
+      res.status(500).json({ error: 'Failed to fetch bot configuration' });
+    }
+  });
+
+  // Save Telegram bot configuration
+  app.post('/api/telegram/config', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const { token, username } = req.body;
+
+      if (!token) {
+        return res.status(400).json({ error: 'Bot token is required' });
+      }
+
+      // Validate token format (basic check)
+      if (!token.match(/^\d+:[A-Za-z0-9_-]+$/)) {
+        return res.status(400).json({ error: 'Invalid bot token format' });
+      }
+
+      await storage.updateUser(userId, {
+        telegramBotToken: token,
+        telegramBotUsername: username
+      });
+
+      res.json({ message: 'Bot configuration saved successfully' });
+    } catch (error) {
+      console.error('Error saving bot config:', error);
+      res.status(500).json({ error: 'Failed to save bot configuration' });
+    }
+  });
+
+  // Test Telegram bot
+  app.post('/api/telegram/test', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const user = await storage.getUser(userId);
+
+      if (!user || !user.telegramBotToken) {
+        return res.status(400).json({ error: 'Bot not configured' });
+      }
+
+      // Test the bot by making a simple API call
+      const testResponse = await fetch(`https://api.telegram.org/bot${user.telegramBotToken}/getMe`);
+      const testData = await testResponse.json();
+
+      if (!testData.ok) {
+        return res.status(400).json({ error: 'Bot token is invalid' });
+      }
+
+      res.json({ 
+        message: 'Bot is working correctly',
+        botInfo: {
+          username: testData.result.username,
+          firstName: testData.result.first_name
+        }
+      });
+    } catch (error) {
+      console.error('Error testing bot:', error);
+      res.status(500).json({ error: 'Failed to test bot' });
+    }
+  });
+
   // Markets data endpoint for NASDAQ and NYSE
   app.get("/api/markets", async (req, res) => {
     try {
