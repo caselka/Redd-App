@@ -58,17 +58,16 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Portfolio holdings table
+// Portfolio holdings table - individual transactions
 export const portfolioHoldings = pgTable("portfolio_holdings", {
   id: serial("id").primaryKey(),
   userId: varchar("user_id").references(() => users.id).notNull(),
   ticker: text("ticker").notNull(),
-  companyName: text("company_name").notNull(),
+  companyName: text("company_name"),
   shares: decimal("shares", { precision: 15, scale: 6 }).notNull(),
-  averageCost: decimal("average_cost", { precision: 10, scale: 2 }).notNull(),
-  totalValue: decimal("total_value", { precision: 15, scale: 2 }),
-  gainLoss: decimal("gain_loss", { precision: 15, scale: 2 }),
-  gainLossPercent: decimal("gain_loss_percent", { precision: 5, scale: 2 }),
+  purchasePrice: decimal("purchase_price", { precision: 10, scale: 2 }).notNull(),
+  purchaseDate: timestamp("purchase_date").notNull(),
+  notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -97,17 +96,17 @@ export const insertPortfolioHoldingSchema = createInsertSchema(portfolioHoldings
   ticker: true,
   companyName: true,
   shares: true,
-  averageCost: true,
+  purchasePrice: true,
+  purchaseDate: true,
+  notes: true,
 });
 
 export const updatePortfolioHoldingSchema = createInsertSchema(portfolioHoldings).pick({
   ticker: true,
   companyName: true,
   shares: true,
-  averageCost: true,
-  totalValue: true,
-  gainLoss: true,
-  gainLossPercent: true,
+  purchasePrice: true,
+  notes: true,
 }).partial();
 
 export type InsertStock = z.infer<typeof insertStockSchema>;

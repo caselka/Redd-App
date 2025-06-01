@@ -25,7 +25,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Portfolio routes
   app.get('/api/portfolio', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const holdings = await storage.getPortfolioHoldings(userId);
       
       // Calculate real-time values for each holding
@@ -86,7 +86,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/portfolio', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user.claims?.sub || req.user.id;
       const holdingData = insertPortfolioHoldingSchema.parse({
         ...req.body,
         userId,
