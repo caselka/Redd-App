@@ -102,9 +102,9 @@ export default function Telegram() {
         <Header onAddStock={() => setIsAddStockModalOpen(true)} />
         
         <main className="flex-1 overflow-y-auto p-2 md:p-6 mobile-main max-w-full">
-          <div className="mb-4 md:mb-6">
-            <h1 className="text-xl md:text-2xl font-bold text-gray-900">Telegram Bot</h1>
-            <p className="text-sm md:text-base text-gray-600">Manage your investments via Telegram commands</p>
+          <div className="mb-4 md:mb-6 text-center">
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Telegram Bot</h1>
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">Manage your investments via Telegram commands</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
