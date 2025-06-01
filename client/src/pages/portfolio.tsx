@@ -20,7 +20,9 @@ const addHoldingSchema = z.object({
   ticker: z.string().min(1, "Ticker is required"),
   companyName: z.string().min(1, "Company name is required"),
   shares: z.string().min(1, "Shares required"),
-  averageCost: z.string().min(1, "Average cost required"),
+  purchasePrice: z.string().min(1, "Purchase price required"),
+  purchaseDate: z.string().min(1, "Purchase date required"),
+  notes: z.string().optional(),
 });
 
 type AddHoldingForm = z.infer<typeof addHoldingSchema>;
@@ -90,7 +92,9 @@ export default function Portfolio() {
       ticker: "",
       companyName: "",
       shares: "",
-      averageCost: "",
+      purchasePrice: "",
+      purchaseDate: new Date().toISOString().split('T')[0],
+      notes: "",
     },
   });
 

@@ -28,56 +28,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user.claims?.sub || req.user.id;
       const holdings = await storage.getPortfolioHoldings(userId);
       
-      // Calculate real-time values for each holding
-      const holdingsWithPrices = await Promise.all(holdings.map(async (holding) => {
-        try {
-          // Get current price from Alpha Vantage
-          const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
-          if (alphaVantageKey) {
-            const response = await fetch(
-              `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${holding.ticker}&apikey=${alphaVantageKey}`
-            );
-            
-            if (response.ok) {
-              const data = await response.json();
-              const quote = data['Global Quote'];
+      // Group holdings by ticker to calculate aggregated values
+      const tickerGroups = holdings.reduce((acc, holding) => {
+        if (!acc[holding.ticker]) {
+          acc[holding.ticker] = [];
+        }
+        acc[holding.ticker].push(holding);
+        return acc;
+      }, {} as Record<string, any[]>);
+
+      // Calculate aggregated values for each ticker
+      const portfolioSummary = await Promise.all(
+        Object.entries(tickerGroups).map(async ([ticker, transactions]) => {
+          try {
+            // Calculate totals for this ticker
+            let totalShares = 0;
+            let totalCost = 0;
+            let weightedAveragePrice = 0;
+
+            transactions.forEach(transaction => {
+              const shares = parseFloat(transaction.shares);
+              const price = parseFloat(transaction.purchasePrice);
+              totalShares += shares;
+              totalCost += shares * price;
+            });
+
+            weightedAveragePrice = totalCost / totalShares;
+
+            // Get current price from Alpha Vantage
+            let currentPrice = 0;
+            const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
+            if (alphaVantageKey) {
+              const response = await fetch(
+                `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ticker}&apikey=${alphaVantageKey}`
+              );
               
-              if (quote && quote['05. price']) {
-                const currentPrice = parseFloat(quote['05. price']);
-                const shares = parseFloat(holding.shares);
-                const averageCost = parseFloat(holding.averageCost);
-                
-                const totalValue = currentPrice * shares;
-                const totalCost = averageCost * shares;
-                const gainLoss = totalValue - totalCost;
-                const gainLossPercent = ((gainLoss / totalCost) * 100);
-                
-                // Update the holding in database
-                await storage.updatePortfolioHolding(holding.id, {
-                  totalValue: totalValue.toString(),
-                  gainLoss: gainLoss.toString(),
-                  gainLossPercent: gainLossPercent.toString(),
-                });
-                
-                return {
-                  ...holding,
-                  currentPrice,
-                  totalValue,
-                  gainLoss,
-                  gainLossPercent,
-                };
+              if (response.ok) {
+                const data = await response.json();
+                const quote = data['Global Quote'];
+                if (quote && quote['05. price']) {
+                  currentPrice = parseFloat(quote['05. price']);
+                }
               }
             }
+            
+            const currentValue = currentPrice * totalShares;
+            const gainLoss = currentValue - totalCost;
+            const gainLossPercent = totalCost > 0 ? ((gainLoss / totalCost) * 100) : 0;
+            
+            return {
+              ticker,
+              companyName: transactions[0].companyName,
+              totalShares,
+              weightedAveragePrice,
+              currentPrice,
+              totalCost,
+              currentValue,
+              gainLoss,
+              gainLossPercent,
+              transactions,
+            };
+          } catch (error) {
+            console.warn(`Failed to process ${ticker}:`, error);
+            return {
+              ticker,
+              companyName: transactions[0].companyName,
+              totalShares: transactions.reduce((sum, t) => sum + parseFloat(t.shares), 0),
+              weightedAveragePrice: 0,
+              currentPrice: 0,
+              totalCost: 0,
+              currentValue: 0,
+              gainLoss: 0,
+              gainLossPercent: 0,
+              transactions,
+            };
           }
-          
-          return holding;
-        } catch (error) {
-          console.warn(`Failed to fetch price for ${holding.ticker}:`, error);
-          return holding;
-        }
-      }));
+        })
+      );
       
-      res.json(holdingsWithPrices);
+      res.json(portfolioSummary);
     } catch (error) {
       console.error("Error fetching portfolio:", error);
       res.status(500).json({ message: "Failed to fetch portfolio" });

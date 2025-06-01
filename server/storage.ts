@@ -112,7 +112,9 @@ export class DatabaseStorage implements IStorage {
 
   // Portfolio operations
   async getPortfolioHoldings(userId: string): Promise<PortfolioHolding[]> {
-    return await db.select().from(portfolioHoldings).where(eq(portfolioHoldings.userId, userId));
+    return await db.select().from(portfolioHoldings)
+      .where(eq(portfolioHoldings.userId, userId))
+      .orderBy(portfolioHoldings.ticker, portfolioHoldings.purchaseDate);
   }
 
   async createPortfolioHolding(holding: InsertPortfolioHolding): Promise<PortfolioHolding> {

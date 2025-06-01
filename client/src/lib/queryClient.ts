@@ -18,6 +18,7 @@ export async function apiRequest(
   const res = await fetch(url, {
     method: options?.method || "GET",
     headers: {
+      "Content-Type": "application/json",
       ...options?.headers,
     },
     body: options?.body,
