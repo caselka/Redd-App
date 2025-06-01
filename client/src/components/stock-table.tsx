@@ -368,16 +368,8 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
         <Dialog open={!!chartStock} onOpenChange={() => setChartStock(null)}>
           <DialogContent className="max-w-4xl w-full h-[600px]">
             <DialogHeader>
-              <DialogTitle className="flex items-center justify-between">
-                <span>{chartStock.companyName} ({chartStock.ticker}) - Price Chart</span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setChartStock(null)}
-                  className="h-6 w-6 p-0 hover:bg-gray-100 dark:hover:bg-gray-800"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+              <DialogTitle>
+                {chartStock.companyName} ({chartStock.ticker}) - Price Chart
               </DialogTitle>
             </DialogHeader>
             <div className="flex-1 h-full">
