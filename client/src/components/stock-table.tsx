@@ -109,15 +109,15 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
           <p className="text-gray-500">Add your first stock to get started</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto mobile-table">
+          <table className="w-full min-w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Current Price</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Intrinsic Value</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Margin of Safety</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Conviction</th>
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Price</th>
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Intrinsic Value</th>
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Margin</th>
+                <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Conviction</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
@@ -129,18 +129,21 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
                 
                 return (
                   <tr key={stock.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="w-10 h-10 bg-brand-blue rounded-lg flex items-center justify-center text-white font-bold text-sm mr-3">
+                        <div className="w-8 h-8 md:w-10 md:h-10 bg-brand-blue rounded-lg flex items-center justify-center text-white font-bold text-xs md:text-sm mr-2 md:mr-3">
                           {stock.ticker.slice(0, 4)}
                         </div>
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{stock.companyName}</div>
-                          <div className="text-sm text-gray-500">{stock.ticker}</div>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-xs md:text-sm font-medium text-gray-900 truncate">{stock.companyName}</div>
+                          <div className="text-xs md:text-sm text-gray-500">{stock.ticker}</div>
+                          <div className="sm:hidden text-xs text-gray-600">
+                            {stock.currentPrice ? `$${stock.currentPrice.toFixed(2)}` : 'No price'}
+                          </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-3 md:px-6 py-4 whitespace-nowrap hidden sm:table-cell">
                       {stock.currentPrice ? (
                         <>
                           <div className="text-sm font-medium text-gray-900">${stock.currentPrice.toFixed(2)}</div>

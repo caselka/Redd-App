@@ -33,13 +33,13 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 overflow-x-hidden">
       <Sidebar />
       
-      <div className="flex-1 flex flex-col min-h-screen md:ml-64">
+      <div className="flex-1 flex flex-col min-h-screen md:ml-64 min-w-0">
         <Header onAddStock={() => setIsAddStockModalOpen(true)} />
         
-        <main className="flex-1 p-3 md:p-6 pt-16 md:pt-6 overflow-y-auto">
+        <main className="flex-1 p-2 md:p-6 pt-16 md:pt-6 overflow-y-auto mobile-main max-w-full">
           <StatsCards stats={stats} />
           
           <StockTable 
@@ -48,13 +48,13 @@ export default function Dashboard() {
             onSelectStock={setSelectedStock}
           />
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-8 mb-6 md:mb-8">
             <PriceChart selectedStock={selectedStock} />
             
             <NewsPanel />
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-8">
             <NotesSection notes={notes} />
             <TelegramPanel />
           </div>
