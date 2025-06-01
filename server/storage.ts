@@ -96,6 +96,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
+    const existingUser = await this.getUser(userData.id);
+    const isNewUser = !existingUser;
+
     const [user] = await db
       .insert(users)
       .values(userData)
@@ -107,7 +110,54 @@ export class DatabaseStorage implements IStorage {
         },
       })
       .returning();
+
+    // Add default watchlist stocks for new users
+    if (isNewUser) {
+      await this.addDefaultWatchlistStocks();
+    }
+
     return user;
+  }
+
+  private async addDefaultWatchlistStocks(): Promise<void> {
+    const defaultStocks = [
+      {
+        ticker: 'AAPL',
+        companyName: 'Apple Inc.',
+        intrinsicValue: '180.00',
+        convictionScore: 5
+      },
+      {
+        ticker: 'MSFT',
+        companyName: 'Microsoft Corporation',
+        intrinsicValue: '420.00',
+        convictionScore: 5
+      },
+      {
+        ticker: 'V',
+        companyName: 'Visa Inc.',
+        intrinsicValue: '280.00',
+        convictionScore: 3
+      },
+      {
+        ticker: 'PLAB',
+        companyName: 'Photronics Inc.',
+        intrinsicValue: '25.00',
+        convictionScore: 5
+      }
+    ];
+
+    for (const stockData of defaultStocks) {
+      try {
+        // Check if stock already exists
+        const existingStock = await this.getStockByTicker(stockData.ticker);
+        if (!existingStock) {
+          await this.createStock(stockData);
+        }
+      } catch (error) {
+        console.error(`Error adding default stock ${stockData.ticker}:`, error);
+      }
+    }
   }
 
   // Portfolio operations

@@ -22,6 +22,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test endpoint to simulate new user onboarding with default watchlist
+  app.post('/api/test/new-user', async (req, res) => {
+    try {
+      const testUserId = `test_${Date.now()}`;
+      const testUser = {
+        id: testUserId,
+        email: `test${Date.now()}@example.com`,
+        firstName: 'Test',
+        lastName: 'User',
+        profileImageUrl: null
+      };
+
+      // This will trigger the default watchlist creation
+      const user = await storage.upsertUser(testUser);
+      
+      // Get the stocks to verify they were added
+      const stocks = await storage.getAllStocks();
+      const defaultTickers = ['AAPL', 'MSFT', 'V', 'PLAB'];
+      const addedStocks = stocks.filter(stock => defaultTickers.includes(stock.ticker));
+
+      res.json({
+        message: 'Test user created with default watchlist',
+        user,
+        addedStocks
+      });
+    } catch (error) {
+      console.error("Error creating test user:", error);
+      res.status(500).json({ message: "Failed to create test user" });
+    }
+  });
+
   // Get individual portfolio transactions
   app.get('/api/portfolio/transactions', isAuthenticated, async (req: any, res) => {
     try {
