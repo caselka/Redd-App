@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 import { ReddSpinner } from "@/components/ui/redd-spinner";
+import Landing from "@/pages/landing";
 import Dashboard from "@/pages/dashboard";
 import Watchlist from "@/pages/watchlist";
 import Portfolio from "@/pages/portfolio";
@@ -55,8 +56,10 @@ function Router() {
         </>
       ) : (
         <>
-          <Route path="/" component={Login} />
+          <Route path="/" component={Landing} />
           <Route path="/login" component={Login} />
+          <Route path="/privacy-policy" component={PrivacyPolicy} />
+          <Route path="/terms-of-service" component={TermsOfService} />
         </>
       )}
       <Route component={NotFound} />
