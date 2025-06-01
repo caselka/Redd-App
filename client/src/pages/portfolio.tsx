@@ -227,6 +227,7 @@ export default function Portfolio() {
                         <th className="text-right p-3">Avg Cost</th>
                         <th className="text-right p-3">Current Price</th>
                         <th className="text-right p-3">Market Value</th>
+                        <th className="text-right p-3">Intrinsic Value</th>
                         <th className="text-right p-3">Gain/Loss</th>
                         <th className="text-right p-3">Return %</th>
                         <th className="text-right p-3">Actions</th>
@@ -234,26 +235,31 @@ export default function Portfolio() {
                     </thead>
                     <tbody>
                       {holdings.map((holding: any) => (
-                        <tr key={holding.id} className="border-b hover:bg-gray-50">
+                        <tr key={holding.ticker} className="border-b hover:bg-gray-50">
                           <td className="p-3">
                             <Badge variant="outline" className="font-mono">
                               {holding.ticker}
                             </Badge>
                           </td>
                           <td className="p-3">{holding.companyName}</td>
-                          <td className="p-3 text-right">{parseFloat(holding.shares).toFixed(2)}</td>
-                          <td className="p-3 text-right">${parseFloat(holding.averageCost).toFixed(2)}</td>
+                          <td className="p-3 text-right font-medium">{holding.totalShares.toFixed(2)}</td>
+                          <td className="p-3 text-right">${holding.weightedAveragePrice.toFixed(2)}</td>
                           <td className="p-3 text-right">
-                            {holding.currentPrice ? `$${holding.currentPrice.toFixed(2)}` : 'N/A'}
+                            {holding.currentPrice > 0 ? `$${holding.currentPrice.toFixed(2)}` : 'N/A'}
+                          </td>
+                          <td className="p-3 text-right font-medium">
+                            {holding.currentValue > 0 ? `$${holding.currentValue.toLocaleString()}` : `$${holding.totalCost.toLocaleString()}`}
                           </td>
                           <td className="p-3 text-right">
-                            {holding.totalValue ? `$${holding.totalValue.toFixed(2)}` : 'N/A'}
+                            <span className="text-blue-600">
+                              N/A
+                            </span>
                           </td>
-                          <td className={`p-3 text-right ${holding.gainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {holding.gainLoss ? `$${holding.gainLoss.toFixed(2)}` : 'N/A'}
+                          <td className={`p-3 text-right font-semibold ${holding.gainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            {holding.currentPrice > 0 ? `$${holding.gainLoss.toLocaleString()}` : '-'}
                           </td>
-                          <td className={`p-3 text-right ${holding.gainLossPercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                            {holding.gainLossPercent ? `${holding.gainLossPercent.toFixed(2)}%` : 'N/A'}
+                          <td className={`p-3 text-right font-semibold ${holding.gainLossPercent >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            {holding.currentPrice > 0 ? `${holding.gainLossPercent.toFixed(1)}%` : '-'}
                           </td>
                           <td className="p-3 text-right">
                             <Button
