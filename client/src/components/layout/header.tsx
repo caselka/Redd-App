@@ -37,7 +37,7 @@ export function Header({ onAddStock }: HeaderProps) {
   const getPageTitle = () => {
     switch (location) {
       case '/':
-        return "Investment Dashboard";
+        return "Dashboard";
       case '/watchlist':
         return "Watchlist";
       case '/portfolio':
@@ -88,29 +88,21 @@ export function Header({ onAddStock }: HeaderProps) {
     }
   };
 
-  const isDashboard = location === '/';
   const title = getPageTitle();
 
   return (
     <header className="bg-white border-b border-gray-200 px-3 md:px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="pl-16 md:pl-0">
-          {isDashboard ? (
-            <>
-              <h2 className="text-lg md:text-2xl font-bold text-gray-900">{title}</h2>
-              <p className="text-xs md:text-sm text-gray-500 hidden sm:block">{getPageDescription()}</p>
-            </>
-          ) : (
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-xs font-bold">Redd</span>
-              </div>
-              <div>
-                <h2 className="text-lg md:text-2xl font-bold text-red-600">{title}</h2>
-                <p className="text-xs md:text-sm text-gray-500 hidden sm:block">{getPageDescription()}</p>
-              </div>
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xs font-bold">Redd</span>
             </div>
-          )}
+            <div>
+              <h2 className="text-lg md:text-2xl font-bold text-red-600">{title}</h2>
+              <p className="text-xs md:text-sm text-gray-500 hidden sm:block">{getPageDescription()}</p>
+            </div>
+          </div>
         </div>
         <div className="flex items-center space-x-2 md:space-x-4">
           <div className="hidden sm:flex items-center space-x-2 px-3 py-2 bg-gray-100 rounded-lg">
