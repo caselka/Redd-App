@@ -1,4 +1,4 @@
-import { ChartLine, List, BarChart3, StickyNote, MessageSquare, TrendingUp, Building2, FileText, Calculator, Briefcase, Menu, X } from "lucide-react";
+import { ChartLine, List, BarChart3, StickyNote, MessageSquare, TrendingUp, Building2, FileText, Calculator, Briefcase, Menu, X, Settings, LogOut } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -124,13 +124,39 @@ export function Sidebar() {
       </nav>
       
       <div className="p-4 border-t border-gray-200 bg-white">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-            <span className="text-gray-600 text-sm">👤</span>
+        <div className="space-y-3">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+              <span className="text-gray-600 text-sm">👤</span>
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-900">Investor</p>
+              <p className="text-xs text-gray-500">Free Plan</p>
+            </div>
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-medium text-gray-900">Investor</p>
-            <p className="text-xs text-gray-500">Premium Plan</p>
+          
+          <div className="space-y-1">
+            <Link href="/settings">
+              <div className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                location === "/settings" 
+                  ? "bg-brand-blue text-white" 
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}>
+                <Settings size={16} />
+                <span className="text-sm">Settings</span>
+              </div>
+            </Link>
+            
+            <a href="/api/logout" className="flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer text-gray-700 hover:bg-gray-100">
+              <LogOut size={16} />
+              <span className="text-sm">Sign Out</span>
+            </a>
+          </div>
+          
+          <div className="pt-2 border-t border-gray-100">
+            <p className="text-xs text-gray-400 text-center">Built by</p>
+            <p className="text-xs font-medium text-gray-600 text-center">Redgum & Birch</p>
+            <p className="text-xs text-gray-400 text-center">A subsidiary of Caselka Capital</p>
           </div>
         </div>
       </div>

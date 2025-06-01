@@ -13,6 +13,9 @@ import Tools from "@/pages/tools";
 import Analytics from "@/pages/analytics";
 import Notes from "@/pages/notes";
 import Telegram from "@/pages/telegram";
+import Settings from "@/pages/settings";
+import PrivacyPolicy from "@/pages/privacy-policy";
+import TermsOfService from "@/pages/terms-of-service";
 import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
 
@@ -41,6 +44,9 @@ function Router() {
           <Route path="/analytics" component={Analytics} />
           <Route path="/notes" component={Notes} />
           <Route path="/telegram" component={Telegram} />
+          <Route path="/settings" component={Settings} />
+          <Route path="/privacy-policy" component={PrivacyPolicy} />
+          <Route path="/terms-of-service" component={TermsOfService} />
         </>
       ) : (
         <Route path="/" component={Login} />
