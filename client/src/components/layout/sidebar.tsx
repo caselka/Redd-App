@@ -34,11 +34,7 @@ export function Sidebar() {
           className="fixed top-4 left-4 z-50 md:hidden bg-white shadow-md border-2 border-charcoal-red hover:bg-charcoal-red hover:border-charcoal-red group transition-all duration-200"
           onClick={() => setIsOpen(!isOpen)}
         >
-          {isOpen ? (
-            <X size={20} className="text-charcoal-red group-hover:text-white" />
-          ) : (
-            <span className="text-charcoal-red group-hover:text-white font-bold text-lg">R</span>
-          )}
+          <span className="text-charcoal-red group-hover:text-white font-bold text-lg">R</span>
         </Button>
 
         {/* Mobile Sidebar Overlay */}
