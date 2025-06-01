@@ -53,6 +53,7 @@ function Router() {
           <Route path="/settings" component={Settings} />
           <Route path="/privacy-policy" component={PrivacyPolicy} />
           <Route path="/terms-of-service" component={TermsOfService} />
+          <Route component={NotFound} />
         </>
       ) : (
         <>
@@ -60,9 +61,9 @@ function Router() {
           <Route path="/login" component={Login} />
           <Route path="/privacy-policy" component={PrivacyPolicy} />
           <Route path="/terms-of-service" component={TermsOfService} />
+          <Route component={NotFound} />
         </>
       )}
-      <Route component={NotFound} />
     </Switch>
   );
 }
