@@ -42,6 +42,7 @@ export default function Tools() {
   const [adjustForDebt, setAdjustForDebt] = useState(false);
   const [cash, setCash] = useState("");
   const [debt, setDebt] = useState("");
+  const [sharesOutstanding, setSharesOutstanding] = useState("");
   const [runScenarios, setRunScenarios] = useState(false);
   const [epvResult, setEpvResult] = useState<any>(null);
 
@@ -143,6 +144,13 @@ export default function Tools() {
       equityEPV = enterpriseEPV - netDebt;
     }
 
+    // Calculate intrinsic value per share
+    let intrinsicValuePerShare = null;
+    const shares = parseFloat(sharesOutstanding);
+    if (!isNaN(shares) && shares > 0) {
+      intrinsicValuePerShare = (equityEPV * 1000000) / shares; // Convert millions to actual value
+    }
+
     // Calculate scenarios if enabled
     const scenarios = runScenarios ? [
       { name: "Conservative (10%)", rate: 0.10, epv: adjustedIncome / 0.10 - netDebt },
@@ -157,6 +165,7 @@ export default function Tools() {
       earningsLabel,
       costOfCapital: costCap * 100,
       netDebt,
+      intrinsicValuePerShare,
       cyclicallyAdjusted: adjustForCyclicality,
       scenarios,
       formula: `${adjustedIncome.toFixed(0)} / ${(costCap * 100).toFixed(1)}% = ${enterpriseEPV.toFixed(0)}`,
@@ -533,6 +542,18 @@ export default function Tools() {
                         )}
                       </div>
 
+                      <div>
+                        <Label htmlFor="shares">Shares Outstanding (millions)</Label>
+                        <Input
+                          id="shares"
+                          type="number"
+                          placeholder="100"
+                          value={sharesOutstanding}
+                          onChange={(e) => setSharesOutstanding(e.target.value)}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Optional: For intrinsic value per share calculation</p>
+                      </div>
+
                       <div className="flex items-center space-x-2">
                         <Switch
                           id="scenarios"
@@ -569,6 +590,18 @@ export default function Tools() {
                               </div>
                               <div className="text-xs text-blue-600 mt-1">
                                 Net Debt: ${epvResult.netDebt.toLocaleString()}M
+                              </div>
+                            </div>
+                          )}
+
+                          {epvResult.intrinsicValuePerShare && (
+                            <div className="p-4 bg-red-50 rounded-lg border-l-4 border-red-500">
+                              <div className="text-sm text-red-600">Intrinsic Value Per Share</div>
+                              <div className="text-2xl font-bold text-red-700">
+                                ${epvResult.intrinsicValuePerShare.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </div>
+                              <div className="text-xs text-red-600 mt-1">
+                                Based on {sharesOutstanding}M shares outstanding
                               </div>
                             </div>
                           )}
