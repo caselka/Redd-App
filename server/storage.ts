@@ -60,9 +60,16 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  private checkDb() {
+    if (!db) {
+      throw new Error("Database not available. Please ensure DATABASE_URL is set and PostgreSQL is provisioned.");
+    }
+    return db;
+  }
   // User operations
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
+    const database = this.checkDb();
+    const [user] = await database.select().from(users).where(eq(users.id, id));
     return user;
   }
 
