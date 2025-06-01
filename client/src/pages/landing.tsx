@@ -148,50 +148,26 @@ export default function Landing() {
           {/* Mobile Navigation Menu */}
           {isMobileMenuOpen && (
             <div className="md:hidden absolute top-16 left-0 right-0 bg-white border-b shadow-lg z-40">
-              <div className="px-4 py-4">
-                {/* Header with logo and close button */}
-                <div className="flex justify-between items-center mb-6">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-6 h-6 bg-gradient-to-br from-red-600 to-red-700 rounded-lg flex items-center justify-center">
-                      <span className="text-white font-bold text-sm">R</span>
-                    </div>
-                    <span className="text-lg font-bold text-gray-900">Redd</span>
-                    <Badge variant="secondary" className="text-xs">Investment Platform</Badge>
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="p-2"
-                  >
-                    <X className="h-5 w-5" />
-                  </Button>
-                </div>
-
-                {/* Menu Items */}
-                <div className="space-y-3">
-                  <Button variant="ghost" className="w-full justify-start" asChild>
-                    <Link href="/about">About</Link>
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start" asChild>
-                    <Link href="/contact">Contact</Link>
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start" asChild>
-                    <Link href="/privacy-policy">Privacy Policy</Link>
-                  </Button>
-                  <Button variant="ghost" className="w-full justify-start" asChild>
-                    <Link href="/terms-of-service">Terms of Service</Link>
-                  </Button>
-                  
-                  <hr className="my-4" />
-                  
-                  <Button variant="outline" className="w-full" asChild>
-                    <Link href="/login">Sign In</Link>
-                  </Button>
-                  <Button className="w-full bg-red-600 hover:bg-red-700" asChild>
-                    <Link href="/login">Get Started</Link>
-                  </Button>
-                </div>
+              <div className="px-4 py-6 space-y-4">
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link href="/about">About</Link>
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link href="/contact">Contact</Link>
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link href="/privacy-policy">Privacy Policy</Link>
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link href="/terms-of-service">Terms of Service</Link>
+                </Button>
+                <hr className="my-4" />
+                <Button variant="outline" className="w-full" asChild>
+                  <Link href="/login">Sign In</Link>
+                </Button>
+                <Button className="w-full bg-red-600 hover:bg-red-700" asChild>
+                  <Link href="/login">Get Started</Link>
+                </Button>
               </div>
             </div>
           )}

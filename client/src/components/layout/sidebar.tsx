@@ -34,7 +34,11 @@ export function Sidebar() {
           className="fixed top-4 left-4 z-50 md:hidden bg-white shadow-md border-2 border-charcoal-red hover:bg-charcoal-red hover:border-charcoal-red group transition-all duration-200"
           onClick={() => setIsOpen(!isOpen)}
         >
-          <span className="text-charcoal-red group-hover:text-white font-bold text-lg">R</span>
+          {isOpen ? (
+            <X size={20} className="text-charcoal-red group-hover:text-white" />
+          ) : (
+            <span className="text-charcoal-red group-hover:text-white font-bold text-lg">R</span>
+          )}
         </Button>
 
         {/* Mobile Sidebar Overlay */}
@@ -42,29 +46,21 @@ export function Sidebar() {
           <div className="fixed inset-0 z-40 md:hidden">
             <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setIsOpen(false)} />
             <div className="fixed left-0 top-0 h-full w-64 bg-white shadow-lg transform transition-transform">
-              <div className="px-4 py-3 border-b border-gray-200">
-                <div className="flex items-center justify-between gap-4">
-                  <Link href="/" onClick={() => setIsOpen(false)} className="flex items-center space-x-2 cursor-pointer min-w-0 flex-1">
-                    <div className="w-6 h-6 bg-charcoal-red rounded-lg flex items-center justify-center flex-shrink-0">
-                      <span className="text-white text-xs font-bold">R</span>
+              <div className="p-6 pt-16 border-b border-gray-200">
+                <Link href="/" onClick={() => setIsOpen(false)}>
+                  <div className="flex items-center space-x-3 cursor-pointer">
+                    <div className="w-10 h-10 bg-charcoal-red rounded-lg flex items-center justify-center">
+                      <span className="text-white text-sm font-bold">R</span>
                     </div>
-                    <div className="min-w-0">
-                      <h1 className="text-sm font-bold text-charcoal-red truncate">Redd</h1>
-                      <p className="text-xs text-neutral-blue-grey truncate">Investment Platform</p>
+                    <div>
+                      <h1 className="text-xl font-bold text-charcoal-red">Redd</h1>
+                      <p className="text-sm text-neutral-blue-grey">Investment Platform</p>
                     </div>
-                  </Link>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setIsOpen(false)}
-                    className="h-8 w-8 flex-shrink-0"
-                  >
-                    <X size={16} className="text-charcoal-red" />
-                  </Button>
-                </div>
+                  </div>
+                </Link>
               </div>
               
-              <nav className="mt-2 pb-20">
+              <nav className="mt-6 pb-20">
                 <ul className="space-y-2 px-4">
                   {navItems.map((item) => {
                     const isActive = location === item.path;
