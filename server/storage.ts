@@ -4,7 +4,6 @@ import {
   notes, 
   users,
   portfolioHoldings,
-  tenKAnalyses,
   type Stock, 
   type InsertStock, 
   type PriceHistory, 
@@ -15,8 +14,6 @@ import {
   type UpsertUser,
   type PortfolioHolding,
   type InsertPortfolioHolding,
-  type TenKAnalysis,
-  type InsertTenKAnalysis,
   type StockWithLatestPrice, 
   type StockStats 
 } from "@shared/schema";
@@ -57,12 +54,6 @@ export interface IStorage {
   createPortfolioHolding(holding: InsertPortfolioHolding): Promise<PortfolioHolding>;
   updatePortfolioHolding(id: number, updates: any): Promise<PortfolioHolding | undefined>;
   deletePortfolioHolding(id: number): Promise<boolean>;
-  
-  // 10-K Analysis operations
-  createTenKAnalysis(analysis: InsertTenKAnalysis & { userId: string }): Promise<TenKAnalysis>;
-  getTenKAnalysesByUser(userId: string): Promise<TenKAnalysis[]>;
-  getTenKAnalysisByTicker(userId: string, ticker: string): Promise<TenKAnalysis[]>;
-  deleteTenKAnalysis(id: number, userId: string): Promise<boolean>;
   
   // Statistics
   getStockStats(): Promise<StockStats>;
@@ -326,39 +317,6 @@ export class DatabaseStorage implements IStorage {
       avgMarginOfSafety: stocksWithPrices > 0 ? totalMarginOfSafety / stocksWithPrices : 0,
       highConviction,
     };
-  }
-
-  // 10-K Analysis operations
-  async createTenKAnalysis(analysis: InsertTenKAnalysis & { userId: string }): Promise<TenKAnalysis> {
-    const [result] = await db
-      .insert(tenKAnalyses)
-      .values(analysis)
-      .returning();
-    return result;
-  }
-
-  async getTenKAnalysesByUser(userId: string): Promise<TenKAnalysis[]> {
-    return await db
-      .select()
-      .from(tenKAnalyses)
-      .where(eq(tenKAnalyses.userId, userId))
-      .orderBy(desc(tenKAnalyses.createdAt));
-  }
-
-  async getTenKAnalysisByTicker(userId: string, ticker: string): Promise<TenKAnalysis[]> {
-    return await db
-      .select()
-      .from(tenKAnalyses)
-      .where(and(eq(tenKAnalyses.userId, userId), eq(tenKAnalyses.ticker, ticker.toUpperCase())))
-      .orderBy(desc(tenKAnalyses.createdAt));
-  }
-
-  async deleteTenKAnalysis(id: number, userId: string): Promise<boolean> {
-    const result = await db
-      .delete(tenKAnalyses)
-      .where(and(eq(tenKAnalyses.id, id), eq(tenKAnalyses.userId, userId)))
-      .returning();
-    return result.length > 0;
   }
 }
 
