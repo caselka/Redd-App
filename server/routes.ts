@@ -22,6 +22,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get individual portfolio transactions
+  app.get('/api/portfolio/transactions', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims?.sub || req.user.id;
+      const holdings = await storage.getPortfolioHoldings(userId);
+      res.json(holdings);
+    } catch (error) {
+      console.error("Error fetching portfolio transactions:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio transactions" });
+    }
+  });
+
   // Portfolio routes
   app.get('/api/portfolio', isAuthenticated, async (req: any, res) => {
     try {
@@ -102,6 +114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               weightedAveragePrice,
               currentPrice,
               totalCost,
+              totalValue: currentValue, // Ensure totalValue is set for frontend calculations
               currentValue,
               gainLoss,
               gainLossPercent,
@@ -118,6 +131,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               weightedAveragePrice: 0,
               currentPrice: 0,
               totalCost: 0,
+              totalValue: 0, // Ensure totalValue is set for frontend calculations
               currentValue: 0,
               gainLoss: 0,
               gainLossPercent: 0,
@@ -158,6 +172,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete('/api/portfolio/:id', isAuthenticated, async (req: any, res) => {
     try {
       const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid portfolio holding ID" });
+      }
+      
       const success = await storage.deletePortfolioHolding(id);
       
       if (success) {

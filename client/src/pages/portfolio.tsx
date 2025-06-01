@@ -273,11 +273,16 @@ export default function Portfolio() {
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => deleteHoldingMutation.mutate(holding.id)}
+                              onClick={() => {
+                                if (holding.transactions && holding.transactions.length > 0) {
+                                  // Delete the first transaction for this ticker
+                                  deleteHoldingMutation.mutate(holding.transactions[0].id);
+                                }
+                              }}
                               disabled={deleteHoldingMutation.isPending}
                               className="text-red-600 hover:text-red-700"
                             >
-                              Delete
+                              Delete Position
                             </Button>
                           </td>
                         </tr>
@@ -300,7 +305,12 @@ export default function Portfolio() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => deleteHoldingMutation.mutate(holding.id)}
+                            onClick={() => {
+                              if (holding.transactions && holding.transactions.length > 0) {
+                                // Delete the first transaction for this ticker
+                                deleteHoldingMutation.mutate(holding.transactions[0].id);
+                              }
+                            }}
                             className="text-red-600 hover:text-red-700"
                           >
                             <Trash2 className="h-4 w-4" />
