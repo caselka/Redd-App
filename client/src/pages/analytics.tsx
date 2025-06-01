@@ -172,7 +172,7 @@ export default function Analytics() {
                         .map((holding) => {
                           const allocation = totalValue > 0 ? (holding.totalValue / totalValue) * 100 : 0;
                           return (
-                            <div key={holding.id} className="space-y-2">
+                            <div key={holding.ticker} className="space-y-2">
                               <div className="flex justify-between text-sm">
                                 <span className="font-medium">{holding.ticker}</span>
                                 <span>{allocation.toFixed(1)}%</span>
@@ -184,7 +184,7 @@ export default function Analytics() {
                                 />
                               </div>
                               <div className="text-xs text-gray-500">
-                                ${holding.totalValue?.toLocaleString() || '0'} • {holding.shares || 0} shares
+                                ${holding.totalValue?.toLocaleString() || '0'} • {holding.totalShares?.toFixed(2) || 0} shares
                               </div>
                             </div>
                           );
