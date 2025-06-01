@@ -16,6 +16,7 @@ import Analytics from "@/pages/analytics";
 import Notes from "@/pages/notes";
 import PriceHistory from "@/pages/price-history";
 import Telegram from "@/pages/telegram";
+import TradeMap from "@/pages/trade-map";
 import Settings from "@/pages/settings";
 import PrivacyPolicy from "@/pages/privacy-policy";
 import TermsOfService from "@/pages/terms-of-service";
@@ -47,6 +48,7 @@ function Router() {
           <Route path="/notes" component={Notes} />
           <Route path="/price-history" component={PriceHistory} />
           <Route path="/telegram" component={Telegram} />
+          <Route path="/trade-map" component={TradeMap} />
           <Route path="/settings" component={Settings} />
           <Route path="/privacy-policy" component={PrivacyPolicy} />
           <Route path="/terms-of-service" component={TermsOfService} />

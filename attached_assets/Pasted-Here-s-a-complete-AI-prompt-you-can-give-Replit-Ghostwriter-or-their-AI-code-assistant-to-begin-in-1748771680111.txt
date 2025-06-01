@@ -1,0 +1,61 @@
+Here’s a complete AI prompt you can give Replit (Ghostwriter or their AI code assistant) to begin integrating a Global Trade Intelligence Map into your existing Redd web app:
+
+⸻
+
+✅ AI PROMPT FOR REPLIT:
+
+📌 Project Goal:
+Add an interactive "Global Trade Intelligence" map page to my existing Redd investment web app. The map should show real-time or static trade flow data for selected commodities (like iron, gold, or microchips) between countries.
+
+🎯 Features:
+1. Full-page interactive world map (use Mapbox GL JS or Leaflet)
+2. Dropdown to select a commodity:
+   - Iron Ore (HS code: 2601)
+   - Gold (HS code: 7108)
+   - Microchips (HS code: 8542)
+3. When a commodity is selected:
+   - Shade each country based on export value (from UN Comtrade or public CSV/API)
+   - Draw curved trade route lines between countries (width = trade volume)
+   - Show popups on hover with key info: trade value, destination, % of world exports
+4. Add a year selector (default to latest available data, e.g., 2023)
+
+📦 Data Source:
+Use sample UN Comtrade export data by HS code in CSV or JSON format for now (mock if needed). Structure:
+```json
+[
+  {
+    "exporter": "Australia",
+    "importer": "China",
+    "commodity": "Iron Ore",
+    "value_usd": 54000000000,
+    "year": 2023
+  },
+  ...
+]
+
+🧱 Tech Stack:
+	•	Frontend: React + Mapbox GL JS or D3.js
+	•	Backend (optional for future): Pull data from UN Comtrade API or CSV loader
+	•	Minimal dependencies (reuse my existing UI styling in the Redd platform)
+
+✅ Output:
+One page at /trade-map, showing the trade intelligence visualization with filters.
+
+⚠️ Important:
+	•	The map should be mobile-friendly and default to global zoom
+	•	Use mock trade data if the API integration is too heavy for now
+	•	Keep code modular so I can later link it to portfolio exposure
+
+💡 Bonus (if time):
+	•	Tooltip on top 5 exporters per commodity
+	•	Animate trade route arcs over time using a year slider
+
+Let’s go.
+
+---
+
+### 🔧 Notes:
+- If you're using **Replit Ghostwriter**, paste the above in a `.md` file or directly into the Ghostwriter prompt panel.
+- For testing, I can give you a sample `trade_data.json` file and the `Mapbox` route arc renderer script.
+
+Would you like that file and a `basic trade-map.jsx` component to plug in as well?

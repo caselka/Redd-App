@@ -1,4 +1,4 @@
-import { ChartLine, List, BarChart3, StickyNote, MessageSquare, TrendingUp, Building2, FileText, Calculator, Briefcase, Menu, X, Settings, LogOut, Calendar } from "lucide-react";
+import { ChartLine, List, BarChart3, StickyNote, MessageSquare, TrendingUp, Building2, FileText, Calculator, Briefcase, Menu, X, Settings, LogOut, Calendar, Globe } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -20,6 +20,7 @@ export function Sidebar() {
     { path: "/notes", icon: StickyNote, label: "Notes" },
     { path: "/price-history", icon: Calendar, label: "Price History" },
     { path: "/telegram", icon: MessageSquare, label: "Telegram Bot" },
+    { path: "/trade-map", icon: Globe, label: "Trade Map" },
   ];
 
   if (isMobile) {
