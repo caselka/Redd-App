@@ -39,24 +39,36 @@ export default function Dashboard() {
       <div className="flex-1 flex flex-col min-h-screen md:ml-64 min-w-0">
         <Header onAddStock={() => setIsAddStockModalOpen(true)} />
         
-        <main className="flex-1 p-2 md:p-6 pt-16 md:pt-6 overflow-y-auto mobile-main max-w-full">
-          <StatsCards stats={stats} />
-          
-          <StockTable 
-            stocks={stocks} 
-            isLoading={stocksLoading}
-            onSelectStock={setSelectedStock}
-          />
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-8 mb-6 md:mb-8">
-            <PriceChart selectedStock={selectedStock} />
+        <main className="flex-1 overflow-y-auto p-2 md:p-6 mobile-main max-w-full">
+          <div className="space-y-4 md:space-y-6">
+            <StatsCards stats={stats} />
             
-            <NewsPanel />
-          </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-8">
-            <NotesSection notes={notes} />
-            <TelegramPanel />
+            <div className="mobile-card">
+              <StockTable 
+                stocks={stocks} 
+                isLoading={stocksLoading}
+                onSelectStock={setSelectedStock}
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mobile-grid">
+              <div className="mobile-card">
+                <PriceChart selectedStock={selectedStock} />
+              </div>
+              
+              <div className="mobile-card">
+                <NewsPanel />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mobile-grid">
+              <div className="mobile-card">
+                <NotesSection notes={notes} />
+              </div>
+              <div className="mobile-card">
+                <TelegramPanel />
+              </div>
+            </div>
           </div>
         </main>
       </div>
