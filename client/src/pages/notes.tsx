@@ -119,12 +119,10 @@ export default function Notes() {
         
         <main className="flex-1 overflow-y-auto p-3 md:p-6 pt-16 md:pt-6 mobile-optimized">
           <div className="mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Investment Notes</h1>
-                <p className="text-gray-600">Track your investment thoughts and analysis</p>
-              </div>
-              <Button onClick={() => setIsAddNoteModalOpen(true)} className="flex items-center gap-2">
+            <div className="text-center mb-4">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Investment Notes</h1>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">Track your investment thoughts and analysis</p>
+              <Button onClick={() => setIsAddNoteModalOpen(true)} className="flex items-center gap-2 mx-auto">
                 <Plus className="h-4 w-4" />
                 Add Note
               </Button>

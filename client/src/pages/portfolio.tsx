@@ -144,11 +144,9 @@ export default function Portfolio() {
         <Header onAddStock={() => setIsAddStockModalOpen(true)} />
         
         <main className="flex-1 p-2 md:p-6 pt-16 md:pt-6 overflow-y-auto mobile-main max-w-full">
-          <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Portfolio</h1>
-              <p className="text-gray-600 text-sm md:text-base">Track your stock holdings with live prices</p>
-            </div>
+          <div className="mb-6 text-center">
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Portfolio</h1>
+            <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base mb-4">Track your stock holdings with live prices</p>
             <Button onClick={() => setIsAddHoldingModalOpen(true)} className="bg-brand-blue hover:bg-red-700">
               <Plus className="h-4 w-4 mr-2" />
               Add Holding
