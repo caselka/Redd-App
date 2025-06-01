@@ -317,6 +317,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // News endpoint for Google News integration
+  app.get("/api/news", async (req, res) => {
+    try {
+      // Use Google News RSS feed for financial news
+      const response = await fetch(
+        'https://news.google.com/rss/search?q=finance+OR+stock+market+OR+investing+OR+economy&hl=en&gl=US&ceid=US:en'
+      );
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch news');
+      }
+      
+      const xmlData = await response.text();
+      
+      // Parse RSS XML to JSON (simplified)
+      const articles = parseNewsXML(xmlData);
+      
+      res.json({ articles });
+    } catch (error) {
+      console.error("Error fetching news:", error);
+      res.status(500).json({ error: "Failed to fetch news" });
+    }
+  });
+
+  function parseNewsXML(xmlData: string) {
+    const articles = [];
+    const itemRegex = /<item>(.*?)<\/item>/g;
+    const titleRegex = /<title><!\[CDATA\[(.*?)\]\]><\/title>/;
+    const descRegex = /<description><!\[CDATA\[(.*?)\]\]><\/description>/;
+    const linkRegex = /<link>(.*?)<\/link>/;
+    const pubDateRegex = /<pubDate>(.*?)<\/pubDate>/;
+    const sourceRegex = /<source[^>]*>(.*?)<\/source>/;
+    
+    let match;
+    while ((match = itemRegex.exec(xmlData)) !== null) {
+      const itemContent = match[1];
+      
+      const titleMatch = itemContent.match(titleRegex);
+      const descMatch = itemContent.match(descRegex);
+      const linkMatch = itemContent.match(linkRegex);
+      const pubDateMatch = itemContent.match(pubDateRegex);
+      const sourceMatch = itemContent.match(sourceRegex);
+      
+      if (titleMatch && linkMatch) {
+        articles.push({
+          title: titleMatch[1],
+          description: descMatch ? descMatch[1].replace(/<[^>]*>/g, '').substring(0, 150) + '...' : 'No description available',
+          url: linkMatch[1],
+          publishedAt: pubDateMatch ? new Date(pubDateMatch[1]).toISOString() : new Date().toISOString(),
+          source: {
+            name: sourceMatch ? sourceMatch[1] : 'Google News'
+          }
+        });
+      }
+    }
+    
+    return articles.slice(0, 10);
+  }
+
   // Stock lookup route (for company name resolution)
   app.get("/api/lookup/:ticker", async (req, res) => {
     try {
