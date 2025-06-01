@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Search, RefreshCw, ChartLine, StickyNote, Trash2, Eye } from "lucide-react";
+import { Search, RefreshCw, ChartLine, Trash2, Eye, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { StockDetailsModal } from "@/components/stock-details-modal";
+import { PriceChart } from "@/components/price-chart";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -18,6 +20,7 @@ interface StockTableProps {
 export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStock, setSelectedStock] = useState<{ ticker: string; companyName: string } | null>(null);
+  const [chartStock, setChartStock] = useState<{ ticker: string; companyName: string } | null>(null);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -198,17 +201,11 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => onSelectStock(stock.ticker)}
+                          onClick={() => setChartStock({ ticker: stock.ticker, companyName: stock.companyName })}
                           className="text-brand-blue hover:text-blue-700"
+                          title="View chart only"
                         >
                           <ChartLine className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-gray-500 hover:text-gray-700"
-                        >
-                          <StickyNote className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
@@ -237,6 +234,22 @@ export function StockTable({ stocks, isLoading, onSelectStock }: StockTableProps
           ticker={selectedStock.ticker}
           companyName={selectedStock.companyName}
         />
+      )}
+      
+      {/* Chart Only Modal */}
+      {chartStock && (
+        <Dialog open={!!chartStock} onOpenChange={() => setChartStock(null)}>
+          <DialogContent className="max-w-4xl w-full h-[600px]">
+            <DialogHeader>
+              <DialogTitle>
+                {chartStock.companyName} ({chartStock.ticker}) - Price Chart
+              </DialogTitle>
+            </DialogHeader>
+            <div className="flex-1 h-full">
+              <PriceChart selectedStock={chartStock.ticker} />
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

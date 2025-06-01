@@ -189,14 +189,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to delete portfolio holding" });
     }
   });
-  // Stock company information route using Yahoo Finance
+  // Stock company information route using basic Yahoo Finance data
   app.get("/api/stocks/:ticker/company", async (req, res) => {
     try {
       const ticker = req.params.ticker.toUpperCase();
       
-      // Get basic company data from Yahoo Finance quote summary
+      // Get basic chart data which includes some company info in metadata
       const response = await fetch(
-        `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=summaryProfile,defaultKeyStatistics,financialData,price`
+        `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1y`
       );
       
       if (!response.ok) {
@@ -204,51 +204,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const data = await response.json();
-      const result = data?.quoteSummary?.result?.[0];
+      const result = data?.chart?.result?.[0];
       
       if (!result) {
         return res.status(404).json({ error: "Company information not found" });
       }
 
-      const profile = result.summaryProfile || {};
-      const keyStats = result.defaultKeyStatistics || {};
-      const financialData = result.financialData || {};
-      const priceInfo = result.price || {};
+      const meta = result.meta || {};
 
+      // Extract basic information from chart metadata
       const companyInfo = {
-        symbol: ticker,
-        name: priceInfo.longName || ticker,
-        description: profile.longBusinessSummary || "No description available",
-        sector: profile.sector || "N/A",
-        industry: profile.industry || "N/A",
-        employees: profile.fullTimeEmployees || "N/A",
-        marketCap: priceInfo.marketCap?.raw || keyStats.marketCap?.raw || "N/A",
-        revenue: financialData.totalRevenue?.raw || "N/A",
-        grossProfit: financialData.grossProfits?.raw || "N/A",
-        profitMargin: financialData.profitMargins?.raw || "N/A",
-        operatingMargin: financialData.operatingMargins?.raw || "N/A",
-        returnOnAssets: financialData.returnOnAssets?.raw || "N/A",
-        returnOnEquity: financialData.returnOnEquity?.raw || "N/A",
-        revenuePerShare: financialData.revenuePerShare?.raw || "N/A",
-        quarterlyRevenueGrowth: financialData.quarterlyRevenueGrowth?.raw || "N/A",
-        quarterlyEarningsGrowth: financialData.quarterlyEarningsGrowth?.raw || "N/A",
-        analystTargetPrice: financialData.targetMeanPrice?.raw || "N/A",
-        trailingPE: keyStats.trailingPE?.raw || "N/A",
-        forwardPE: keyStats.forwardPE?.raw || "N/A",
-        priceToSales: keyStats.priceToSalesTrailing12Months?.raw || "N/A",
-        priceToBook: keyStats.priceToBook?.raw || "N/A",
-        evToRevenue: keyStats.enterpriseToRevenue?.raw || "N/A",
-        evToEbitda: keyStats.enterpriseToEbitda?.raw || "N/A",
-        beta: keyStats.beta?.raw || "N/A",
-        week52High: keyStats.fiftyTwoWeekHigh?.raw || "N/A",
-        week52Low: keyStats.fiftyTwoWeekLow?.raw || "N/A",
-        movingAverage50: keyStats.fiftyDayAverage?.raw || "N/A",
-        movingAverage200: keyStats.twoHundredDayAverage?.raw || "N/A",
-        sharesOutstanding: keyStats.sharesOutstanding?.raw || "N/A",
-        dividendPerShare: keyStats.dividendRate?.raw || "N/A",
-        dividendYield: keyStats.dividendYield?.raw || "N/A",
-        dividendDate: keyStats.dividendDate?.fmt || "N/A",
-        exDividendDate: keyStats.exDividendDate?.fmt || "N/A",
+        symbol: meta.symbol || ticker,
+        name: meta.longName || meta.shortName || ticker,
+        description: "Company information available from Yahoo Finance",
+        sector: "Information not available",
+        industry: "Information not available", 
+        employees: "Information not available",
+        marketCap: "Information not available",
+        revenue: "Information not available",
+        grossProfit: "Information not available",
+        profitMargin: "Information not available",
+        operatingMargin: "Information not available",
+        returnOnAssets: "Information not available",
+        returnOnEquity: "Information not available",
+        revenuePerShare: "Information not available",
+        quarterlyRevenueGrowth: "Information not available",
+        quarterlyEarningsGrowth: "Information not available",
+        analystTargetPrice: "Information not available",
+        trailingPE: "Information not available",
+        forwardPE: "Information not available",
+        priceToSales: "Information not available",
+        priceToBook: "Information not available",
+        evToRevenue: "Information not available",
+        evToEbitda: "Information not available",
+        beta: "Information not available",
+        week52High: meta.fiftyTwoWeekHigh || "N/A",
+        week52Low: meta.fiftyTwoWeekLow || "N/A",
+        movingAverage50: "Information not available",
+        movingAverage200: "Information not available",
+        sharesOutstanding: "Information not available",
+        dividendPerShare: "Information not available",
+        dividendYield: "Information not available",
+        dividendDate: "Information not available",
+        exDividendDate: "Information not available",
+        currentPrice: meta.regularMarketPrice,
+        currency: meta.currency || "USD",
+        exchangeName: meta.exchangeName || "Unknown",
+        instrumentType: meta.instrumentType || "EQUITY",
       };
 
       res.json(companyInfo);
