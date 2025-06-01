@@ -189,69 +189,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to delete portfolio holding" });
     }
   });
-  // Stock company information route
+  // Stock company information route using Yahoo Finance
   app.get("/api/stocks/:ticker/company", async (req, res) => {
     try {
       const ticker = req.params.ticker.toUpperCase();
       
-      // Fetch company overview from Alpha Vantage
-      const alphaVantageKey = process.env.ALPHA_VANTAGE_API_KEY;
-      if (!alphaVantageKey) {
-        return res.status(503).json({ error: "Alpha Vantage API key not configured" });
-      }
-
+      // Get basic company data from Yahoo Finance quote summary
       const response = await fetch(
-        `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${ticker}&apikey=${alphaVantageKey}`
+        `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${ticker}?modules=summaryProfile,defaultKeyStatistics,financialData,price`
       );
       
       if (!response.ok) {
-        throw new Error(`Alpha Vantage API error: ${response.status}`);
+        throw new Error(`Yahoo Finance API error: ${response.status}`);
       }
       
       const data = await response.json();
+      const result = data?.quoteSummary?.result?.[0];
       
-      if (data.Note) {
-        return res.status(429).json({ error: "API rate limit exceeded. Please try again later." });
-      }
-      
-      if (!data.Symbol) {
+      if (!result) {
         return res.status(404).json({ error: "Company information not found" });
       }
 
+      const profile = result.summaryProfile || {};
+      const keyStats = result.defaultKeyStatistics || {};
+      const financialData = result.financialData || {};
+      const priceInfo = result.price || {};
+
       const companyInfo = {
-        symbol: data.Symbol,
-        name: data.Name,
-        description: data.Description,
-        sector: data.Sector,
-        industry: data.Industry,
-        employees: data.FullTimeEmployees,
-        marketCap: data.MarketCapitalization,
-        revenue: data.RevenueTTM,
-        grossProfit: data.GrossProfitTTM,
-        profitMargin: data.ProfitMargin,
-        operatingMargin: data.OperatingMarginTTM,
-        returnOnAssets: data.ReturnOnAssetsTTM,
-        returnOnEquity: data.ReturnOnEquityTTM,
-        revenuePerShare: data.RevenuePerShareTTM,
-        quarterlyRevenueGrowth: data.QuarterlyRevenueGrowthYOY,
-        quarterlyEarningsGrowth: data.QuarterlyEarningsGrowthYOY,
-        analystTargetPrice: data.AnalystTargetPrice,
-        trailingPE: data.TrailingPE,
-        forwardPE: data.ForwardPE,
-        priceToSales: data.PriceToSalesRatioTTM,
-        priceToBook: data.PriceToBookRatio,
-        evToRevenue: data.EVToRevenue,
-        evToEbitda: data.EVToEBITDA,
-        beta: data.Beta,
-        week52High: data.Week52High,
-        week52Low: data.Week52Low,
-        movingAverage50: data.MovingAverage50Day,
-        movingAverage200: data.MovingAverage200Day,
-        sharesOutstanding: data.SharesOutstanding,
-        dividendPerShare: data.DividendPerShare,
-        dividendYield: data.DividendYield,
-        dividendDate: data.DividendDate,
-        exDividendDate: data.ExDividendDate,
+        symbol: ticker,
+        name: priceInfo.longName || ticker,
+        description: profile.longBusinessSummary || "No description available",
+        sector: profile.sector || "N/A",
+        industry: profile.industry || "N/A",
+        employees: profile.fullTimeEmployees || "N/A",
+        marketCap: priceInfo.marketCap?.raw || keyStats.marketCap?.raw || "N/A",
+        revenue: financialData.totalRevenue?.raw || "N/A",
+        grossProfit: financialData.grossProfits?.raw || "N/A",
+        profitMargin: financialData.profitMargins?.raw || "N/A",
+        operatingMargin: financialData.operatingMargins?.raw || "N/A",
+        returnOnAssets: financialData.returnOnAssets?.raw || "N/A",
+        returnOnEquity: financialData.returnOnEquity?.raw || "N/A",
+        revenuePerShare: financialData.revenuePerShare?.raw || "N/A",
+        quarterlyRevenueGrowth: financialData.quarterlyRevenueGrowth?.raw || "N/A",
+        quarterlyEarningsGrowth: financialData.quarterlyEarningsGrowth?.raw || "N/A",
+        analystTargetPrice: financialData.targetMeanPrice?.raw || "N/A",
+        trailingPE: keyStats.trailingPE?.raw || "N/A",
+        forwardPE: keyStats.forwardPE?.raw || "N/A",
+        priceToSales: keyStats.priceToSalesTrailing12Months?.raw || "N/A",
+        priceToBook: keyStats.priceToBook?.raw || "N/A",
+        evToRevenue: keyStats.enterpriseToRevenue?.raw || "N/A",
+        evToEbitda: keyStats.enterpriseToEbitda?.raw || "N/A",
+        beta: keyStats.beta?.raw || "N/A",
+        week52High: keyStats.fiftyTwoWeekHigh?.raw || "N/A",
+        week52Low: keyStats.fiftyTwoWeekLow?.raw || "N/A",
+        movingAverage50: keyStats.fiftyDayAverage?.raw || "N/A",
+        movingAverage200: keyStats.twoHundredDayAverage?.raw || "N/A",
+        sharesOutstanding: keyStats.sharesOutstanding?.raw || "N/A",
+        dividendPerShare: keyStats.dividendRate?.raw || "N/A",
+        dividendYield: keyStats.dividendYield?.raw || "N/A",
+        dividendDate: keyStats.dividendDate?.fmt || "N/A",
+        exDividendDate: keyStats.exDividendDate?.fmt || "N/A",
       };
 
       res.json(companyInfo);
@@ -265,7 +262,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/stocks/:ticker/chart", async (req, res) => {
     try {
       const ticker = req.params.ticker.toUpperCase();
-      const period = req.query.period || "1y"; // 1d, 5d, 1m, 3m, 6m, 1y, 2y, 5y, 10y, ytd, max
+      const requestedPeriod = (req.query.period as string) || "1y";
+      
+      // Map frontend periods to valid Yahoo Finance periods
+      const periodMap: { [key: string]: string } = {
+        "1d": "1d",
+        "5d": "5d", 
+        "1m": "1mo",
+        "3m": "3mo",
+        "6m": "6mo",
+        "1y": "1y",
+        "2y": "2y",
+        "5y": "5y",
+        "10y": "10y",
+        "ytd": "ytd",
+        "max": "max"
+      };
+      
+      const period = periodMap[requestedPeriod] || "1y";
       
       // Use Yahoo Finance for chart data
       const response = await fetch(
