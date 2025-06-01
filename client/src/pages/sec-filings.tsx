@@ -6,7 +6,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, ExternalLink, Download, Calendar } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Search, ExternalLink, Download, Calendar, Filter, ArrowUpDown } from "lucide-react";
 
 interface SECFiling {
   accessionNumber: string;
@@ -30,6 +31,9 @@ export default function SECFilings() {
   const [searchTicker, setSearchTicker] = useState("");
   const [searchSubmitted, setSearchSubmitted] = useState(false);
   const [selectedFilingTypes, setSelectedFilingTypes] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState<string>("date-desc");
+  const [dateFilter, setDateFilter] = useState<string>("all");
+  const [formTypeFilter, setFormTypeFilter] = useState<string>("all");
 
   const { data: filings = [], isLoading, error } = useQuery<SECFiling[]>({
     queryKey: [`/api/sec-filings/${searchTicker}`],
@@ -52,9 +56,57 @@ export default function SECFilings() {
     { type: "SC 13G", description: "Beneficial Ownership" },
   ];
 
-  const filteredFilings = filings.filter(filing => 
-    selectedFilingTypes.length === 0 || selectedFilingTypes.includes(filing.form)
-  );
+  // Apply filters and sorting
+  const filteredAndSortedFilings = filings
+    .filter(filing => {
+      // Form type filter
+      if (formTypeFilter !== "all" && filing.form !== formTypeFilter) return false;
+      
+      // Date filter
+      if (dateFilter !== "all") {
+        const filingDate = new Date(filing.filingDate);
+        const now = new Date();
+        const monthsAgo = new Date();
+        
+        switch (dateFilter) {
+          case "1month":
+            monthsAgo.setMonth(now.getMonth() - 1);
+            if (filingDate < monthsAgo) return false;
+            break;
+          case "3months":
+            monthsAgo.setMonth(now.getMonth() - 3);
+            if (filingDate < monthsAgo) return false;
+            break;
+          case "1year":
+            monthsAgo.setFullYear(now.getFullYear() - 1);
+            if (filingDate < monthsAgo) return false;
+            break;
+        }
+      }
+      
+      // Legacy selected filing types filter
+      if (selectedFilingTypes.length > 0 && !selectedFilingTypes.includes(filing.form)) return false;
+      
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "date-desc":
+          return new Date(b.filingDate).getTime() - new Date(a.filingDate).getTime();
+        case "date-asc":
+          return new Date(a.filingDate).getTime() - new Date(b.filingDate).getTime();
+        case "form-asc":
+          return a.form.localeCompare(b.form);
+        case "form-desc":
+          return b.form.localeCompare(a.form);
+        case "size-desc":
+          return b.size - a.size;
+        case "size-asc":
+          return a.size - b.size;
+        default:
+          return 0;
+      }
+    });
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B';
@@ -83,7 +135,7 @@ export default function SECFilings() {
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
             <div className="p-6 border-b border-gray-200">
-              <form onSubmit={handleSearch} className="flex gap-4 mb-4">
+              <form onSubmit={handleSearch} className="flex gap-4 mb-6">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
@@ -97,6 +149,87 @@ export default function SECFilings() {
                   Search Filings
                 </Button>
               </form>
+
+              {/* Filtering and Sorting Controls */}
+              {searchSubmitted && (
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Filter className="inline h-4 w-4 mr-1" />
+                      Form Type
+                    </label>
+                    <Select value={formTypeFilter} onValueChange={setFormTypeFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All forms" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Forms</SelectItem>
+                        <SelectItem value="10-K">10-K (Annual Report)</SelectItem>
+                        <SelectItem value="10-Q">10-Q (Quarterly Report)</SelectItem>
+                        <SelectItem value="8-K">8-K (Current Report)</SelectItem>
+                        <SelectItem value="DEF 14A">DEF 14A (Proxy Statement)</SelectItem>
+                        <SelectItem value="13F">13F (Institutional Holdings)</SelectItem>
+                        <SelectItem value="SC 13G">SC 13G (Beneficial Ownership)</SelectItem>
+                        <SelectItem value="4">Form 4 (Insider Trading)</SelectItem>
+                        <SelectItem value="3">Form 3 (Initial Ownership)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Calendar className="inline h-4 w-4 mr-1" />
+                      Date Range
+                    </label>
+                    <Select value={dateFilter} onValueChange={setDateFilter}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All dates" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Time</SelectItem>
+                        <SelectItem value="1month">Last Month</SelectItem>
+                        <SelectItem value="3months">Last 3 Months</SelectItem>
+                        <SelectItem value="1year">Last Year</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <ArrowUpDown className="inline h-4 w-4 mr-1" />
+                      Sort By
+                    </label>
+                    <Select value={sortBy} onValueChange={setSortBy}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sort by..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="date-desc">Date (Newest First)</SelectItem>
+                        <SelectItem value="date-asc">Date (Oldest First)</SelectItem>
+                        <SelectItem value="form-asc">Form Type (A-Z)</SelectItem>
+                        <SelectItem value="form-desc">Form Type (Z-A)</SelectItem>
+                        <SelectItem value="size-desc">File Size (Largest)</SelectItem>
+                        <SelectItem value="size-asc">File Size (Smallest)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-end">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setFormTypeFilter("all");
+                        setDateFilter("all");
+                        setSortBy("date-desc");
+                        setSelectedFilingTypes([]);
+                      }}
+                      className="w-full"
+                    >
+                      Clear Filters
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-wrap gap-2">
                 <span className="text-sm font-medium text-gray-700 mr-2">Filter by type:</span>
@@ -149,19 +282,22 @@ export default function SECFilings() {
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">Search SEC Filings</h3>
                 <p className="text-gray-500">Enter a stock symbol to view official SEC filings</p>
               </div>
-            ) : filteredFilings.length === 0 ? (
+            ) : filteredAndSortedFilings.length === 0 ? (
               <div className="p-8 text-center">
                 <div className="text-4xl mb-4">📋</div>
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">No filings found</h3>
                 <p className="text-gray-500">
-                  {selectedFilingTypes.length > 0 
-                    ? `No ${selectedFilingTypes.join(", ")} filings found for ${searchTicker}`
+                  {selectedFilingTypes.length > 0 || formTypeFilter !== "all" || dateFilter !== "all"
+                    ? `No filings match your current filters for ${searchTicker}`
                     : `No recent filings found for ${searchTicker}`
                   }
                 </p>
               </div>
             ) : (
               <div className="overflow-x-auto">
+                <div className="mb-4 text-sm text-gray-600">
+                  Showing {filteredAndSortedFilings.length} filing{filteredAndSortedFilings.length !== 1 ? 's' : ''} for {searchTicker}
+                </div>
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
@@ -174,7 +310,7 @@ export default function SECFilings() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredFilings.map((filing) => (
+                    {filteredAndSortedFilings.map((filing) => (
                       <tr key={filing.accessionNumber} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <Badge variant="outline" className="font-mono text-xs">
