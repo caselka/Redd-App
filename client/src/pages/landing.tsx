@@ -20,11 +20,14 @@ import {
   Smartphone,
   Zap,
   Star,
-  CheckCircle
+  CheckCircle,
+  Menu,
+  X
 } from "lucide-react";
 
 export default function Landing() {
   const [selectedFeature, setSelectedFeature] = useState("watchlist");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const features = [
     {
@@ -118,7 +121,9 @@ export default function Landing() {
               <span className="text-xl font-bold text-gray-900">Redd</span>
               <Badge variant="secondary" className="text-xs">by Redgum & Birch</Badge>
             </div>
-            <div className="flex items-center space-x-4">
+            
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-4">
               <Button variant="ghost" asChild>
                 <Link href="/login">Sign In</Link>
               </Button>
@@ -126,7 +131,46 @@ export default function Landing() {
                 <Link href="/login">Get Started</Link>
               </Button>
             </div>
+
+            {/* Mobile Navigation Button */}
+            <div className="md:hidden">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="p-2"
+              >
+                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </Button>
+            </div>
           </div>
+
+          {/* Mobile Navigation Menu */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden absolute top-16 left-0 right-0 bg-white border-b shadow-lg z-40">
+              <div className="px-4 py-6 space-y-4">
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link href="/about">About</Link>
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link href="/contact">Contact</Link>
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link href="/privacy-policy">Privacy Policy</Link>
+                </Button>
+                <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Link href="/terms-of-service">Terms of Service</Link>
+                </Button>
+                <hr className="my-4" />
+                <Button variant="outline" className="w-full" asChild>
+                  <Link href="/login">Sign In</Link>
+                </Button>
+                <Button className="w-full bg-red-600 hover:bg-red-700" asChild>
+                  <Link href="/login">Get Started</Link>
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
@@ -489,19 +533,19 @@ export default function Landing() {
             <div>
               <h3 className="font-semibold mb-4">Company</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="#" className="hover:text-white">About</Link></li>
-                <li><Link href="#" className="hover:text-white">Blog</Link></li>
-                <li><Link href="#" className="hover:text-white">Careers</Link></li>
-                <li><Link href="#" className="hover:text-white">Contact</Link></li>
+                <li><Link href="/about" className="hover:text-white">About</Link></li>
+                <li><Link href="/blog" className="hover:text-white">Blog</Link></li>
+                <li><Link href="/careers" className="hover:text-white">Careers</Link></li>
+                <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold mb-4">Support</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><Link href="#" className="hover:text-white">Help Center</Link></li>
-                <li><Link href="#" className="hover:text-white">Terms of Service</Link></li>
-                <li><Link href="#" className="hover:text-white">Privacy Policy</Link></li>
-                <li><Link href="#" className="hover:text-white">Security</Link></li>
+                <li><Link href="/help" className="hover:text-white">Help Center</Link></li>
+                <li><Link href="/terms-of-service" className="hover:text-white">Terms of Service</Link></li>
+                <li><Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link></li>
+                <li><Link href="/security" className="hover:text-white">Security</Link></li>
               </ul>
             </div>
           </div>

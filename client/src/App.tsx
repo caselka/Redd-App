@@ -21,6 +21,9 @@ import TradeMap from "@/pages/trade-map";
 import Settings from "@/pages/settings";
 import PrivacyPolicy from "@/pages/privacy-policy";
 import TermsOfService from "@/pages/terms-of-service";
+import About from "@/pages/about";
+import Contact from "@/pages/contact";
+import Security from "@/pages/security";
 import Login from "@/pages/login";
 import NotFound from "@/pages/not-found";
 
@@ -59,6 +62,9 @@ function Router() {
         <>
           <Route path="/" component={Landing} />
           <Route path="/login" component={Login} />
+          <Route path="/about" component={About} />
+          <Route path="/contact" component={Contact} />
+          <Route path="/security" component={Security} />
           <Route path="/privacy-policy" component={PrivacyPolicy} />
           <Route path="/terms-of-service" component={TermsOfService} />
           <Route component={NotFound} />
