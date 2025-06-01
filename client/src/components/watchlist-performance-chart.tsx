@@ -56,10 +56,12 @@ export function WatchlistPerformanceChart() {
       const ctx = canvasRef.current.getContext('2d');
       if (!ctx) return;
 
-      // Prepare data for the chart - showing individual stock performance
-      const stockLabels = stocks.map(stock => stock.ticker);
-      const performanceData = stocks.map(stock => stock.changePercent || 0);
-      const marginOfSafetyData = stocks.map(stock => stock.marginOfSafety || 0);
+      // Use real historical performance data
+      const stockLabels = stockPerformances.map(stock => stock.ticker);
+      const performanceData = stockPerformances.map(stock => stock.periodReturn);
+      const marginOfSafetyData = stocks
+        .filter(stock => stockPerformances.some(perf => perf.ticker === stock.ticker))
+        .map(stock => stock.marginOfSafety || 0);
 
       // Color coding based on performance
       const backgroundColors = performanceData.map(value => {
@@ -214,7 +216,7 @@ export function WatchlistPerformanceChart() {
         chartRef.current.destroy();
       }
     };
-  }, [stocks]);
+  }, [stockPerformances, selectedPeriod]);
 
   if (stocks.length === 0) {
     return (
