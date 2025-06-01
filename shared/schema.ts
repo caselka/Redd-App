@@ -74,6 +74,18 @@ export const portfolioHoldings = pgTable("portfolio_holdings", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const tenKAnalyses = pgTable("ten_k_analyses", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  ticker: text("ticker").notNull(),
+  companyName: text("company_name").notNull(),
+  filingDate: timestamp("filing_date"),
+  analysisData: jsonb("analysis_data").notNull(),
+  documentHash: varchar("document_hash"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const insertStockSchema = createInsertSchema(stocks).pick({
   ticker: true,
   companyName: true,
@@ -119,6 +131,19 @@ export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type InsertPortfolioHolding = z.infer<typeof insertPortfolioHoldingSchema>;
 export type PortfolioHolding = typeof portfolioHoldings.$inferSelect;
+
+export const insertTenKAnalysisSchema = createInsertSchema(tenKAnalyses).pick({
+  ticker: true,
+  companyName: true,
+  filingDate: true,
+  analysisData: true,
+  documentHash: true,
+}).extend({
+  filingDate: z.string().transform((val) => new Date(val)).optional(),
+});
+
+export type InsertTenKAnalysis = z.infer<typeof insertTenKAnalysisSchema>;
+export type TenKAnalysis = typeof tenKAnalyses.$inferSelect;
 
 export interface StockWithLatestPrice extends Stock {
   currentPrice?: number;
