@@ -185,11 +185,11 @@ export default function Pricing() {
                 </CardHeader>
                 <CardContent>
                   <Button 
-                    className={`w-full mb-6 ${plan.popular ? 'bg-red-600 hover:bg-red-700' : ''}`}
+                    className={`w-full mb-6 ${plan.popular ? 'bg-red-600 hover:bg-red-700 text-white' : 'border-gray-300 bg-white text-gray-900 hover:bg-gray-50'}`}
                     variant={plan.popular ? 'default' : 'outline'}
                     asChild
                   >
-                    <Link href="/login">
+                    <Link href="/login" className="flex items-center justify-center">
                       {plan.cta}
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
