@@ -42,7 +42,10 @@ export function AddStockModal({ isOpen, onClose }: AddStockModalProps) {
   });
 
   const addStockMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("POST", "/api/stocks", data),
+    mutationFn: (data: any) => apiRequest("/api/stocks", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/stocks"] });
       queryClient.invalidateQueries({ queryKey: ["/api/stats"] });
@@ -62,7 +65,10 @@ export function AddStockModal({ isOpen, onClose }: AddStockModalProps) {
   });
 
   const addNoteMutation = useMutation({
-    mutationFn: (data: any) => apiRequest("POST", "/api/notes", data),
+    mutationFn: (data: any) => apiRequest("/api/notes", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
   });
 
   const handleClose = () => {

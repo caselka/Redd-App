@@ -13,7 +13,9 @@ export function Header({ onAddStock }: HeaderProps) {
   const { toast } = useToast();
 
   const updatePricesMutation = useMutation({
-    mutationFn: () => apiRequest("POST", "/api/prices/update"),
+    mutationFn: () => apiRequest("/api/prices/update", {
+      method: "POST",
+    }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/stocks"] });
       toast({
