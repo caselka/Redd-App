@@ -117,25 +117,32 @@ export async function setupAuth(app: Express) {
   });
 
   app.get("/api/logout", async (req, res) => {
-    console.log("Logout initiated for session:", req.sessionID);
+    console.log("Logout initiated. Session ID:", req.sessionID);
+    console.log("User authenticated before logout:", req.isAuthenticated());
+    console.log("User object:", req.user);
+    
     req.logout((err) => {
       if (err) {
         console.error("Passport logout error:", err);
         return res.redirect("/");
       }
       
+      console.log("Passport logout successful. User authenticated after passport logout:", req.isAuthenticated());
+      
       req.session.destroy((destroyErr) => {
         if (destroyErr) {
           console.error("Session destruction error:", destroyErr);
+          // Continue even if session destroy fails
         }
         
-        res.clearCookie('connect.sid', { 
-          path: '/',
-          httpOnly: true,
-          secure: true
-        });
+        // Clear all possible cookies
+        res.clearCookie('connect.sid');
+        res.clearCookie('connect.sid', { path: '/' });
+        res.clearCookie('connect.sid', { path: '/', domain: req.hostname });
+        res.clearCookie('connect.sid', { path: '/', httpOnly: true });
+        res.clearCookie('connect.sid', { path: '/', httpOnly: true, secure: true });
         
-        console.log("Session destroyed, redirecting to landing page");
+        console.log("Session destroyed and cookies cleared, redirecting to landing page");
         res.redirect("/");
       });
     });
