@@ -32,13 +32,13 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
       
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-screen">
         <Header onAddStock={() => setIsAddStockModalOpen(true)} />
         
-        <main className="flex-1 overflow-y-auto p-3 md:p-6 pt-16 md:pt-6">
+        <main className="flex-1 p-3 md:p-6 pt-16 md:pt-6 overflow-y-auto">
           <StatsCards stats={stats} />
           
           <StockTable 

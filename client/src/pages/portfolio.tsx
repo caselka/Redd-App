@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, TrendingUp, TrendingDown, DollarSign, Percent } from "lucide-react";
+import { Plus, TrendingUp, TrendingDown, DollarSign, Percent, Trash2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -137,13 +137,13 @@ export default function Portfolio() {
   const totalGainLossPercent = totalValue > 0 ? (totalGainLoss / (totalValue - totalGainLoss)) * 100 : 0;
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
       
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 flex flex-col min-h-screen">
         <Header onAddStock={() => setIsAddStockModalOpen(true)} />
         
-        <main className="flex-1 overflow-y-auto p-3 md:p-6 pt-16 md:pt-6">
+        <main className="flex-1 p-3 md:p-6 pt-16 md:pt-6 overflow-y-auto">
           <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h1 className="text-xl md:text-2xl font-bold text-gray-900">Portfolio</h1>
